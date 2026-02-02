@@ -1042,16 +1042,21 @@ class AudioForm:
                 elif event.type == pygame.KEYUP:
                     self._keys_down.discard(event.key)
         
-        # Update controls state (transitions PRESSED -> HELD, etc.)
-        if self._controls:
-            self._controls.update()
-        
         # On the first monitor() call, just consume events and update state,
         # but don't process any button/key actions. This prevents input from
         # the previous screen (e.g., the Enter that opened this form) from
         # triggering actions immediately.
         if self._first_monitor_call:
             self._first_monitor_call = False
+            # Update controls state now to consume stale PRESSED states
+            if self._controls:
+                self._controls.update()
+            # Auto-focus the first visible/active control
+            if self._control_focus < 0 and self._controls_list:
+                for i, ctrl in enumerate(self._controls_list):
+                    if ctrl.visible and ctrl.active:
+                        self._focus(i, interrupt=True)
+                        break
             return True
         
         # Stop speech on Ctrl+Ctrl
@@ -1098,7 +1103,13 @@ class AudioForm:
         
         # Update progress bar timers
         self._update_progress_timers()
-        
+
+        # Update controls state AFTER all key checks are done.
+        # This transitions PRESSED -> HELD and JUST_RELEASED -> RELEASED,
+        # preparing for the next frame.
+        if self._controls:
+            self._controls.update()
+
         return True
     
     # =========================================================================
