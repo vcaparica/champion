@@ -399,7 +399,7 @@ class App:
                 tech = self.techniques[tid]
                 marker = "[X]" if tid in selected else "[ ]"
                 items.append(MenuItem(
-                    label=f"{marker} {tech.name}: {tech.description[:50]}",
+                    label=f"{marker} {tech.name}: {tech.description}",
                     id=tid, value=tid
                 ))
             items.append(MenuItem(
@@ -452,7 +452,7 @@ class App:
                 item = self.items[iid]
                 marker = "[X]" if iid in selected else "[ ]"
                 items.append(MenuItem(
-                    label=f"{marker} {item.name} ({item.slot.value}): {item.description[:40]}",
+                    label=f"{marker} {item.name} ({item.slot.value}): {item.description}",
                     id=iid, value=iid
                 ))
             items.append(MenuItem(
@@ -548,10 +548,27 @@ class App:
                 player.current_health = d_health
 
             self._announce_exchange(i, result, attacker_name, defender_name, a_health, d_health)
-            pygame.time.wait(500)
+            self._wait_for_continue()
 
             if player.current_health <= 0 or ai.current_health <= 0:
                 break
+
+    def _wait_for_continue(self) -> None:
+        """Wait for the player to press Enter, Escape, or Space before continuing."""
+        speak("Press Enter or Space to continue.", False)
+        while True:
+            if not self.process_events():
+                return
+            self.update()
+            if (self.controls.is_key_pressed(pygame.K_RETURN) or
+                self.controls.is_key_pressed(pygame.K_KP_ENTER) or
+                self.controls.is_key_pressed(pygame.K_SPACE) or
+                self.controls.is_key_pressed(pygame.K_ESCAPE)):
+                break
+            # Also check gamepad A button
+            if self.controls.is_gamepad_button_pressed(GameControls.GAMEPAD_A):
+                break
+            pygame.time.wait(10)
 
     def _declare_actions_screen(self, player, opponent) -> Optional[list[dict]]:
         """Screen for declaring 3 actions for a volley."""
