@@ -286,15 +286,31 @@ class App:
 
         # Run combat
         from game.ai import choose_ai_actions
+
+        # Match-start announcement
+        p_name = match.team_a[0].fighter_data.name
+        ai_name = match.team_b[0].fighter_data.name
+        speak(f"{p_name} versus {ai_name}! Fight!", True)
+        if not self._wait_for_continue():
+            return
+
         while match.phase == MatchPhase.COMBAT:
             self._run_combat_volley(match)
             if not self.running:
                 break
             from game.match import check_round_end, apply_round_result, clear_actions
-            winner = check_round_end(match)
+            winner = check_round_end(match, max_volleys=17)
             if winner:
                 apply_round_result(match, winner)
+                # Announce time up for turn-limit wins
+                if winner != "draw" and all(
+                    f.current_health > 0 for f in match.team_a + match.team_b
+                ):
+                    speak("Time up!", True)
                 self._announce_round_result(match, winner)
+                # Pause for player to process round result
+                if not self._wait_for_continue():
+                    break
                 from game.match import check_match_end, reset_for_new_round
                 match_winner = check_match_end(match)
                 if match_winner:
@@ -302,6 +318,10 @@ class App:
                     break
                 if match.phase != MatchPhase.MATCH_END:
                     reset_for_new_round(match)
+                    # Announce next round
+                    speak(f"Round {match.round_number + 1}, fight!", True)
+                    if not self._wait_for_continue():
+                        break
             else:
                 clear_actions(match)
 
