@@ -1,0 +1,17 @@
+[Unit]
+Description=Champion Game Server (uvicorn ASGI)
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/cegoemtiroteio.com.br/champion
+Environment=PATH=/var/www/cegoemtiroteio.com.br/champion/venv/bin:/usr/local/bin:/usr/bin:/bin
+RuntimeDirectory=uvicorn_champion
+RuntimeDirectoryMode=0755
+ExecStart=/var/www/cegoemtiroteio.com.br/champion/venv/bin/uvicorn server.main:app --uds /run/uvicorn_champion/champion.sock --forwarded-allow-ips=*
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
