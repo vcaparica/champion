@@ -78,6 +78,20 @@ class FighterSelectScreen:
             except Exception:
                 pass
 
+    def _is_bound_key_pressed(self, *keys) -> bool:
+        """Check if any of the given pygame key constants was just pressed."""
+        for key in keys:
+            if self._controls.is_key_pressed(key):
+                return True
+        return False
+
+    def _is_bound_button_pressed(self, *buttons) -> bool:
+        """Check if any of the given gamepad button indices was just pressed."""
+        for button in buttons:
+            if self._controls.is_gamepad_button_pressed(button):
+                return True
+        return False
+
     def _announce_section(self) -> None:
         """Speak the current section's content for the current fighter."""
         fighter = self._current_fighter()
@@ -156,5 +170,97 @@ class FighterSelectScreen:
         self._announce_section()
 
     def run(self) -> Optional[FighterData]:
-        """Run the fighter selection screen. Returns selected fighter or None."""
-        return None
+        """Run the fighter selection screen.
+
+        Returns:
+            FighterData if a fighter was selected, None if cancelled or quit.
+            Check quit_requested property to distinguish cancel from Alt+F4.
+        """
+        if not self._fighter_list:
+            speak("No fighters available.", True)
+            return None
+
+        self._fighter_index = 0
+        self._section_index = 0
+        self._quit_requested = False
+
+        # Announce initial state
+        self._announce_fighter()
+        self._announce_section()
+
+        clock = pygame.time.Clock()
+
+        while True:
+            # Process pygame events (needed for QUIT detection)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self._quit_requested = True
+                    self._play_sfx(self._sfx_cancel)
+                    return None
+                self._controls.process_event(event)
+
+            # --- Check keys BEFORE controls.update() ---
+            # update() transitions PRESSED->HELD, so we check first.
+
+            # Alt+F4: quit the entire app
+            alt_f4 = (
+                self._controls.is_key_pressed(pygame.K_F4)
+                and self._controls.is_modifier_held(pygame.KMOD_ALT)
+            )
+            if alt_f4:
+                self._quit_requested = True
+                self._play_sfx(self._sfx_cancel)
+                return None
+
+            # Cancel / back
+            if self._is_bound_key_pressed(pygame.K_ESCAPE) or self._is_bound_button_pressed(self._GP_B):
+                self._play_sfx(self._sfx_cancel)
+                return None
+
+            # Fighter navigation (left/right)
+            if self._is_bound_key_pressed(pygame.K_LEFT):
+                self._move_fighter(-1)
+            elif self._is_bound_key_pressed(pygame.K_RIGHT):
+                self._move_fighter(1)
+
+            # Section navigation (up/down)
+            elif self._is_bound_key_pressed(pygame.K_UP):
+                self._move_section(-1)
+            elif self._is_bound_key_pressed(pygame.K_DOWN):
+                self._move_section(1)
+
+            # Select / confirm (only on the SELECT section)
+            elif self._is_bound_key_pressed(pygame.K_RETURN, pygame.K_KP_ENTER) or self._is_bound_button_pressed(self._GP_A):
+                if self._section_index == self.SECTION_SELECT:
+                    self._play_sfx(self._sfx_select)
+                    return self._current_fighter()
+
+            # Repeat current section
+            elif self._is_bound_key_pressed(pygame.K_SPACE) or self._is_bound_button_pressed(self._GP_X):
+                self._announce_section()
+
+            # Repeat fighter name
+            elif self._is_bound_key_pressed(pygame.K_t):
+                self._announce_fighter()
+
+            # Help
+            elif self._is_bound_key_pressed(pygame.K_h):
+                self._speak_help()
+
+            # --- Update controls state AFTER key checks ---
+            self._controls.update()
+
+            clock.tick(60)
+
+    def _speak_help(self) -> None:
+        """Speak available controls."""
+        help_text = (
+            "Left and right arrows to switch fighters. "
+            "Up and down arrows to browse information. "
+            "Enter to select the current fighter. "
+            "Escape to go back. "
+            "Space to repeat current information. "
+            "T to repeat the fighter name. "
+            "H for this help message."
+        )
+        speak(help_text, True)
