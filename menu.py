@@ -43,7 +43,7 @@ Usage:
     # Or use the convenience function:
     result = menu("Main Menu", ["New Game", "Options", "Quit"], controls=controls)
 
-Author: Audiogame Development Project
+Author: Champion Development Project
 License: MIT
 """
 
@@ -348,12 +348,14 @@ class Menu:
         sfx_move: Optional[str] = None,
         sfx_select: Optional[str] = None,
         sfx_cancel: Optional[str] = None,
+        sfx_boundary: Optional[str] = None,
+        sfx_wrap: Optional[str] = None,
         # Legacy parameter for backward compatibility
         keymap: Optional[Dict[str, List[int]]] = None
     ):
         """
         Initialize the menu.
-        
+
         Args:
             title: Menu title (announced when menu opens)
             items: List of MenuItem instances
@@ -365,6 +367,8 @@ class Menu:
             sfx_move: Sound effect name/index for navigation
             sfx_select: Sound effect name/index for selection
             sfx_cancel: Sound effect name/index for cancel/back
+            sfx_boundary: Sound effect played when hitting a list boundary (no wrap)
+            sfx_wrap: Sound effect played when wrapping around (falls back to sfx_move)
             keymap: Legacy keyboard-only keymap (deprecated, use bindings)
         """
         self.title = title
@@ -379,6 +383,8 @@ class Menu:
         self.sfx_move = sfx_move
         self.sfx_select = sfx_select
         self.sfx_cancel = sfx_cancel
+        self.sfx_boundary = sfx_boundary
+        self.sfx_wrap = sfx_wrap
         
         # Input bindings
         self.bindings = bindings or MenuBindings()
@@ -463,6 +469,24 @@ class Menu:
             except Exception:
                 pass
 
+    def _play_boundary_sfx(self):
+        """Play the boundary sound effect if configured."""
+        if self.sfx_boundary is not None:
+            try:
+                self.dj.play_sfx(self.sfx_boundary)
+            except Exception:
+                pass
+
+    def _play_wrap_sfx(self):
+        """Play the wrap sound effect if configured, falling back to move SFX."""
+        if self.sfx_wrap is not None:
+            try:
+                self.dj.play_sfx(self.sfx_wrap)
+            except Exception:
+                pass
+        else:
+            self._play_move_sfx()
+
     def _position_string(self) -> str:
         return f"{self.current_index + 1} of {self.items_count}"
 
@@ -508,7 +532,16 @@ class Menu:
                 break
         # Remember focus for this menu
         Menu._focus_memory[self.title] = self.current_index
-        if self.current_index != orig_index:
+        if self.current_index == orig_index:
+            # Boundary hit: index didn't change
+            self._play_boundary_sfx()
+        elif (direction > 0 and self.current_index < orig_index) or \
+             (direction < 0 and self.current_index > orig_index):
+            # Wrapped around
+            self._play_wrap_sfx()
+            self._speak_current()
+        else:
+            # Normal move
             self._play_move_sfx()
             self._speak_current()
 
@@ -528,9 +561,15 @@ class Menu:
         if not self.items[self.current_index].enabled:
             self._move(1 if step >= 0 else -1)
         else:
-            if self.current_index != orig_index:
+            if self.current_index == orig_index:
+                self._play_boundary_sfx()
+            elif (step > 0 and self.current_index < orig_index) or \
+                 (step < 0 and self.current_index > orig_index):
+                self._play_wrap_sfx()
+                self._speak_current()
+            else:
                 self._play_move_sfx()
-            self._speak_current()
+                self._speak_current()
         Menu._focus_memory[self.title] = self.current_index
 
     def _home_end(self, to_end: bool):
@@ -546,7 +585,9 @@ class Menu:
         Menu._focus_memory[self.title] = self.current_index
         if self.current_index != orig_index:
             self._play_move_sfx()
-        self._speak_current()
+            self._speak_current()
+        else:
+            self._play_boundary_sfx()
 
     def _repeat(self):
         """Repeat the current item announcement."""
@@ -657,7 +698,9 @@ class Menu:
                 self.bindings,
                 self.sfx_move,
                 self.sfx_select,
-                self.sfx_cancel
+                self.sfx_cancel,
+                self.sfx_boundary,
+                self.sfx_wrap,
             )
             result = submenu.run()
             return result
@@ -1015,15 +1058,17 @@ def menu(
     sfx_move: Optional[str] = None,
     sfx_select: Optional[str] = None,
     sfx_cancel: Optional[str] = None,
+    sfx_boundary: Optional[str] = None,
+    sfx_wrap: Optional[str] = None,
     # Legacy parameter
     keymap: Optional[Dict[str, List[int]]] = None
 ) -> Any:
     """
     Convenience function to construct and run a Menu.
-    
+
     The options list may comprise strings or MenuItem instances.
     Strings are implicitly converted to simple action MenuItems.
-    
+
     Args:
         title: Menu title
         options: List of MenuItem instances, strings, or (label, value) tuples
@@ -1035,8 +1080,10 @@ def menu(
         sfx_move: Sound effect for navigation
         sfx_select: Sound effect for selection
         sfx_cancel: Sound effect for cancel
+        sfx_boundary: Sound effect for hitting list boundary
+        sfx_wrap: Sound effect for wrapping around (falls back to sfx_move)
         keymap: Legacy keyboard-only keymap (deprecated)
-    
+
     Returns:
         Result dict from Menu.run()
     """
@@ -1049,7 +1096,7 @@ def menu(
             items.append(MenuItem(label=label, value=value))
         else:
             items.append(MenuItem(label=str(opt), value=opt))
-    
+
     m = Menu(
         title,
         items,
@@ -1061,6 +1108,8 @@ def menu(
         sfx_move,
         sfx_select,
         sfx_cancel,
-        keymap
+        sfx_boundary,
+        sfx_wrap,
+        keymap,
     )
     return m.run()

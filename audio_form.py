@@ -55,7 +55,7 @@ Requirements:
     - controls.py module for input handling (optional)
     - dj.py module for sound effects (optional)
 
-Author: Audiogame Development Project
+Author: Champion Development Project
 License: MIT
 """
 
@@ -187,6 +187,13 @@ class Control:
     list_position: int = -1
     list_multiselect: bool = False
     max_items: int = 0
+    list_wrap: bool = False
+    list_vertical: bool = True
+    list_sfx_move: Optional[str] = None
+    list_sfx_boundary: Optional[str] = None
+    list_sfx_wrap: Optional[str] = None
+    list_type_buffer: str = ""
+    list_type_buffer_time: float = 0.0
     
     # Speech configuration
     highlight_selection_text: str = "Selected"
@@ -403,18 +410,23 @@ class AudioForm:
         self,
         caption: str,
         maximum_items: int = 0,
-        multiselect: bool = False
+        multiselect: bool = False,
+        wrap: bool = False,
+        vertical: bool = True,
+        sfx_move: Optional[str] = None,
+        sfx_boundary: Optional[str] = None,
+        sfx_wrap: Optional[str] = None,
     ) -> int:
         """Create a list control. Returns control ID or -1 on error."""
         self._form_error = FormError.NONE
-        
+
         if len(self._controls_list) >= MAX_CONTROLS:
             self._form_error = FormError.WINDOW_FULL
             return -1
-        
+
         hotkey, hotkey_letter = self._extract_hotkey(caption)
         clean_caption = caption.replace("&", "")
-        
+
         control = Control(
             type=ControlType.LIST,
             caption=clean_caption,
@@ -423,8 +435,13 @@ class AudioForm:
             max_items=maximum_items,
             list_multiselect=multiselect,
             list_position=-1,
+            list_wrap=wrap,
+            list_vertical=vertical,
+            list_sfx_move=sfx_move,
+            list_sfx_boundary=sfx_boundary,
+            list_sfx_wrap=sfx_wrap,
         )
-        
+
         self._controls_list.append(control)
         return len(self._controls_list) - 1
     
@@ -1395,54 +1412,120 @@ class AudioForm:
                 else:
                     self._field_end(control)
     
+    def _play_list_sfx(self, sfx_name: Optional[str]) -> None:
+        """Play a named SFX via DJ if both DJ and the SFX name are set."""
+        if self._dj and sfx_name:
+            try:
+                self._dj.play_sfx(sfx_name)
+            except Exception:
+                pass
+
+    def _announce_list_item(self, control: Control) -> None:
+        """Announce the current list item including checked state."""
+        item = control.list_items[control.list_position]
+        self._speak(item.text, interrupt=True)
+        if item.checked:
+            self._speak("Checked", interrupt=False)
+
+    def _list_move(self, control: Control, direction: int) -> None:
+        """Move list selection by direction (+1/-1) with wrap/boundary/normal SFX."""
+        if not control.list_items:
+            return
+        count = len(control.list_items)
+        orig = control.list_position
+        new_pos = orig + direction
+
+        if new_pos < 0:
+            if control.list_wrap:
+                new_pos = count - 1
+            else:
+                self._play_list_sfx(control.list_sfx_boundary)
+                return
+        elif new_pos >= count:
+            if control.list_wrap:
+                new_pos = 0
+            else:
+                self._play_list_sfx(control.list_sfx_boundary)
+                return
+
+        control.list_position = new_pos
+        if (direction > 0 and new_pos < orig) or (direction < 0 and new_pos > orig):
+            # Wrapped around
+            if control.list_sfx_wrap is not None:
+                self._play_list_sfx(control.list_sfx_wrap)
+            else:
+                self._play_list_sfx(control.list_sfx_move)
+        else:
+            self._play_list_sfx(control.list_sfx_move)
+        self._announce_list_item(control)
+
+    def _list_home_end(self, control: Control, to_end: bool) -> None:
+        """Jump to first or last list item with move/boundary SFX."""
+        if not control.list_items:
+            return
+        target = len(control.list_items) - 1 if to_end else 0
+        if control.list_position == target:
+            self._play_list_sfx(control.list_sfx_boundary)
+            return
+        control.list_position = target
+        self._play_list_sfx(control.list_sfx_move)
+        self._announce_list_item(control)
+
+    def _process_list_search(self, control: Control, char: str) -> None:
+        """Type-ahead search for list controls."""
+        now = time.time()
+        if now - control.list_type_buffer_time > 1.0:
+            control.list_type_buffer = ""
+        control.list_type_buffer += char.lower()
+        control.list_type_buffer_time = now
+        orig = control.list_position
+        for idx, item in enumerate(control.list_items):
+            if item.text.lower().startswith(control.list_type_buffer):
+                control.list_position = idx
+                if control.list_position != orig:
+                    self._play_list_sfx(control.list_sfx_move)
+                self._announce_list_item(control)
+                return
+
     def _check_list_control(self, control: Control) -> None:
         """Handle input for list controls."""
         if not control.list_items:
             return
-        
+
+        # Multiselect toggle with Space
         if self._key_pressed(pygame.K_SPACE):
             if control.list_position >= 0 and control.list_multiselect:
                 item = control.list_items[control.list_position]
                 item.checked = not item.checked
                 self._speak("Checked" if item.checked else "Unchecked", interrupt=True)
-        
+
+        # Select all with Ctrl+A
         ctrl_held = self._key_down(pygame.K_LCTRL) or self._key_down(pygame.K_RCTRL)
         if ctrl_held and self._key_pressed(pygame.K_a) and control.list_multiselect:
             for item in control.list_items:
                 item.checked = True
             self._speak("All items selected", interrupt=True)
-        
-        if self._key_pressed(pygame.K_UP):
-            if control.list_position > 0:
-                control.list_position -= 1
-                item = control.list_items[control.list_position]
-                self._speak(item.text, interrupt=True)
-                if item.checked:
-                    self._speak("Checked", interrupt=False)
-        
-        elif self._key_pressed(pygame.K_DOWN):
-            if control.list_position < len(control.list_items) - 1:
-                control.list_position += 1
-                item = control.list_items[control.list_position]
-                self._speak(item.text, interrupt=True)
-                if item.checked:
-                    self._speak("Checked", interrupt=False)
-        
+
+        # Determine nav keys based on orientation
+        if control.list_vertical:
+            key_prev, key_next = pygame.K_UP, pygame.K_DOWN
+        else:
+            key_prev, key_next = pygame.K_LEFT, pygame.K_RIGHT
+
+        if self._key_pressed(key_prev):
+            self._list_move(control, -1)
+        elif self._key_pressed(key_next):
+            self._list_move(control, 1)
         elif self._key_pressed(pygame.K_HOME):
-            if control.list_items:
-                control.list_position = 0
-                item = control.list_items[0]
-                self._speak(item.text, interrupt=True)
-                if item.checked:
-                    self._speak("Checked", interrupt=False)
-        
+            self._list_home_end(control, False)
         elif self._key_pressed(pygame.K_END):
-            if control.list_items:
-                control.list_position = len(control.list_items) - 1
-                item = control.list_items[control.list_position]
-                self._speak(item.text, interrupt=True)
-                if item.checked:
-                    self._speak("Checked", interrupt=False)
+            self._list_home_end(control, True)
+
+        # Type-ahead search from text input buffer
+        if self._text_input_buffer:
+            for char in self._text_input_buffer:
+                if char.isalnum() or char.isspace():
+                    self._process_list_search(control, char)
     
     # =========================================================================
     # Text Input Helpers
@@ -1809,22 +1892,30 @@ def list_box(
     prompt: str,
     items: List[str],
     multiselect: bool = False,
+    wrap: bool = False,
+    vertical: bool = True,
+    sfx_move: Optional[str] = None,
+    sfx_boundary: Optional[str] = None,
+    sfx_wrap: Optional[str] = None,
     dj: Optional['DJ'] = None,
     controls: Optional['GameControls'] = None
 ) -> Optional[Union[int, List[int]]]:
     """Display a list selection dialog. Returns selected index(es) or None."""
     form = AudioForm(dj=dj, controls=controls)
     form.create_window(title)
-    
-    list_id = form.create_list(prompt, multiselect=multiselect)
+
+    list_id = form.create_list(
+        prompt, multiselect=multiselect, wrap=wrap, vertical=vertical,
+        sfx_move=sfx_move, sfx_boundary=sfx_boundary, sfx_wrap=sfx_wrap,
+    )
     for item in items:
         form.add_list_item(list_id, item)
     if items:
         form.set_list_position(list_id, 0)
-    
+
     ok_btn = form.create_button("&OK", primary=True)
     cancel_btn = form.create_button("&Cancel", cancel=True)
-    
+
     while True:
         form.monitor()
         if form.is_pressed(ok_btn):

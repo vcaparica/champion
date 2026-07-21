@@ -39,7 +39,7 @@ Requirements:
     - pygame (pip install pygame)
     - sr.py module for screen reader output
 
-Author: Audiogame Development Project
+Author: Champion Development Project
 License: MIT
 """
 

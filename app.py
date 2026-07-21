@@ -1,3 +1,10 @@
+"""
+app.py - Champion Application Controller
+=========================================
+Main application controller for Champion audiogame.
+Initializes subsystems and manages the main menu and game lifecycle.
+"""
+
 import pygame
 import time
 from typing import Optional
@@ -6,7 +13,6 @@ from dj import DJ
 from sr import initialize as sr_initialize, speak, silence, shutdown as sr_shutdown
 from controls import GameControls
 from menu import Menu, MenuItem
-from gamesettingsform import GameSettingsForm
 
 
 class App:
@@ -20,7 +26,7 @@ class App:
     
     def __init__(
         self,
-        window_title: str = "Audiogame Template",
+        window_title: str = "Champion",
         window_size: tuple = (800, 600),
         sfx_folder: str = "snd/sfx",
         bgm_folder: str = "snd/bgm",
@@ -107,35 +113,6 @@ class App:
         """
         self.controls.update()
     
-    def _on_new_game(self, menu: Menu, item: MenuItem) -> None:
-        """
-        Callback for when New Game is selected.
-        
-        Opens the Game Settings form to configure the new game.
-        If the user confirms, the game settings are applied.
-        If the user cancels, returns to the main menu.
-        """
-        # Create and run the Game Settings form
-        settings_form = GameSettingsForm(
-            dj=self.dj,
-            controls=self.controls
-        )
-        
-        result = settings_form.run()
-        
-        if result is not None:
-            # User pressed OK - game settings were confirmed
-            # The form already spoke "Ok was pressed now!"
-            # Here you would typically start the game with these settings:
-            #   result['table_name'] - the table name entered
-            #   result['format'] - the selected format (Standard/Modern/Limited)
-            #   result['format_index'] - index of selected format
-            pass
-        else:
-            # User pressed Cancel - returning to main menu
-            # The menu will re-announce itself when we return
-            pass
-    
     def _on_options(self, menu: Menu, item: MenuItem) -> None:
         """
         Callback for when Options is selected.
@@ -161,8 +138,7 @@ class App:
             MenuItem(
                 label="New Game",
                 id="new_game",
-                value="new_game",
-                on_activate=self._on_new_game
+                value="new_game"
             ),
             MenuItem(
                 label="Options",

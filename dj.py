@@ -1,3 +1,9 @@
+"""
+dj.py - Sound Manager for Champion
+===================================
+Wraps OpenAL for SFX and BGM playback with panning, crossfade, and volume control.
+"""
+
 import os
 import time
 import threading

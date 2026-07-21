@@ -1,16 +1,13 @@
 """
-main.py - Entry Point
-=====================
-Main entry point for the audiogame template.
+main.py - Champion Entry Point
+===============================
+Main entry point for Champion audiogame.
 
 Initializes pygame and joystick subsystems, creates the App instance,
 and runs the main menu.
 
 Usage:
     python main.py
-
-Author: Audiogame Development Project
-License: MIT
 """
 
 from app import App

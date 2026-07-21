@@ -38,7 +38,7 @@ Requirements:
     - cytolk (pip install cytolk)
     - A supported screen reader (NVDA, JAWS, etc.) or SAPI fallback
 
-Author: Audiogame Development Project
+Author: Champion Development Project
 License: MIT
 """
 
