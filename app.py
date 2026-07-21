@@ -362,36 +362,30 @@ class App:
                 speak("Main Menu", False)
 
     def _select_fighter_screen(self) -> Optional[object]:
-        """Show fighter selection menu. Returns FighterData or None."""
-        fighter_list = list(self.fighters.values())
-        items = []
-        for f in fighter_list:
-            items.append(MenuItem(
-                label=f"{f.name} - {f.description[:60]}",
-                id=f.id, value=f.id
-            ))
-        items.append(MenuItem(label="Back", id="back", value="back"))
+        """Show fighter selection screen. Returns FighterData or None."""
+        from game.fighter_select import FighterSelectScreen
 
-        speak("Select your fighter", True)
-        menu = Menu(
-            title="Fighter Selection", items=items, wrap=True, vertical=True,
-            dj=self.dj, controls=self.controls,
-            sfx_move=self.SFX_MENU_MOVE, sfx_select=self.SFX_MENU_SELECT,
-            sfx_cancel=self.SFX_MENU_EXIT
+        screen = FighterSelectScreen(
+            fighters=self.fighters,
+            techniques=self.techniques,
+            items=self.items,
+            dj=self.dj,
+            controls=self.controls,
+            sfx_move=self.SFX_MENU_MOVE,
+            sfx_select=self.SFX_MENU_SELECT,
+            sfx_cancel=self.SFX_MENU_EXIT,
         )
+        fighter = screen.run()
 
-        result = menu.run()
-        if result is None or result.get('action') in ('cancel', 'quit'):
-            if result and result.get('action') == 'quit':
-                self._handle_quit()
+        if screen.quit_requested:
+            self._handle_quit()
             return None
-        selected_id = result.get('id')
-        if selected_id == 'back':
+
+        if fighter is None:
             return None
-        selected = self.fighters.get(selected_id)
-        if selected:
-            speak(f"Selected {selected.name}. {selected.description}", False)
-        return selected
+
+        speak(f"Selected {fighter.name}. {fighter.description}", False)
+        return fighter
 
     def _select_techniques_screen(self, fighter) -> Optional[list[str]]:
         """Show technique selection screen. Returns list of 3 technique IDs or None."""
