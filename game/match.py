@@ -120,6 +120,7 @@ def reset_for_new_round(match: MatchState) -> MatchState:
         fighter.predictability = 0
         fighter.power_modifier = 0
         fighter.speed_modifier = 0
+        fighter.intellect_modifier = 0
         fighter.damage_reduction = 0
     match.phase = MatchPhase.COMBAT
     match.current_volley = 0
