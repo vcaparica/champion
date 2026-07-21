@@ -116,6 +116,8 @@ def choose_ai_items(
                 score += bval
             elif "speed" in btype:
                 score += bval
+            elif "intellect" in btype:
+                score += bval * 2
         scored.append((iid, score))
 
     scored.sort(key=lambda x: x[1], reverse=True)
