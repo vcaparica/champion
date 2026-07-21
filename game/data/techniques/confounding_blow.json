@@ -1,0 +1,11 @@
+{
+  "id": "confounding_blow",
+  "name": "Confounding Blow",
+  "description": "A strike wreathed in disorienting psychic flame. Clouds the opponent's thinking. | +1 damage; applies dazed (Intellect -1); +2 predictability.",
+  "base_action": "strike",
+  "effects": {
+    "damage_modifier": 1,
+    "apply_debuff": "dazed"
+  },
+  "predictability_increase": 2
+}

@@ -1,0 +1,11 @@
+{
+  "id": "iron_discipline",
+  "name": "Iron Discipline",
+  "description": "Years of mental conditioning turn knowledge into armor. Your intellect shields you from harm. | Damage reduction equal to half your Intellect; +1 predictability.",
+  "base_action": "block",
+  "effects": {
+    "intellect_damage_reduction": 1,
+    "gain_advantage": "defensive"
+  },
+  "predictability_increase": 1
+}

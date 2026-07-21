@@ -1,0 +1,10 @@
+{
+  "id": "mind_over_matter",
+  "name": "Mind Over Matter",
+  "description": "Your honed intellect guides your blade to vital points. More effective the sharper your mind. | Damage scales with your Intellect; +2 predictability.",
+  "base_action": "strike",
+  "effects": {
+    "intellect_damage_scale": 1
+  },
+  "predictability_increase": 2
+}

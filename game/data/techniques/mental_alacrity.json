@@ -1,0 +1,11 @@
+{
+  "id": "mental_alacrity",
+  "name": "Mental Alacrity",
+  "description": "Your body moves at the speed of thought. For this exchange, your speed equals your intellect. | Speed becomes equal to Intellect; moves to far range; +1 predictability.",
+  "base_action": "avoid",
+  "effects": {
+    "intellect_to_speed": true,
+    "reposition_to": "far"
+  },
+  "predictability_increase": 1
+}

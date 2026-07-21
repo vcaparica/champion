@@ -1,0 +1,11 @@
+{
+  "id": "read_the_pattern",
+  "name": "Read the Pattern",
+  "description": "Even a brute can learn to read telegraphed strikes. Punishes opponents who underestimate you. | +3 damage, but only if your Intellect matches or exceeds the opponent's; +2 predictability.",
+  "base_action": "counter",
+  "effects": {
+    "damage_modifier": 3,
+    "require_intellect_advantage": true
+  },
+  "predictability_increase": 2
+}
