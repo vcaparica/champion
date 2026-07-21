@@ -97,7 +97,7 @@ class MatchManager:
         from game.match import clear_actions, check_round_end, apply_round_result
         clear_actions(match.match_state)
 
-        round_winner = check_round_end(match.match_state)
+        round_winner = check_round_end(match.match_state, max_volleys=17)
         if round_winner:
             apply_round_result(match.match_state, round_winner)
             from game.match import check_match_end
