@@ -1,0 +1,345 @@
+"""
+game/combat.py - Combat engine for Champion
+============================================
+Core combat resolution: interaction matrix, exchange resolution,
+damage calculation, buff application, and fighter instance tracking.
+"""
+from dataclasses import dataclass, field
+from typing import Optional
+from game.enums import ActionType, Range, Advantage, DebuffType, BuffType
+from game.fighter import FighterData
+from game.technique import TechniqueData
+
+
+@dataclass
+class FighterInstance:
+    """Runtime state of a fighter during a match."""
+    fighter_data: FighterData
+    current_health: int = 0
+    current_range: Range = Range.MEDIUM
+    current_advantage: Advantage = Advantage.NEUTRAL
+    selected_techniques: list[str] = field(default_factory=list)
+    selected_items: list[str] = field(default_factory=list)
+    active_debuffs: list[DebuffType] = field(default_factory=list)
+    predictability: int = 0
+
+    def __post_init__(self):
+        if self.current_health == 0:
+            self.current_health = self.fighter_data.base_health
+
+
+@dataclass
+class ExchangeResult:
+    """Outcome of a single action exchange between two fighters."""
+    attacker_action: ActionType
+    defender_action: ActionType
+    outcome: str
+    damage_to_defender: int = 0
+    damage_to_attacker: int = 0
+    range_change: Optional[Range] = None
+    attacker_advantage_change: Optional[Advantage] = None
+    defender_advantage_change: Optional[Advantage] = None
+    debuffs_applied: list[DebuffType] = field(default_factory=list)
+    flavor_text: str = ""
+
+
+def get_effective_speed(instance: FighterInstance) -> int:
+    """Get speed after buffs and debuffs."""
+    speed = instance.fighter_data.base_speed
+    if DebuffType.SLOWED in instance.active_debuffs:
+        speed = max(1, speed - 2)
+    return speed
+
+
+def get_effective_power(instance: FighterInstance) -> int:
+    """Get power after buffs and debuffs."""
+    power = instance.fighter_data.base_power
+    if DebuffType.WEAKENED in instance.active_debuffs:
+        power = max(1, power - 3)
+    return power
+
+
+def compute_damage(base_power: int, advantage: Advantage, is_vulnerable: bool = False) -> int:
+    """Compute base damage from power and advantage."""
+    damage = base_power
+    if advantage == Advantage.OFFENSIVE:
+        damage += 2
+    elif advantage == Advantage.DEFENSIVE:
+        damage = max(1, damage - 2)
+    if is_vulnerable:
+        damage += 3
+    return max(1, damage)
+
+
+def apply_buffs(instance: FighterInstance, all_items: dict) -> FighterInstance:
+    """Apply passive buffs from selected items to a fighter instance."""
+    for item_id in instance.selected_items:
+        if item_id in all_items:
+            item = all_items[item_id]
+            for buff in item.passive_buffs:
+                # Handle both dict and ItemBuff formats
+                if isinstance(buff, dict):
+                    buff_type = BuffType(buff["buff_type"])
+                    value = buff["value"]
+                else:
+                    buff_type = buff.buff_type
+                    value = buff.value
+                if buff_type == BuffType.HEALTH:
+                    instance.current_health += value
+    return instance
+
+
+def resolve_exchange(
+    attacker: FighterInstance,
+    defender: FighterInstance,
+    attacker_action: ActionType,
+    defender_action: ActionType,
+    attacker_technique: Optional[TechniqueData] = None,
+    defender_technique: Optional[TechniqueData] = None
+) -> ExchangeResult:
+    """Resolve a single action exchange between two fighters."""
+    result = ExchangeResult(
+        attacker_action=attacker_action,
+        defender_action=defender_action,
+        outcome="hit"
+    )
+
+    a_power = get_effective_power(attacker)
+    d_power = get_effective_power(defender)
+    a_speed = get_effective_speed(attacker)
+    d_speed = get_effective_speed(defender)
+    a_vulnerable = DebuffType.VULNERABLE in attacker.active_debuffs
+    d_vulnerable = DebuffType.VULNERABLE in defender.active_debuffs
+
+    a_damage = compute_damage(a_power, attacker.current_advantage, d_vulnerable)
+    d_damage = compute_damage(d_power, defender.current_advantage, a_vulnerable)
+
+    # Apply technique damage modifier
+    if attacker_technique:
+        a_damage += attacker_technique.effects.damage_modifier
+        attacker.predictability += attacker_technique.predictability_increase
+        if attacker_technique.effects.gain_advantage:
+            try:
+                result.attacker_advantage_change = Advantage(attacker_technique.effects.gain_advantage)
+            except ValueError:
+                pass
+        if attacker_technique.effects.apply_debuff:
+            try:
+                result.debuffs_applied.append(DebuffType(attacker_technique.effects.apply_debuff))
+            except ValueError:
+                pass
+        if attacker_technique.effects.reposition_to:
+            try:
+                result.range_change = Range(attacker_technique.effects.reposition_to)
+            except ValueError:
+                pass
+        if attacker_technique.effects.heal_on_hit:
+            pass
+
+    if defender_technique:
+        d_damage += defender_technique.effects.damage_modifier
+        defender.predictability += defender_technique.predictability_increase
+        if defender_technique.effects.gain_advantage:
+            try:
+                result.defender_advantage_change = Advantage(defender_technique.effects.gain_advantage)
+            except ValueError:
+                pass
+
+    # Interaction matrix
+    pair = (attacker_action, defender_action)
+
+    if pair == (ActionType.STRIKE, ActionType.FEINT):
+        result.outcome = "hit"
+        result.damage_to_defender = a_damage
+        result.flavor_text = "The strike lands true as the feint is exposed!"
+
+    elif pair == (ActionType.STRIKE, ActionType.BLOCK):
+        result.outcome = "blocked"
+        result.flavor_text = "The strike is stopped cold by a solid block."
+
+    elif pair == (ActionType.STRIKE, ActionType.COUNTER):
+        result.outcome = "countered"
+        result.damage_to_attacker = d_damage
+        result.flavor_text = "The strike is turned aside and the counter lands!"
+
+    elif pair == (ActionType.STRIKE, ActionType.AVOID):
+        result.outcome = "miss"
+        result.flavor_text = "The strike hits only air as the opponent dodges away."
+
+    elif pair == (ActionType.STRIKE, ActionType.CHARGE):
+        result.outcome = "hit"
+        result.damage_to_defender = d_damage
+        result.damage_to_attacker = a_damage
+        result.flavor_text = "The charge crashes through the strike, both combatants feel the impact!"
+        if d_speed > a_speed:
+            result.damage_to_attacker = 0
+            result.flavor_text = "The strike lands first, stopping the charge in its tracks!"
+
+    elif pair == (ActionType.STRIKE, ActionType.STRIKE):
+        result.outcome = "clash"
+        if a_speed > d_speed:
+            result.damage_to_defender = a_damage
+            result.damage_to_attacker = max(1, d_damage // 2)
+        elif d_speed > a_speed:
+            result.damage_to_attacker = d_damage
+            result.damage_to_defender = max(1, a_damage // 2)
+        else:
+            result.damage_to_defender = max(1, a_damage // 2)
+            result.damage_to_attacker = max(1, d_damage // 2)
+        result.flavor_text = "Steel meets steel in a shower of sparks!"
+
+    elif pair == (ActionType.BLOCK, ActionType.STRIKE):
+        result.outcome = "blocked"
+        result.flavor_text = "The incoming strike is turned away by a firm block."
+
+    elif pair == (ActionType.BLOCK, ActionType.BLOCK):
+        result.outcome = "whiff"
+        result.flavor_text = "Both fighters brace behind their guards. Nothing happens."
+
+    elif pair == (ActionType.BLOCK, ActionType.FEINT):
+        result.outcome = "hit"
+        result.damage_to_attacker = d_damage
+        result.flavor_text = "The block is useless against the feint! The defender strikes through."
+
+    elif pair == (ActionType.BLOCK, ActionType.COUNTER):
+        result.outcome = "blocked"
+        result.flavor_text = "The counter finds only solid defense."
+
+    elif pair == (ActionType.BLOCK, ActionType.CHARGE):
+        result.outcome = "hit"
+        result.damage_to_attacker = d_damage
+        result.flavor_text = "The charge shatters through the block!"
+
+    elif pair == (ActionType.BLOCK, ActionType.AVOID):
+        result.outcome = "whiff"
+        result.flavor_text = "Both fighters reposition cautiously."
+
+    elif pair == (ActionType.FEINT, ActionType.STRIKE):
+        result.outcome = "hit"
+        result.damage_to_attacker = d_damage
+        result.flavor_text = "The feint is seen through! A strike punishes the deception."
+
+    elif pair == (ActionType.FEINT, ActionType.BLOCK):
+        result.outcome = "bypassed"
+        result.damage_to_defender = a_damage
+        result.flavor_text = "The feint slips past the block effortlessly!"
+
+    elif pair == (ActionType.FEINT, ActionType.FEINT):
+        result.outcome = "clash"
+        result.flavor_text = "Both fighters try to deceive each other. Neither lands cleanly."
+
+    elif pair == (ActionType.FEINT, ActionType.COUNTER):
+        result.outcome = "hit"
+        result.damage_to_defender = a_damage
+        result.flavor_text = "The feint tricks the counter, creating an opening!"
+
+    elif pair == (ActionType.FEINT, ActionType.CHARGE):
+        result.outcome = "hit"
+        result.damage_to_attacker = d_damage
+        result.flavor_text = "The feint is meaningless against the unstoppable charge!"
+
+    elif pair == (ActionType.FEINT, ActionType.AVOID):
+        result.outcome = "hit"
+        result.damage_to_defender = a_damage
+        result.flavor_text = "The feint reads the dodge perfectly and strikes where the opponent moves!"
+
+    elif pair == (ActionType.COUNTER, ActionType.STRIKE):
+        result.outcome = "countered"
+        result.damage_to_defender = a_damage
+        result.flavor_text = "The counter catches the strike and punishes it!"
+
+    elif pair == (ActionType.COUNTER, ActionType.BLOCK):
+        result.outcome = "blocked"
+        result.flavor_text = "The counter is anticipated and blocked."
+
+    elif pair == (ActionType.COUNTER, ActionType.FEINT):
+        result.outcome = "hit"
+        result.damage_to_attacker = d_damage
+        result.flavor_text = "The counter is fooled by the feint and leaves an opening!"
+
+    elif pair == (ActionType.COUNTER, ActionType.COUNTER):
+        result.outcome = "whiff"
+        result.flavor_text = "Both fighters wait for the other to commit. Nothing happens."
+
+    elif pair == (ActionType.COUNTER, ActionType.CHARGE):
+        result.outcome = "countered"
+        result.damage_to_defender = a_damage
+        result.flavor_text = "The charge is telegraphed and the counter lands perfectly!"
+
+    elif pair == (ActionType.COUNTER, ActionType.AVOID):
+        result.outcome = "whiff"
+        result.flavor_text = "The counter finds nothing as the opponent slips away."
+
+    elif pair == (ActionType.CHARGE, ActionType.STRIKE):
+        result.outcome = "hit"
+        result.damage_to_attacker = d_damage
+        result.flavor_text = "The strike catches the charger before they build momentum!"
+        if a_speed > d_speed:
+            result.damage_to_defender = a_damage
+            result.damage_to_attacker = 0
+            result.flavor_text = "The charge hits first, overwhelming the strike!"
+
+    elif pair == (ActionType.CHARGE, ActionType.BLOCK):
+        result.outcome = "hit"
+        result.damage_to_defender = a_damage
+        result.flavor_text = "The charge breaks through the block with devastating force!"
+
+    elif pair == (ActionType.CHARGE, ActionType.FEINT):
+        result.outcome = "hit"
+        result.damage_to_defender = a_damage
+        result.flavor_text = "The charge barrels through the feint!"
+
+    elif pair == (ActionType.CHARGE, ActionType.COUNTER):
+        result.outcome = "hit"
+        result.damage_to_attacker = d_damage
+        result.flavor_text = "The counter catches the charging opponent!"
+
+    elif pair == (ActionType.CHARGE, ActionType.CHARGE):
+        result.outcome = "clash"
+        result.damage_to_defender = a_damage + 2
+        result.damage_to_attacker = d_damage + 2
+        result.flavor_text = "Both fighters charge! The collision is devastating!"
+
+    elif pair == (ActionType.CHARGE, ActionType.AVOID):
+        result.outcome = "miss"
+        result.flavor_text = "The charge thunders past as the opponent sidesteps."
+
+    elif pair == (ActionType.AVOID, ActionType.STRIKE):
+        result.outcome = "miss"
+        result.flavor_text = "The dodge evades the strike completely."
+
+    elif pair == (ActionType.AVOID, ActionType.BLOCK):
+        result.outcome = "whiff"
+        result.flavor_text = "Both fighters stay defensive."
+
+    elif pair == (ActionType.AVOID, ActionType.FEINT):
+        result.outcome = "hit"
+        result.damage_to_attacker = d_damage
+        result.flavor_text = "The dodge is read and punished by the feint!"
+
+    elif pair == (ActionType.AVOID, ActionType.COUNTER):
+        result.outcome = "whiff"
+        result.flavor_text = "Neither fighter commits. A moment of stillness."
+
+    elif pair == (ActionType.AVOID, ActionType.CHARGE):
+        result.outcome = "miss"
+        result.flavor_text = "The dodge avoids the charge completely!"
+
+    elif pair == (ActionType.AVOID, ActionType.AVOID):
+        result.outcome = "whiff"
+        result.flavor_text = "Both fighters reposition, circling each other."
+        result.range_change = Range.FAR
+
+    else:
+        result.outcome = "whiff"
+        result.flavor_text = "The actions cancel each other out."
+
+    # Apply technique healing
+    if attacker_technique and attacker_technique.effects.heal_on_hit and result.outcome == "hit":
+        result.flavor_text += f" {attacker.fighter_data.name} recovers stamina."
+
+    # Ensure non-negative damage
+    result.damage_to_defender = max(0, result.damage_to_defender)
+    result.damage_to_attacker = max(0, result.damage_to_attacker)
+
+    return result
