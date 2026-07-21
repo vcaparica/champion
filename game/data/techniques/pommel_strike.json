@@ -1,0 +1,11 @@
+{
+    "id": "pommel_strike",
+    "name": "Pommel Strike",
+    "description": "A quick strike with the pommel of your weapon. Fast enough to interrupt charges.",
+    "base_action": "strike",
+    "effects": {
+        "damage_modifier": 1,
+        "bypass_range": true
+    },
+    "predictability_increase": 1
+}

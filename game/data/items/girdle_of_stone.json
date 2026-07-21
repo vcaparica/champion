@@ -1,0 +1,10 @@
+{
+    "id": "girdle_of_stone",
+    "name": "Girdle of Stone",
+    "description": "A belt that makes the wearer as immovable as stone.",
+    "slot": "waist",
+    "passive_buffs": [
+        {"buff_type": "damage_reduction", "value": 3}
+    ],
+    "reactive": null
+}

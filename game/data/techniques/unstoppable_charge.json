@@ -1,0 +1,11 @@
+{
+    "id": "unstoppable_charge",
+    "name": "Unstoppable Charge",
+    "description": "Lower your shoulder and charge. Nothing can stop you.",
+    "base_action": "charge",
+    "effects": {
+        "damage_modifier": 4,
+        "bypass_range": true
+    },
+    "predictability_increase": 3
+}

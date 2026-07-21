@@ -1,0 +1,11 @@
+{
+    "id": "heat_wave",
+    "name": "Heat Wave",
+    "description": "Release a wave of searing heat. Strikes at any range.",
+    "base_action": "strike",
+    "effects": {
+        "damage_modifier": 3,
+        "bypass_range": true
+    },
+    "predictability_increase": 2
+}

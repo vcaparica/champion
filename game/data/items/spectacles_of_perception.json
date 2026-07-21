@@ -1,0 +1,11 @@
+{
+    "id": "spectacles_of_perception",
+    "name": "Spectacles of Perception",
+    "description": "Lenses that reveal patterns in the opponent's fighting style.",
+    "slot": "eyes",
+    "passive_buffs": [
+        {"buff_type": "speed", "value": 1},
+        {"buff_type": "resist_debuff", "value": 1}
+    ],
+    "reactive": null
+}

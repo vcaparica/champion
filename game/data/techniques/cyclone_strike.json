@@ -1,0 +1,11 @@
+{
+    "id": "cyclone_strike",
+    "name": "Cyclone Strike",
+    "description": "A spinning attack that can hit multiple opponents.",
+    "base_action": "strike",
+    "effects": {
+        "damage_modifier": 3,
+        "multi_target": true
+    },
+    "predictability_increase": 2
+}

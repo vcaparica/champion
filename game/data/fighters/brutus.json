@@ -1,0 +1,24 @@
+{
+    "id": "brutus",
+    "name": "Brutus",
+    "description": "A towering brute who relies on overwhelming physical strength. Brutus smashes through defenses with bone-crushing power, though his massive frame makes him an easy target for faster opponents.",
+    "base_health": 120,
+    "base_speed": 3,
+    "base_power": 10,
+    "technique_ids": ["bone_crusher", "skull_splitter", "unstoppable_charge", "feign_vulnerability", "crushing_grip", "battle_roar", "giants_swing", "vital_strike"],
+    "exclusive_technique_ids": ["bone_crusher", "unstoppable_charge"],
+    "panoply": {
+        "head": ["war_helm", "iron_helm"],
+        "eyes": ["tactical_monocle"],
+        "neck": ["collar_of_the_juggernaut", "giants_tooth_necklace"],
+        "torso": ["berserker_vest", "reinforced_vest"],
+        "body": ["brute_plate", "iron_plate"],
+        "shoulders": ["pauldrons_of_the_bulwark", "mantle_of_endurance"],
+        "arms": ["vambraces_of_deflection"],
+        "hands": ["war_wraps", "gauntlets_of_might"],
+        "ring1": ["ring_of_vitality"],
+        "ring2": ["band_of_iron_will"],
+        "waist": ["trophy_belt", "girdle_of_stone"],
+        "feet": ["greaves_of_the_ram", "sabatons_of_patience"]
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "id": "brute_plate",
+    "name": "Brute Plate",
+    "description": "Thick, heavy armor that sacrifices everything for raw protection.",
+    "slot": "body",
+    "passive_buffs": [
+        {"buff_type": "health", "value": 25},
+        {"buff_type": "damage_reduction", "value": 5},
+        {"buff_type": "speed", "value": -2}
+    ],
+    "reactive": null
+}

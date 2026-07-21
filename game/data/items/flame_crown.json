@@ -1,0 +1,10 @@
+{
+    "id": "flame_crown",
+    "name": "Flame Crown",
+    "description": "A crown wreathed in eternal flame. Empowers fire-based techniques.",
+    "slot": "head",
+    "passive_buffs": [
+        {"buff_type": "power", "value": 3}
+    ],
+    "reactive": null
+}

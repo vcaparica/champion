@@ -1,0 +1,10 @@
+{
+    "id": "battle_roar",
+    "name": "Battle Roar",
+    "description": "A primal roar that shakes the opponent to their core.",
+    "base_action": "feint",
+    "effects": {
+        "apply_debuff": "slowed"
+    },
+    "predictability_increase": 1
+}

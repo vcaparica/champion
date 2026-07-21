@@ -1,0 +1,10 @@
+{
+    "id": "shield_wall",
+    "name": "Shield Wall",
+    "description": "Plant your shield and become immovable. Negates all knockback and repositioning effects.",
+    "base_action": "block",
+    "effects": {
+        "gain_advantage": "defensive"
+    },
+    "predictability_increase": 3
+}

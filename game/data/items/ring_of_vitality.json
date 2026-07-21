@@ -1,0 +1,10 @@
+{
+    "id": "ring_of_vitality",
+    "name": "Ring of Vitality",
+    "description": "A ring that enhances the wearer's life force.",
+    "slot": "ring1",
+    "passive_buffs": [
+        {"buff_type": "health", "value": 8}
+    ],
+    "reactive": null
+}

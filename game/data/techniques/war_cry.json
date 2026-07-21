@@ -1,0 +1,10 @@
+{
+    "id": "war_cry",
+    "name": "War Cry",
+    "description": "A terrifying shout that weakens the opponent's resolve.",
+    "base_action": "feint",
+    "effects": {
+        "apply_debuff": "weakened"
+    },
+    "predictability_increase": 2
+}

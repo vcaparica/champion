@@ -1,0 +1,14 @@
+{
+    "id": "greaves_of_the_ram",
+    "name": "Greaves of the Ram",
+    "description": "Greaves that add tremendous force to charging attacks.",
+    "slot": "feet",
+    "passive_buffs": [
+        {"buff_type": "power", "value": 2}
+    ],
+    "reactive": {
+        "trigger": "when_avoid_success",
+        "effect": "gain_advantage",
+        "value": 0
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "id": "reinforced_vest",
+    "name": "Reinforced Vest",
+    "description": "A vest with reinforced padding worn under armor.",
+    "slot": "torso",
+    "passive_buffs": [
+        {"buff_type": "damage_reduction", "value": 2}
+    ],
+    "reactive": null
+}

@@ -1,0 +1,11 @@
+{
+    "id": "blazing_counter",
+    "name": "Blazing Counter",
+    "description": "A counter-attack that leaves searing burns on the opponent.",
+    "base_action": "counter",
+    "effects": {
+        "damage_modifier": 4,
+        "apply_debuff": "vulnerable"
+    },
+    "predictability_increase": 2
+}

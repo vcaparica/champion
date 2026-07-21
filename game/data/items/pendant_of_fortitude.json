@@ -1,0 +1,10 @@
+{
+    "id": "pendant_of_fortitude",
+    "name": "Pendant of Fortitude",
+    "description": "A simple pendant that radiates calming, fortifying energy.",
+    "slot": "neck",
+    "passive_buffs": [
+        {"buff_type": "health", "value": 12}
+    ],
+    "reactive": null
+}

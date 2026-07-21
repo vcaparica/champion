@@ -1,0 +1,14 @@
+{
+    "id": "robes_of_the_phoenix",
+    "name": "Robes of the Phoenix",
+    "description": "Robes woven from phoenix feathers. Grants a chance to rise again.",
+    "slot": "body",
+    "passive_buffs": [
+        {"buff_type": "health", "value": 10}
+    ],
+    "reactive": {
+        "trigger": "when_low_health",
+        "effect": "heal",
+        "value": 15
+    }
+}

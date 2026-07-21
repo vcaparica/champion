@@ -1,0 +1,11 @@
+{
+    "id": "rallying_call",
+    "name": "Rallying Call",
+    "description": "A shout that steels your nerves. Gain offensive advantage and close the distance.",
+    "base_action": "charge",
+    "effects": {
+        "gain_advantage": "offensive",
+        "reposition_to": "close"
+    },
+    "predictability_increase": 2
+}

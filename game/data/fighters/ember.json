@@ -1,0 +1,24 @@
+{
+    "id": "ember",
+    "name": "Ember",
+    "description": "A fire mage who channels raw flame into every strike. Ember overwhelms opponents with blazing speed and searing attacks, but lacks the raw durability of armored fighters.",
+    "base_health": 80,
+    "base_speed": 8,
+    "base_power": 9,
+    "technique_ids": ["flame_strike", "fire_dance", "heat_wave", "blazing_counter", "phoenix_rebirth", "ember_storm", "war_cry", "defensive_stance"],
+    "exclusive_technique_ids": ["flame_strike", "phoenix_rebirth"],
+    "panoply": {
+        "head": ["flame_crown", "iron_helm"],
+        "eyes": ["spectacles_of_perception"],
+        "neck": ["pendant_of_fortitude", "guardian_amulet"],
+        "torso": ["reinforced_vest"],
+        "body": ["robes_of_the_phoenix", "field_armor"],
+        "shoulders": ["mantle_of_endurance", "pauldrons_of_the_bulwark"],
+        "arms": ["vambraces_of_deflection"],
+        "hands": ["gauntlets_of_might", "grippers_of_steadiness"],
+        "ring1": ["ring_of_vitality"],
+        "ring2": ["band_of_iron_will"],
+        "waist": ["girdle_of_stone"],
+        "feet": ["sabatons_of_patience", "greaves_of_the_ram"]
+    }
+}

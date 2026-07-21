@@ -1,0 +1,14 @@
+{
+    "id": "guardian_amulet",
+    "name": "Guardian Amulet",
+    "description": "An amulet blessed by the Guardians, offering protection.",
+    "slot": "neck",
+    "passive_buffs": [
+        {"buff_type": "damage_reduction", "value": 3}
+    ],
+    "reactive": {
+        "trigger": "when_hit_by_technique",
+        "effect": "damage_reduction",
+        "value": 5
+    }
+}

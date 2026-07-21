@@ -1,0 +1,11 @@
+{
+    "id": "defensive_stance",
+    "name": "Defensive Stance",
+    "description": "Take a measured defensive position, recovering some stamina.",
+    "base_action": "block",
+    "effects": {
+        "heal_on_hit": 5,
+        "gain_advantage": "defensive"
+    },
+    "predictability_increase": 1
+}

@@ -1,0 +1,10 @@
+{
+    "id": "vambraces_of_deflection",
+    "name": "Vambraces of Deflection",
+    "description": "Arm guards that can deflect incoming blows.",
+    "slot": "arms",
+    "passive_buffs": [
+        {"buff_type": "speed", "value": 1}
+    ],
+    "reactive": null
+}

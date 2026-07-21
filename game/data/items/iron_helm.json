@@ -1,0 +1,11 @@
+{
+    "id": "iron_helm",
+    "name": "Iron Helm",
+    "description": "A sturdy helm that provides solid head protection.",
+    "slot": "head",
+    "passive_buffs": [
+        {"buff_type": "health", "value": 10},
+        {"buff_type": "damage_reduction", "value": 2}
+    ],
+    "reactive": null
+}

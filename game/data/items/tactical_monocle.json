@@ -1,0 +1,10 @@
+{
+    "id": "tactical_monocle",
+    "name": "Tactical Monocle",
+    "description": "A finely crafted monocle that helps read the opponent's movements.",
+    "slot": "eyes",
+    "passive_buffs": [
+        {"buff_type": "speed", "value": 2}
+    ],
+    "reactive": null
+}

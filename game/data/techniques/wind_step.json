@@ -1,0 +1,11 @@
+{
+    "id": "wind_step",
+    "name": "Wind Step",
+    "description": "Move with the speed of wind, impossible to track.",
+    "base_action": "avoid",
+    "effects": {
+        "gain_advantage": "offensive",
+        "reposition_to": "far"
+    },
+    "predictability_increase": 1
+}

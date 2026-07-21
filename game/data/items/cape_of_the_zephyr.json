@@ -1,0 +1,14 @@
+{
+    "id": "cape_of_the_zephyr",
+    "name": "Cape of the Zephyr",
+    "description": "A cape that billows with a perpetual wind, enhancing evasion.",
+    "slot": "shoulders",
+    "passive_buffs": [
+        {"buff_type": "speed", "value": 2}
+    ],
+    "reactive": {
+        "trigger": "when_avoid_success",
+        "effect": "gain_advantage",
+        "value": 0
+    }
+}

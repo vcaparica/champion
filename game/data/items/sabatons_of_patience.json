@@ -1,0 +1,10 @@
+{
+    "id": "sabatons_of_patience",
+    "name": "Sabatons of Patience",
+    "description": "Footwear for those who wait for the perfect moment.",
+    "slot": "feet",
+    "passive_buffs": [
+        {"buff_type": "speed", "value": 1}
+    ],
+    "reactive": null
+}

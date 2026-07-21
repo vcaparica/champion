@@ -1,0 +1,10 @@
+{
+    "id": "ember_storm",
+    "name": "Ember Storm",
+    "description": "A flurry of strikes that catches an evasive opponent.",
+    "base_action": "strike",
+    "effects": {
+        "damage_modifier": 3
+    },
+    "predictability_increase": 1
+}

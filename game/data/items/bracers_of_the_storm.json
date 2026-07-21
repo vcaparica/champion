@@ -1,0 +1,10 @@
+{
+    "id": "bracers_of_the_storm",
+    "name": "Bracers of the Storm",
+    "description": "Bracers crackling with lightning energy. Adds power to strikes.",
+    "slot": "arms",
+    "passive_buffs": [
+        {"buff_type": "power", "value": 2}
+    ],
+    "reactive": null
+}
