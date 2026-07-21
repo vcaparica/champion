@@ -4,6 +4,7 @@ game/fighter_select.py - Fighter Selection Screen for Champion
 A 2D-navigable fighter selection screen. Left/right switches between
 fighters, up/down browses information sections for the selected fighter.
 """
+import time
 import pygame
 from typing import Optional
 
@@ -32,6 +33,10 @@ class FighterSelectScreen:
     # Axis threshold for analog stick navigation
     _AXIS_THRESHOLD = 0.5
 
+    # Gamepad navigation repeat handling (seconds)
+    _GP_REPEAT_DELAY = 0.3   # initial delay before repeat starts
+    _GP_REPEAT_RATE = 0.08   # seconds between repeats once held
+
     def __init__(
         self,
         fighters: dict[str, FighterData],
@@ -56,6 +61,10 @@ class FighterSelectScreen:
         self._fighter_index = 0
         self._section_index = 0
         self._quit_requested = False
+
+        # Gamepad navigation repeat state
+        self._last_gp_nav_time = 0.0
+        self._gp_nav_held = False
 
     @property
     def quit_requested(self) -> bool:
@@ -204,6 +213,41 @@ class FighterSelectScreen:
 
         return None
 
+    def _check_gamepad_nav_repeat(self, is_active: bool) -> bool:
+        """Check if a gamepad navigation input should fire based on repeat timing.
+
+        Returns True on initial press, then True at repeat rate while held.
+        Returns False when inactive (direction released or input idle).
+        """
+        current_time = time.time()
+
+        if not is_active:
+            self._gp_nav_held = False
+            self._last_gp_nav_time = 0.0
+            return False
+
+        if self._last_gp_nav_time == 0.0:
+            # First press
+            self._last_gp_nav_time = current_time
+            self._gp_nav_held = False
+            return True
+
+        elapsed = current_time - self._last_gp_nav_time
+
+        if not self._gp_nav_held:
+            # Waiting for initial repeat delay
+            if elapsed >= self._GP_REPEAT_DELAY:
+                self._gp_nav_held = True
+                self._last_gp_nav_time = current_time
+                return True
+        else:
+            # In repeat mode
+            if elapsed >= self._GP_REPEAT_RATE:
+                self._last_gp_nav_time = current_time
+                return True
+
+        return False
+
     def run(self) -> Optional[FighterData]:
         """Run the fighter selection screen.
 
@@ -283,14 +327,18 @@ class FighterSelectScreen:
                 self._speak_help()
 
             # --- Gamepad d-pad / analog stick navigation ---
-            # Process only when no keyboard nav key was pressed this frame
+            # Process only when no keyboard nav key was pressed this frame.
+            # Uses repeat-delay handling so held directions don't fire every frame.
             nav = self._process_gamepad_navigation()
             if nav is not None:
-                axis, direction = nav
-                if axis == 'fighter':
-                    self._move_fighter(direction)
-                elif axis == 'section':
-                    self._move_section(direction)
+                if self._check_gamepad_nav_repeat(True):
+                    axis, direction = nav
+                    if axis == 'fighter':
+                        self._move_fighter(direction)
+                    elif axis == 'section':
+                        self._move_section(direction)
+            else:
+                self._check_gamepad_nav_repeat(False)
 
             # --- Update controls state AFTER key checks ---
             self._controls.update()
