@@ -6,10 +6,10 @@ from game.technique import TechniqueData, TechniqueEffect
 from game.enums import ActionType
 
 
-def make_test_fighter(name="Test", technique_ids=None):
+def make_test_fighter(name="Test", technique_ids=None, base_intellect=3):
     data = FighterData(
         id=name.lower(), name=name, description="",
-        base_health=5, base_speed=4, base_power=5,
+        base_health=5, base_speed=4, base_power=5, base_intellect=base_intellect,
         technique_ids=technique_ids or ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8"],
         exclusive_technique_ids=[],
         panoply={}
@@ -71,6 +71,27 @@ def test_choose_ai_techniques_from_available():
     assert len(selected) == 3
     for tid in selected:
         assert tid in fighter.fighter_data.technique_ids
+
+
+def test_choose_ai_techniques_uses_intellect():
+    """AI should pick techniques equal to fighter's base intellect."""
+    data = FighterData(
+        id="test", name="Test", description="",
+        base_health=5, base_speed=4, base_power=5, base_intellect=4,
+        technique_ids=[f"t{i}" for i in range(1, 9)],
+        exclusive_technique_ids=[], panoply={}
+    )
+    fighter = FighterInstance(fighter_data=data)
+    techs = {
+        f"t{i}": TechniqueData(
+            id=f"t{i}", name=f"Tech {i}", description="",
+            base_action=ActionType.STRIKE, effects=TechniqueEffect(),
+            predictability_increase=1
+        )
+        for i in range(1, 9)
+    }
+    selected = choose_ai_techniques(fighter, techs)
+    assert len(selected) == 4  # base_intellect = 4
 
 
 def test_choose_ai_items_returns_two():

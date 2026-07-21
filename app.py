@@ -388,11 +388,18 @@ class App:
         return fighter
 
     def _select_techniques_screen(self, fighter) -> Optional[list[str]]:
-        """Show technique selection screen. Returns list of 3 technique IDs or None."""
-        speak(f"Choose 3 techniques for {fighter.name}. Use Space to select and unselect.", True)
+        """Show technique selection screen. Returns list of technique IDs or None.
+        Number of slots equals the fighter's base intellect."""
+        num_slots = fighter.base_intellect
+        available = [tid for tid in fighter.technique_ids if tid in self.techniques]
+
+        if num_slots >= len(available):
+            speak(f"Your intellect grants mastery of all techniques. All {len(available)} automatically selected.", True)
+            return list(available)
+
+        speak(f"Choose {num_slots} techniques for {fighter.name}. Use Space to select and unselect.", True)
 
         selected = []
-        available = [tid for tid in fighter.technique_ids if tid in self.techniques]
 
         while True:
             items = []
@@ -404,8 +411,8 @@ class App:
                     id=tid, value=tid
                 ))
             items.append(MenuItem(
-                label=f"Confirm ({len(selected)}/3 selected)" if len(selected) == 3 else f"Need {3 - len(selected)} more",
-                id="confirm", value="confirm", enabled=(len(selected) == 3)
+                label=f"Confirm ({len(selected)}/{num_slots} selected)" if len(selected) == num_slots else f"Need {num_slots - len(selected)} more",
+                id="confirm", value="confirm", enabled=(len(selected) == num_slots)
             ))
             items.append(MenuItem(label="Back", id="back", value="back"))
 
@@ -431,13 +438,13 @@ class App:
                 if item_id in selected:
                     selected.remove(item_id)
                     speak(f"Unselected. {len(selected)} techniques selected.", False)
-                elif len(selected) < 3:
+                elif len(selected) < num_slots:
                     selected.append(item_id)
                     speak(f"Selected. {len(selected)} techniques selected.", False)
-                    if len(selected) == 3:
-                        speak("You have selected 3 techniques. Press Enter on Confirm to continue.", False)
+                    if len(selected) == num_slots:
+                        speak(f"You have selected {num_slots} techniques. Press Enter on Confirm to continue.", False)
                 else:
-                    speak("You already have 3 techniques selected. Unselect one first.", False)
+                    speak(f"You already have {num_slots} techniques selected. Unselect one first.", False)
 
     def _select_items_screen(self, fighter) -> Optional[list[str]]:
         """Show item selection screen. Returns list of 2 item IDs or None."""

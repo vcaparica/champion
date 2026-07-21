@@ -53,17 +53,21 @@ def choose_ai_techniques(
     fighter: FighterInstance,
     techniques: dict[str, TechniqueData]
 ) -> list[str]:
-    """Pick 3 techniques from the fighter's available list."""
+    """Pick techniques from the fighter's available list.
+    Number equals the fighter's base intellect."""
+    num_slots = fighter.fighter_data.base_intellect
     available = [tid for tid in fighter.fighter_data.technique_ids if tid in techniques]
-    if len(available) >= 3:
-        return random.sample(available, 3)
+    if num_slots >= len(available):
+        return list(available)
+    if len(available) >= num_slots:
+        return random.sample(available, num_slots)
 
     # Pad with random techniques from the full pool if needed
     result = list(available)
     all_tech_ids = list(techniques.keys())
     remaining = [tid for tid in all_tech_ids if tid not in result]
     random.shuffle(remaining)
-    while len(result) < 3 and remaining:
+    while len(result) < num_slots and remaining:
         result.append(remaining.pop())
 
     return result
