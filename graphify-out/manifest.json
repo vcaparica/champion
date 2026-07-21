@@ -1,0 +1,762 @@
+{
+  ".claude/settings.local.json": {
+    "mtime": 1770047356.3867564,
+    "ast_hash": "6212b512ef5d9a01f27fc3cf4df84d3e",
+    "semantic_hash": "6212b512ef5d9a01f27fc3cf4df84d3e"
+  },
+  "app.py": {
+    "mtime": 1784642467.3748841,
+    "ast_hash": "75b0490e4bb7347132fa62c8bbaa1745",
+    "semantic_hash": "75b0490e4bb7347132fa62c8bbaa1745"
+  },
+  "audio_form.py": {
+    "mtime": 1784636599.0767167,
+    "ast_hash": "f01d40e012ce8d868ba09c55e6d7d98c",
+    "semantic_hash": "f01d40e012ce8d868ba09c55e6d7d98c"
+  },
+  "controls.py": {
+    "mtime": 1784636599.5411506,
+    "ast_hash": "638a05ff605f0b1fbd653dc37cfa6124",
+    "semantic_hash": "638a05ff605f0b1fbd653dc37cfa6124"
+  },
+  "dialogs.py": {
+    "mtime": 1768843969.298278,
+    "ast_hash": "7ba26db099e5f08ca5396634cf3b3179",
+    "semantic_hash": "7ba26db099e5f08ca5396634cf3b3179"
+  },
+  "dj.py": {
+    "mtime": 1784636603.4283776,
+    "ast_hash": "6a34fb3fd0cbd3635b0a104444760575",
+    "semantic_hash": "6a34fb3fd0cbd3635b0a104444760575"
+  },
+  "main.py": {
+    "mtime": 1784636595.9695063,
+    "ast_hash": "c9bdf1437b2957d5120e6f30d3db9218",
+    "semantic_hash": "c9bdf1437b2957d5120e6f30d3db9218"
+  },
+  "menu.py": {
+    "mtime": 1784636818.8465652,
+    "ast_hash": "8ca6e8f7685f9cf51286c813595eec31",
+    "semantic_hash": "8ca6e8f7685f9cf51286c813595eec31"
+  },
+  "openal.py": {
+    "mtime": 1717973127.7713263,
+    "ast_hash": "f4ee5a25c14274476cd3efafb203985d",
+    "semantic_hash": "f4ee5a25c14274476cd3efafb203985d"
+  },
+  "sr.py": {
+    "mtime": 1784636599.9936366,
+    "ast_hash": "c45a4e6eac6eefd1228cb3f81a25d99b",
+    "semantic_hash": "c45a4e6eac6eefd1228cb3f81a25d99b"
+  },
+  "snd/bgm/bgm01.ogg": {
+    "mtime": 1718982089.4071257,
+    "ast_hash": "dbde2f0cbe487289b1c5fb608453d5b3",
+    "semantic_hash": "dbde2f0cbe487289b1c5fb608453d5b3"
+  },
+  "snd/bgm/bgm02.ogg": {
+    "mtime": 1718982090.5374503,
+    "ast_hash": "0f512e0a71c0399d553c31948449c244",
+    "semantic_hash": "0f512e0a71c0399d553c31948449c244"
+  },
+  "snd/bgm/bgm03.ogg": {
+    "mtime": 1718982090.7769032,
+    "ast_hash": "9d14de06dcf6a00e2cb9dbf746cfcbaf",
+    "semantic_hash": "9d14de06dcf6a00e2cb9dbf746cfcbaf"
+  },
+  "snd/bgm/bgm04.ogg": {
+    "mtime": 1718982090.9454124,
+    "ast_hash": "b5d5827ccfa8e909e9e8f9830fe7e419",
+    "semantic_hash": "b5d5827ccfa8e909e9e8f9830fe7e419"
+  },
+  "snd/bgm/bgm05.ogg": {
+    "mtime": 1718982093.2798386,
+    "ast_hash": "d1d6b29ba643a802e0849ec368083a89",
+    "semantic_hash": "d1d6b29ba643a802e0849ec368083a89"
+  },
+  "snd/bgm/bgm06.ogg": {
+    "mtime": 1718982090.3726194,
+    "ast_hash": "8cd4a67acb3f58164078d7472f38dc51",
+    "semantic_hash": "8cd4a67acb3f58164078d7472f38dc51"
+  },
+  "snd/bgm/main_menu_bgm.ogg": {
+    "mtime": 1718982088.1421185,
+    "ast_hash": "d12aaa6adaaed6d8f7e40f36787ebb40",
+    "semantic_hash": "d12aaa6adaaed6d8f7e40f36787ebb40"
+  },
+  "snd/sfx/menu_exit.ogg": {
+    "mtime": 1769634338.9925456,
+    "ast_hash": "798c3ed15d29d1f7fa2d560a0864acdf",
+    "semantic_hash": "798c3ed15d29d1f7fa2d560a0864acdf"
+  },
+  "snd/sfx/menu_move.ogg": {
+    "mtime": 1769634314.6563003,
+    "ast_hash": "22dd9351cee5ecef2bfedf565414f06b",
+    "semantic_hash": "22dd9351cee5ecef2bfedf565414f06b"
+  },
+  "snd/sfx/menu_select.ogg": {
+    "mtime": 1769634365.1983955,
+    "ast_hash": "c3fc2d6b9b33666bef891b74cf71cb65",
+    "semantic_hash": "c3fc2d6b9b33666bef891b74cf71cb65"
+  },
+  "game/__init__.py": {
+    "mtime": 1784636913.5717018,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "game/ai.py": {
+    "mtime": 1784637795.1614006,
+    "ast_hash": "b3bb624225e37c77930c3bdf24ecdc95",
+    "semantic_hash": "b3bb624225e37c77930c3bdf24ecdc95"
+  },
+  "game/combat.py": {
+    "mtime": 1784637737.038601,
+    "ast_hash": "e2f584137ccb80ac5c5c7d1bb65c9b97",
+    "semantic_hash": "e2f584137ccb80ac5c5c7d1bb65c9b97"
+  },
+  "game/data/fighters/brutus.json": {
+    "mtime": 1784642401.9024138,
+    "ast_hash": "3ab03225dd9975c1f57761e1cbf54062",
+    "semantic_hash": "3ab03225dd9975c1f57761e1cbf54062"
+  },
+  "game/data/fighters/ember.json": {
+    "mtime": 1784642401.9024138,
+    "ast_hash": "1dad0c3d7180b4832339ca1bfb693cd9",
+    "semantic_hash": "1dad0c3d7180b4832339ca1bfb693cd9"
+  },
+  "game/data/fighters/thorn.json": {
+    "mtime": 1784642401.903414,
+    "ast_hash": "7acb2e3ee492478f717f23a7201ae724",
+    "semantic_hash": "7acb2e3ee492478f717f23a7201ae724"
+  },
+  "game/data/fighters/zephyr.json": {
+    "mtime": 1784642401.903414,
+    "ast_hash": "d1d220b63d7981424e8f52d0c7fa7ba5",
+    "semantic_hash": "d1d220b63d7981424e8f52d0c7fa7ba5"
+  },
+  "game/data/items/band_of_iron_will.json": {
+    "mtime": 1784642401.8963332,
+    "ast_hash": "f0cecde5523d5d9ea6f967f4af6b8981",
+    "semantic_hash": "f0cecde5523d5d9ea6f967f4af6b8981"
+  },
+  "game/data/items/belt_of_quick_draw.json": {
+    "mtime": 1784642401.8963332,
+    "ast_hash": "b697b80ee24ed3f6cccb9ad1d0c6d5b7",
+    "semantic_hash": "b697b80ee24ed3f6cccb9ad1d0c6d5b7"
+  },
+  "game/data/items/berserker_vest.json": {
+    "mtime": 1784642401.8963332,
+    "ast_hash": "ca2d46c1f74c46bc3aebbea2e12a6b11",
+    "semantic_hash": "ca2d46c1f74c46bc3aebbea2e12a6b11"
+  },
+  "game/data/items/boots_of_the_wind.json": {
+    "mtime": 1784642401.8963332,
+    "ast_hash": "7d2035c6f9787a496000f0bffd27f071",
+    "semantic_hash": "7d2035c6f9787a496000f0bffd27f071"
+  },
+  "game/data/items/bracers_of_the_storm.json": {
+    "mtime": 1784642401.8963332,
+    "ast_hash": "3ab6ae287375233fd4252d3b3265a354",
+    "semantic_hash": "3ab6ae287375233fd4252d3b3265a354"
+  },
+  "game/data/items/brute_plate.json": {
+    "mtime": 1784642401.897333,
+    "ast_hash": "5cec2659ccd459369eac2b16ef66a394",
+    "semantic_hash": "5cec2659ccd459369eac2b16ef66a394"
+  },
+  "game/data/items/cape_of_the_zephyr.json": {
+    "mtime": 1784642401.897333,
+    "ast_hash": "844a0549583711b6e7ac638be0229930",
+    "semantic_hash": "844a0549583711b6e7ac638be0229930"
+  },
+  "game/data/items/collar_of_the_juggernaut.json": {
+    "mtime": 1784642401.897333,
+    "ast_hash": "d43c85248433ab544ac5ac09d88ffdc7",
+    "semantic_hash": "d43c85248433ab544ac5ac09d88ffdc7"
+  },
+  "game/data/items/crown_of_resolve.json": {
+    "mtime": 1784642401.8983328,
+    "ast_hash": "337e2e15e85b096588c9f95dc9549fb9",
+    "semantic_hash": "337e2e15e85b096588c9f95dc9549fb9"
+  },
+  "game/data/items/field_armor.json": {
+    "mtime": 1784642401.8983328,
+    "ast_hash": "e3eb110bbfef51c7b0ef2233a0af0f6b",
+    "semantic_hash": "e3eb110bbfef51c7b0ef2233a0af0f6b"
+  },
+  "game/data/items/flame_crown.json": {
+    "mtime": 1784642401.8983328,
+    "ast_hash": "8ecfa3058c096b6087133adc4befcf54",
+    "semantic_hash": "8ecfa3058c096b6087133adc4befcf54"
+  },
+  "game/data/items/gauntlets_of_might.json": {
+    "mtime": 1784642401.8983328,
+    "ast_hash": "32913dd14327930c8f8be2f7bab397be",
+    "semantic_hash": "32913dd14327930c8f8be2f7bab397be"
+  },
+  "game/data/items/giants_tooth_necklace.json": {
+    "mtime": 1784642401.8983328,
+    "ast_hash": "f82527474c302554b6976c1da3425406",
+    "semantic_hash": "f82527474c302554b6976c1da3425406"
+  },
+  "game/data/items/girdle_of_stone.json": {
+    "mtime": 1784642401.8983328,
+    "ast_hash": "da0cf1bb2d12efa36e5d50a6ddb46313",
+    "semantic_hash": "da0cf1bb2d12efa36e5d50a6ddb46313"
+  },
+  "game/data/items/goggles_of_the_hawk.json": {
+    "mtime": 1784642401.8993328,
+    "ast_hash": "bee5bdc30dd6bb9bb4708cf329d7d76f",
+    "semantic_hash": "bee5bdc30dd6bb9bb4708cf329d7d76f"
+  },
+  "game/data/items/greaves_of_the_ram.json": {
+    "mtime": 1784642401.8993328,
+    "ast_hash": "7c60dc82532c0938daf574de5c31bfa8",
+    "semantic_hash": "7c60dc82532c0938daf574de5c31bfa8"
+  },
+  "game/data/items/grippers_of_steadiness.json": {
+    "mtime": 1784642401.8993328,
+    "ast_hash": "913113530be8c6de693609181d725685",
+    "semantic_hash": "913113530be8c6de693609181d725685"
+  },
+  "game/data/items/guardian_amulet.json": {
+    "mtime": 1784642401.8993328,
+    "ast_hash": "f553a64a09741112a6606b6aecca7913",
+    "semantic_hash": "f553a64a09741112a6606b6aecca7913"
+  },
+  "game/data/items/iron_helm.json": {
+    "mtime": 1784642401.8993328,
+    "ast_hash": "f94aa392d2a89f2f2a145344a3f5907d",
+    "semantic_hash": "f94aa392d2a89f2f2a145344a3f5907d"
+  },
+  "game/data/items/iron_plate.json": {
+    "mtime": 1784642401.8993328,
+    "ast_hash": "f6c7bd3487f0a12f90068ccf94df6c4c",
+    "semantic_hash": "f6c7bd3487f0a12f90068ccf94df6c4c"
+  },
+  "game/data/items/mantle_of_endurance.json": {
+    "mtime": 1784642401.9004152,
+    "ast_hash": "41977690e7e43b1fcd36faa53e11556b",
+    "semantic_hash": "41977690e7e43b1fcd36faa53e11556b"
+  },
+  "game/data/items/pauldrons_of_the_bulwark.json": {
+    "mtime": 1784642401.9004152,
+    "ast_hash": "5180a409cba658843bb7813c3d5d7e51",
+    "semantic_hash": "5180a409cba658843bb7813c3d5d7e51"
+  },
+  "game/data/items/pendant_of_fortitude.json": {
+    "mtime": 1784642401.9004152,
+    "ast_hash": "7a69c044fe816d5ec661e17d070b77fe",
+    "semantic_hash": "7a69c044fe816d5ec661e17d070b77fe"
+  },
+  "game/data/items/reinforced_vest.json": {
+    "mtime": 1784642401.9004152,
+    "ast_hash": "6007ce51eab3990a71b21b7d20eab618",
+    "semantic_hash": "6007ce51eab3990a71b21b7d20eab618"
+  },
+  "game/data/items/ring_of_vitality.json": {
+    "mtime": 1784642401.9004152,
+    "ast_hash": "92ff89d1615a356b26a292b0fda59ae4",
+    "semantic_hash": "92ff89d1615a356b26a292b0fda59ae4"
+  },
+  "game/data/items/robes_of_the_phoenix.json": {
+    "mtime": 1784642401.9004152,
+    "ast_hash": "8afa36b062f7e38655dd74a499a29630",
+    "semantic_hash": "8afa36b062f7e38655dd74a499a29630"
+  },
+  "game/data/items/sabatons_of_patience.json": {
+    "mtime": 1784642401.9014142,
+    "ast_hash": "5a4bc9946d2b053e0293e71138b37166",
+    "semantic_hash": "5a4bc9946d2b053e0293e71138b37166"
+  },
+  "game/data/items/sandals_of_drifting.json": {
+    "mtime": 1784642401.9014142,
+    "ast_hash": "e6f6ad52c5dd0f36c67609167358b086",
+    "semantic_hash": "e6f6ad52c5dd0f36c67609167358b086"
+  },
+  "game/data/items/spectacles_of_perception.json": {
+    "mtime": 1784642401.9014142,
+    "ast_hash": "403d4052e8a1c4bc246c609cf65aebe5",
+    "semantic_hash": "403d4052e8a1c4bc246c609cf65aebe5"
+  },
+  "game/data/items/tactical_monocle.json": {
+    "mtime": 1784642401.9014142,
+    "ast_hash": "7d5b3a25ed83fef0508511fb60a84556",
+    "semantic_hash": "7d5b3a25ed83fef0508511fb60a84556"
+  },
+  "game/data/items/trophy_belt.json": {
+    "mtime": 1784642401.9014142,
+    "ast_hash": "f34ebd7137c23779a5cd76cdbbecb75f",
+    "semantic_hash": "f34ebd7137c23779a5cd76cdbbecb75f"
+  },
+  "game/data/items/vambraces_of_deflection.json": {
+    "mtime": 1784642401.9014142,
+    "ast_hash": "1d9c4a0f93fef312fef7a95105a8a0a8",
+    "semantic_hash": "1d9c4a0f93fef312fef7a95105a8a0a8"
+  },
+  "game/data/items/war_helm.json": {
+    "mtime": 1784642401.9024138,
+    "ast_hash": "2f7d4062239d628e17daeefee66b8723",
+    "semantic_hash": "2f7d4062239d628e17daeefee66b8723"
+  },
+  "game/data/items/war_wraps.json": {
+    "mtime": 1784642401.9024138,
+    "ast_hash": "138ad1a9bd0650ca0bb0213ac25d9277",
+    "semantic_hash": "138ad1a9bd0650ca0bb0213ac25d9277"
+  },
+  "game/data/techniques/battle_roar.json": {
+    "mtime": 1784642401.890334,
+    "ast_hash": "2969d82dbf12afe6a9d344812da3cbcf",
+    "semantic_hash": "2969d82dbf12afe6a9d344812da3cbcf"
+  },
+  "game/data/techniques/blazing_counter.json": {
+    "mtime": 1784642401.890334,
+    "ast_hash": "7f1a46bd89fda547d0f7bffb8f43ca1d",
+    "semantic_hash": "7f1a46bd89fda547d0f7bffb8f43ca1d"
+  },
+  "game/data/techniques/bone_crusher.json": {
+    "mtime": 1784642401.891333,
+    "ast_hash": "8b4c21f888a03ebe48347c64ce13b4f0",
+    "semantic_hash": "8b4c21f888a03ebe48347c64ce13b4f0"
+  },
+  "game/data/techniques/crushing_grip.json": {
+    "mtime": 1784642401.891333,
+    "ast_hash": "f01c9043c5f6ee07944b53d8dbce96bd",
+    "semantic_hash": "f01c9043c5f6ee07944b53d8dbce96bd"
+  },
+  "game/data/techniques/cyclone_strike.json": {
+    "mtime": 1784642401.891333,
+    "ast_hash": "49633e0abe7dfe093f69217e96c26e37",
+    "semantic_hash": "49633e0abe7dfe093f69217e96c26e37"
+  },
+  "game/data/techniques/defensive_stance.json": {
+    "mtime": 1784642401.891333,
+    "ast_hash": "5a070fc2ed3459a25b7b593157c14a6d",
+    "semantic_hash": "5a070fc2ed3459a25b7b593157c14a6d"
+  },
+  "game/data/techniques/ember_storm.json": {
+    "mtime": 1784642401.891333,
+    "ast_hash": "19fd0821e751af01940883cae9022f5e",
+    "semantic_hash": "19fd0821e751af01940883cae9022f5e"
+  },
+  "game/data/techniques/eye_of_the_storm.json": {
+    "mtime": 1784642401.8923337,
+    "ast_hash": "c8e329f4d3e06871c996a2913ea0e9fc",
+    "semantic_hash": "c8e329f4d3e06871c996a2913ea0e9fc"
+  },
+  "game/data/techniques/feather_counter.json": {
+    "mtime": 1784642401.8923337,
+    "ast_hash": "a8827537df74f61ba49af63ea9cfb243",
+    "semantic_hash": "a8827537df74f61ba49af63ea9cfb243"
+  },
+  "game/data/techniques/feign_vulnerability.json": {
+    "mtime": 1784642401.8923337,
+    "ast_hash": "507cb6bc49542c259f88e3a3c17473bd",
+    "semantic_hash": "507cb6bc49542c259f88e3a3c17473bd"
+  },
+  "game/data/techniques/fire_dance.json": {
+    "mtime": 1784642401.8923337,
+    "ast_hash": "b294fdff82ee1dae7cea346d68b0e809",
+    "semantic_hash": "b294fdff82ee1dae7cea346d68b0e809"
+  },
+  "game/data/techniques/flame_strike.json": {
+    "mtime": 1784642401.8923337,
+    "ast_hash": "e5cf4f4711a6f53301700c1f73a25c1e",
+    "semantic_hash": "e5cf4f4711a6f53301700c1f73a25c1e"
+  },
+  "game/data/techniques/gale_slash.json": {
+    "mtime": 1784642401.8923337,
+    "ast_hash": "bc25999d9051ca7fe0975865800aab16",
+    "semantic_hash": "bc25999d9051ca7fe0975865800aab16"
+  },
+  "game/data/techniques/giants_swing.json": {
+    "mtime": 1784642401.8933332,
+    "ast_hash": "18d5ed7e6d0a145d8b43e1ab0c8ae67c",
+    "semantic_hash": "18d5ed7e6d0a145d8b43e1ab0c8ae67c"
+  },
+  "game/data/techniques/heat_wave.json": {
+    "mtime": 1784642401.8933332,
+    "ast_hash": "f467f487a871bfc90f78e3f8d7999fd6",
+    "semantic_hash": "f467f487a871bfc90f78e3f8d7999fd6"
+  },
+  "game/data/techniques/iron_wall.json": {
+    "mtime": 1784642401.8933332,
+    "ast_hash": "e0b76f2c60a23605f795c23abde19b34",
+    "semantic_hash": "e0b76f2c60a23605f795c23abde19b34"
+  },
+  "game/data/techniques/last_stand.json": {
+    "mtime": 1784642401.8933332,
+    "ast_hash": "5fb5b9e573ff8f66502a23bd222f7675",
+    "semantic_hash": "5fb5b9e573ff8f66502a23bd222f7675"
+  },
+  "game/data/techniques/phoenix_rebirth.json": {
+    "mtime": 1784642401.8933332,
+    "ast_hash": "eb01b08510d3f7109a5637bf011b7dae",
+    "semantic_hash": "eb01b08510d3f7109a5637bf011b7dae"
+  },
+  "game/data/techniques/pommel_strike.json": {
+    "mtime": 1784642401.8933332,
+    "ast_hash": "86e5005bca6d60e7fc220586ca2cebb0",
+    "semantic_hash": "86e5005bca6d60e7fc220586ca2cebb0"
+  },
+  "game/data/techniques/rallying_call.json": {
+    "mtime": 1784642401.894333,
+    "ast_hash": "2c74fb7a5f769ce9832606f3140ef905",
+    "semantic_hash": "2c74fb7a5f769ce9832606f3140ef905"
+  },
+  "game/data/techniques/shield_bash.json": {
+    "mtime": 1784642401.894333,
+    "ast_hash": "2e5b3b4e416ebfb269832c8017962ba1",
+    "semantic_hash": "2e5b3b4e416ebfb269832c8017962ba1"
+  },
+  "game/data/techniques/shield_wall.json": {
+    "mtime": 1784642401.894333,
+    "ast_hash": "a8af8d10e326300ab92e03f7c6779180",
+    "semantic_hash": "a8af8d10e326300ab92e03f7c6779180"
+  },
+  "game/data/techniques/skull_splitter.json": {
+    "mtime": 1784642401.894333,
+    "ast_hash": "b0398fb056c6e33be7417aa6f93eb0be",
+    "semantic_hash": "b0398fb056c6e33be7417aa6f93eb0be"
+  },
+  "game/data/techniques/tempest_fury.json": {
+    "mtime": 1784642401.894333,
+    "ast_hash": "8fd6d50464d028f9861ee32093a3a9aa",
+    "semantic_hash": "8fd6d50464d028f9861ee32093a3a9aa"
+  },
+  "game/data/techniques/unstoppable_charge.json": {
+    "mtime": 1784642401.894333,
+    "ast_hash": "dff303a7594f2ffb587d913c592440e3",
+    "semantic_hash": "dff303a7594f2ffb587d913c592440e3"
+  },
+  "game/data/techniques/vital_strike.json": {
+    "mtime": 1784642401.8953333,
+    "ast_hash": "cc1d32948ac17ea648c8ddfca9bbcba9",
+    "semantic_hash": "cc1d32948ac17ea648c8ddfca9bbcba9"
+  },
+  "game/data/techniques/war_cry.json": {
+    "mtime": 1784642401.8953333,
+    "ast_hash": "bfe3193f1188197c0867672c0aeb1162",
+    "semantic_hash": "bfe3193f1188197c0867672c0aeb1162"
+  },
+  "game/data/techniques/whirlwind_feint.json": {
+    "mtime": 1784642401.8953333,
+    "ast_hash": "72a736131e7a5b7dc6079133db44f0c9",
+    "semantic_hash": "72a736131e7a5b7dc6079133db44f0c9"
+  },
+  "game/data/techniques/wind_step.json": {
+    "mtime": 1784642401.8953333,
+    "ast_hash": "8392e73732c78dbdef7dc148b6ac4032",
+    "semantic_hash": "8392e73732c78dbdef7dc148b6ac4032"
+  },
+  "game/enums.py": {
+    "mtime": 1784636916.335786,
+    "ast_hash": "fd7b02c0f632aed5b93fd26d4659f3a6",
+    "semantic_hash": "fd7b02c0f632aed5b93fd26d4659f3a6"
+  },
+  "game/fighter.py": {
+    "mtime": 1784636998.9706695,
+    "ast_hash": "6fa0f62134e338fa3525bf4848bb5b9b",
+    "semantic_hash": "6fa0f62134e338fa3525bf4848bb5b9b"
+  },
+  "game/item.py": {
+    "mtime": 1784637187.7340848,
+    "ast_hash": "2d1dd487dc1e803c08958a9b9fac979d",
+    "semantic_hash": "2d1dd487dc1e803c08958a9b9fac979d"
+  },
+  "game/match.py": {
+    "mtime": 1784637739.4100928,
+    "ast_hash": "55d02e217bee0a513cd5d6b790d6c847",
+    "semantic_hash": "55d02e217bee0a513cd5d6b790d6c847"
+  },
+  "game/network.py": {
+    "mtime": 1784638126.2906404,
+    "ast_hash": "a6edccabd32ed807043cd2ae632f1628",
+    "semantic_hash": "a6edccabd32ed807043cd2ae632f1628"
+  },
+  "game/technique.py": {
+    "mtime": 1784637091.5160296,
+    "ast_hash": "86e0669e691a6e5245032463bf004a11",
+    "semantic_hash": "86e0669e691a6e5245032463bf004a11"
+  },
+  "server/__init__.py": {
+    "mtime": 1784637891.0128624,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "server/client_handler.py": {
+    "mtime": 1784638689.0479403,
+    "ast_hash": "6474e90120596d83c5ff7e4b42ac2a6a",
+    "semantic_hash": "6474e90120596d83c5ff7e4b42ac2a6a"
+  },
+  "server/combat_resolver.py": {
+    "mtime": 1784638680.9687428,
+    "ast_hash": "59da3bb4937cb6e91422917ba919bc39",
+    "semantic_hash": "59da3bb4937cb6e91422917ba919bc39"
+  },
+  "server/main.py": {
+    "mtime": 1784638088.409039,
+    "ast_hash": "79d42e31fe9dd453c524a847119bf224",
+    "semantic_hash": "79d42e31fe9dd453c524a847119bf224"
+  },
+  "server/match_manager.py": {
+    "mtime": 1784638684.9320257,
+    "ast_hash": "388c439c7fe58844a16025f1405c6cd9",
+    "semantic_hash": "388c439c7fe58844a16025f1405c6cd9"
+  },
+  "server/session.py": {
+    "mtime": 1784637904.365538,
+    "ast_hash": "429e0325179b8a75383c9a9ce39f2d92",
+    "semantic_hash": "429e0325179b8a75383c9a9ce39f2d92"
+  },
+  "tests/__init__.py": {
+    "mtime": 1784636619.7350483,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/test_ai.py": {
+    "mtime": 1784637801.4771385,
+    "ast_hash": "ebef7174f48e386ef7eed12ab1668f73",
+    "semantic_hash": "ebef7174f48e386ef7eed12ab1668f73"
+  },
+  "tests/test_combat.py": {
+    "mtime": 1784637747.529536,
+    "ast_hash": "5202219815e1298346efdc151d7e75c6",
+    "semantic_hash": "5202219815e1298346efdc151d7e75c6"
+  },
+  "tests/test_fighter.py": {
+    "mtime": 1784636990.4805446,
+    "ast_hash": "03595f2f1f61e4733181c4c75b6ee2c7",
+    "semantic_hash": "03595f2f1f61e4733181c4c75b6ee2c7"
+  },
+  "tests/test_integration.py": {
+    "mtime": 1784638379.595208,
+    "ast_hash": "61f486aebd3c768cf6cd5666dd4fe96f",
+    "semantic_hash": "61f486aebd3c768cf6cd5666dd4fe96f"
+  },
+  "tests/test_item.py": {
+    "mtime": 1784637179.104863,
+    "ast_hash": "35f12002cc1a26e615c1c98af0bf4bd7",
+    "semantic_hash": "35f12002cc1a26e615c1c98af0bf4bd7"
+  },
+  "tests/test_match.py": {
+    "mtime": 1784637569.395646,
+    "ast_hash": "a56e10d06382fdf650abc4bdf2d665d9",
+    "semantic_hash": "a56e10d06382fdf650abc4bdf2d665d9"
+  },
+  "tests/test_session.py": {
+    "mtime": 1784637894.785949,
+    "ast_hash": "a9b96f46cd9b5059c3fa1833e598fdef",
+    "semantic_hash": "a9b96f46cd9b5059c3fa1833e598fdef"
+  },
+  "tests/test_technique.py": {
+    "mtime": 1784637082.4577076,
+    "ast_hash": "f2190a52d1309a1544eb886f896cb7a9",
+    "semantic_hash": "f2190a52d1309a1544eb886f896cb7a9"
+  },
+  "update_nginx.py": {
+    "mtime": 1784639292.4308162,
+    "ast_hash": "dbffed6f9415b5854e19d97334b97524",
+    "semantic_hash": "dbffed6f9415b5854e19d97334b97524"
+  },
+  ".superpowers/sdd/final-fix-report.md": {
+    "mtime": 1784638713.9169734,
+    "ast_hash": "e67c93c5179194629fe27f3b676428db",
+    "semantic_hash": "e67c93c5179194629fe27f3b676428db"
+  },
+  ".superpowers/sdd/progress.md": {
+    "mtime": 1784638479.1765094,
+    "ast_hash": "93feb486cde267cdcdfce85d2acc4729",
+    "semantic_hash": "93feb486cde267cdcdfce85d2acc4729"
+  },
+  ".superpowers/sdd/task-1-brief.md": {
+    "mtime": 1784636539.2431884,
+    "ast_hash": "a2ba4b83bed398bc83ead76032193796",
+    "semantic_hash": "a2ba4b83bed398bc83ead76032193796"
+  },
+  ".superpowers/sdd/task-1-report.md": {
+    "mtime": 1784636840.380404,
+    "ast_hash": "d69ed07d4e0f720da3cebf4b7d68bde4",
+    "semantic_hash": "d69ed07d4e0f720da3cebf4b7d68bde4"
+  },
+  ".superpowers/sdd/task-10-brief.md": {
+    "mtime": 1784637560.4805155,
+    "ast_hash": "d52f1c0e0efe70841aac217a40b4c4a7",
+    "semantic_hash": "d52f1c0e0efe70841aac217a40b4c4a7"
+  },
+  ".superpowers/sdd/task-10-report.md": {
+    "mtime": 1784637929.7928321,
+    "ast_hash": "cddff316a440e41c7c116ac698cc77f9",
+    "semantic_hash": "cddff316a440e41c7c116ac698cc77f9"
+  },
+  ".superpowers/sdd/task-11-brief.md": {
+    "mtime": 1784637560.641272,
+    "ast_hash": "2ee1b14c43b1360f52f541e4096c273f",
+    "semantic_hash": "2ee1b14c43b1360f52f541e4096c273f"
+  },
+  ".superpowers/sdd/task-11-report.md": {
+    "mtime": 1784637972.4345386,
+    "ast_hash": "cc016f71c11a2e89b6f4b79eb21e2af6",
+    "semantic_hash": "cc016f71c11a2e89b6f4b79eb21e2af6"
+  },
+  ".superpowers/sdd/task-12-brief.md": {
+    "mtime": 1784637560.7932854,
+    "ast_hash": "108726e0dd6af7b61924346c03bea11c",
+    "semantic_hash": "108726e0dd6af7b61924346c03bea11c"
+  },
+  ".superpowers/sdd/task-12-report.md": {
+    "mtime": 1784638014.6379235,
+    "ast_hash": "09ed307edfbf9071472882cfea693259",
+    "semantic_hash": "09ed307edfbf9071472882cfea693259"
+  },
+  ".superpowers/sdd/task-13-brief.md": {
+    "mtime": 1784637560.9468155,
+    "ast_hash": "a86b20b2512a53c52b430c9c21c01e72",
+    "semantic_hash": "a86b20b2512a53c52b430c9c21c01e72"
+  },
+  ".superpowers/sdd/task-13-report.md": {
+    "mtime": 1784638060.8450425,
+    "ast_hash": "8679f17cf9e77b36117787f4d330afdc",
+    "semantic_hash": "8679f17cf9e77b36117787f4d330afdc"
+  },
+  ".superpowers/sdd/task-14-brief.md": {
+    "mtime": 1784637561.1021357,
+    "ast_hash": "b54d994ef3b4005c87b62ee214e8c102",
+    "semantic_hash": "b54d994ef3b4005c87b62ee214e8c102"
+  },
+  ".superpowers/sdd/task-14-report.md": {
+    "mtime": 1784638099.9426987,
+    "ast_hash": "05668a9a80bddc8810b7c6eb597ac9cd",
+    "semantic_hash": "05668a9a80bddc8810b7c6eb597ac9cd"
+  },
+  ".superpowers/sdd/task-15-brief.md": {
+    "mtime": 1784637561.2584302,
+    "ast_hash": "842aac67c0ea982acf2a093a1c6b156b",
+    "semantic_hash": "842aac67c0ea982acf2a093a1c6b156b"
+  },
+  ".superpowers/sdd/task-15-report.md": {
+    "mtime": 1784638133.9144921,
+    "ast_hash": "574cbd6c1ce33832428a74ee2855dff4",
+    "semantic_hash": "574cbd6c1ce33832428a74ee2855dff4"
+  },
+  ".superpowers/sdd/task-16-brief.md": {
+    "mtime": 1784637566.5548701,
+    "ast_hash": "a28df4edf7cb4e11754def6db6da144b",
+    "semantic_hash": "a28df4edf7cb4e11754def6db6da144b"
+  },
+  ".superpowers/sdd/task-16-report.md": {
+    "mtime": 1784638438.7192006,
+    "ast_hash": "67a3c811386e674108f7210cff9ea4af",
+    "semantic_hash": "67a3c811386e674108f7210cff9ea4af"
+  },
+  ".superpowers/sdd/task-17-brief.md": {
+    "mtime": 1784637566.7213278,
+    "ast_hash": "587dfce65006bb085f1c229b60bec8bd",
+    "semantic_hash": "587dfce65006bb085f1c229b60bec8bd"
+  },
+  ".superpowers/sdd/task-17-report.md": {
+    "mtime": 1784638410.5316334,
+    "ast_hash": "68ab1133f69250cece5592f3ddab4416",
+    "semantic_hash": "68ab1133f69250cece5592f3ddab4416"
+  },
+  ".superpowers/sdd/task-2-brief.md": {
+    "mtime": 1784636892.9314277,
+    "ast_hash": "65b1b90edd3a8a682a10fed9d11b0526",
+    "semantic_hash": "65b1b90edd3a8a682a10fed9d11b0526"
+  },
+  ".superpowers/sdd/task-2-report.md": {
+    "mtime": 1784636929.9013383,
+    "ast_hash": "7690f5903a6ecb99ac2281d085bfeb8d",
+    "semantic_hash": "7690f5903a6ecb99ac2281d085bfeb8d"
+  },
+  ".superpowers/sdd/task-3-brief.md": {
+    "mtime": 1784636966.42573,
+    "ast_hash": "64acb0da868817cd453b67647afc8a13",
+    "semantic_hash": "64acb0da868817cd453b67647afc8a13"
+  },
+  ".superpowers/sdd/task-3-report.md": {
+    "mtime": 1784637019.1417682,
+    "ast_hash": "cf38fb66b2668d74593d42bb2caa8b07",
+    "semantic_hash": "cf38fb66b2668d74593d42bb2caa8b07"
+  },
+  ".superpowers/sdd/task-4-brief.md": {
+    "mtime": 1784637039.8041267,
+    "ast_hash": "fc1a526a7d5d215b5ef0ede9622eab5a",
+    "semantic_hash": "fc1a526a7d5d215b5ef0ede9622eab5a"
+  },
+  ".superpowers/sdd/task-4-report.md": {
+    "mtime": 1784637105.89653,
+    "ast_hash": "c2757f7f6d17b8eb36adc42299263cea",
+    "semantic_hash": "c2757f7f6d17b8eb36adc42299263cea"
+  },
+  ".superpowers/sdd/task-5-brief.md": {
+    "mtime": 1784637078.0758789,
+    "ast_hash": "80657e2cf3772fb22c3faa5675c2f358",
+    "semantic_hash": "80657e2cf3772fb22c3faa5675c2f358"
+  },
+  ".superpowers/sdd/task-5-report.md": {
+    "mtime": 1784637206.934785,
+    "ast_hash": "e9bfb5d2a0730bef40fe2e992d05bcc6",
+    "semantic_hash": "e9bfb5d2a0730bef40fe2e992d05bcc6"
+  },
+  ".superpowers/sdd/task-6-brief.md": {
+    "mtime": 1784637173.646762,
+    "ast_hash": "bee029a541a74c837b2e2cb1b1813264",
+    "semantic_hash": "bee029a541a74c837b2e2cb1b1813264"
+  },
+  ".superpowers/sdd/task-6-report.md": {
+    "mtime": 1784637376.522961,
+    "ast_hash": "851381f732a2f550c763bc3e30994af0",
+    "semantic_hash": "851381f732a2f550c763bc3e30994af0"
+  },
+  ".superpowers/sdd/task-7-brief.md": {
+    "mtime": 1784637398.8351586,
+    "ast_hash": "156a52d0cf40928f73b2de8848435c14",
+    "semantic_hash": "156a52d0cf40928f73b2de8848435c14"
+  },
+  ".superpowers/sdd/task-7-report.md": {
+    "mtime": 1784637765.5859804,
+    "ast_hash": "0529d2c7733a2689461378981e911531",
+    "semantic_hash": "0529d2c7733a2689461378981e911531"
+  },
+  ".superpowers/sdd/task-8-brief.md": {
+    "mtime": 1784637474.610523,
+    "ast_hash": "fa95b3a097b5686443808d0eada0de21",
+    "semantic_hash": "fa95b3a097b5686443808d0eada0de21"
+  },
+  ".superpowers/sdd/task-8-report.md": {
+    "mtime": 1784637590.328326,
+    "ast_hash": "bc65b184c71a652ffa252110655dcf99",
+    "semantic_hash": "bc65b184c71a652ffa252110655dcf99"
+  },
+  ".superpowers/sdd/task-9-brief.md": {
+    "mtime": 1784637560.3136244,
+    "ast_hash": "622cae6ca1ca686417b5d2fb2b2cd630",
+    "semantic_hash": "622cae6ca1ca686417b5d2fb2b2cd630"
+  },
+  ".superpowers/sdd/task-9-report.md": {
+    "mtime": 1784637817.151311,
+    "ast_hash": "bf6f8dc4a6bb5a48104bcee9e50bd1c9",
+    "semantic_hash": "bf6f8dc4a6bb5a48104bcee9e50bd1c9"
+  },
+  "VPS.md": {
+    "mtime": 1784638952.0539973,
+    "ast_hash": "85128ad2abae61a12d3c1a475f428d7c",
+    "semantic_hash": "85128ad2abae61a12d3c1a475f428d7c"
+  },
+  "docs/superpowers/plans/2026-07-21-champion-mvp.md": {
+    "mtime": 1784635152.567415,
+    "ast_hash": "dd859544b86e5c1e27819579cc7785e5",
+    "semantic_hash": "dd859544b86e5c1e27819579cc7785e5"
+  },
+  "docs/superpowers/specs/2026-07-21-champion-mvp-design.md": {
+    "mtime": 1784634254.471674,
+    "ast_hash": "20835ea5e8ca4da82b0e0dbcb76821f0",
+    "semantic_hash": "20835ea5e8ca4da82b0e0dbcb76821f0"
+  },
+  "requirements-server.txt": {
+    "mtime": 1784639090.45398,
+    "ast_hash": "90e1eec8e6ec8c0908ab8daf80098e1f",
+    "semantic_hash": "90e1eec8e6ec8c0908ab8daf80098e1f"
+  }
+}
