@@ -25,6 +25,7 @@ class FighterInstance:
     power_modifier: int = 0
     speed_modifier: int = 0
     damage_reduction: int = 0
+    intellect_modifier: int = 0
 
     def __post_init__(self):
         if self.current_health == 0:
@@ -62,6 +63,38 @@ def get_effective_power(instance: FighterInstance) -> int:
     return max(1, power)
 
 
+def get_effective_intellect(instance: FighterInstance) -> int:
+    """Get intellect after buffs and debuffs."""
+    intellect = instance.fighter_data.base_intellect + instance.intellect_modifier
+    if DebuffType.DAZED in instance.active_debuffs:
+        intellect = max(1, intellect - 1)
+    return max(1, intellect)
+
+
+def compare_speed_order(f1: FighterInstance, f2: FighterInstance) -> int:
+    """Determine which fighter acts first in an exchange.
+
+    Returns:
+        -1 if f1 is faster (or wins intellect tie-breaker)
+        1 if f2 is faster (or wins intellect tie-breaker)
+        0 if true tie (equal speed and intellect)
+    """
+    f1_speed = get_effective_speed(f1)
+    f2_speed = get_effective_speed(f2)
+    if f1_speed > f2_speed:
+        return -1
+    if f2_speed > f1_speed:
+        return 1
+    # Speed tie: break by intellect
+    f1_int = get_effective_intellect(f1)
+    f2_int = get_effective_intellect(f2)
+    if f1_int > f2_int:
+        return -1
+    if f2_int > f1_int:
+        return 1
+    return 0
+
+
 def compute_damage(base_power: int, advantage: Advantage, is_vulnerable: bool = False, damage_reduction: int = 0) -> int:
     """Compute base damage from power and advantage."""
     damage = base_power
@@ -94,6 +127,8 @@ def apply_buffs(instance: FighterInstance, all_items: dict) -> FighterInstance:
                     instance.power_modifier += value
                 elif buff_type == BuffType.SPEED:
                     instance.speed_modifier += value
+                elif buff_type == BuffType.INTELLECT:
+                    instance.intellect_modifier += value
                 elif buff_type == BuffType.DAMAGE_REDUCTION:
                     instance.damage_reduction += value
                 elif buff_type == BuffType.RESIST_DEBUFF:

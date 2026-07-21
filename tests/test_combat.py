@@ -2,7 +2,8 @@
 import pytest
 from game.combat import (
     FighterInstance, ExchangeResult, resolve_exchange, apply_buffs,
-    compute_damage, get_effective_speed
+    compute_damage, get_effective_speed, get_effective_intellect,
+    compare_speed_order
 )
 from game.fighter import FighterData
 from game.technique import TechniqueData, TechniqueEffect
@@ -10,7 +11,7 @@ from game.item import ItemData
 from game.enums import ActionType, Range, Advantage, BodySlot, BuffType, DebuffType
 
 
-def make_test_fighter(name="Test", health=5, speed=4, power=5):
+def make_test_fighter(name="Test", health=5, speed=4, power=5, intellect=0):
     """Helper to create a minimal FighterInstance for testing.
 
     Note: health is the fighter-scale base_health (1-7).
@@ -23,6 +24,7 @@ def make_test_fighter(name="Test", health=5, speed=4, power=5):
         base_health=health,
         base_speed=speed,
         base_power=power,
+        base_intellect=intellect,
         technique_ids=[],
         exclusive_technique_ids=[],
         panoply={}
@@ -212,3 +214,73 @@ def test_fighter_instance_defaults():
     assert instance.selected_items == []
     assert instance.active_debuffs == []
     assert instance.predictability == 0
+
+
+def test_get_effective_intellect_basic():
+    """get_effective_intellect should return base_intellect when no modifiers."""
+    data = FighterData(
+        id="test", name="Test", description="",
+        base_health=5, base_speed=4, base_power=5, base_intellect=6,
+        technique_ids=[], exclusive_technique_ids=[], panoply={}
+    )
+    instance = FighterInstance(fighter_data=data)
+    assert get_effective_intellect(instance) == 6
+
+
+def test_get_effective_intellect_with_modifier():
+    """Intellect modifier from items should affect effective intellect."""
+    data = FighterData(
+        id="test", name="Test", description="",
+        base_health=5, base_speed=4, base_power=5, base_intellect=4,
+        technique_ids=[], exclusive_technique_ids=[], panoply={}
+    )
+    instance = FighterInstance(fighter_data=data)
+    instance.intellect_modifier = 2
+    assert get_effective_intellect(instance) == 6
+
+
+def test_get_effective_intellect_dazed():
+    """DAZED debuff should reduce effective intellect by 1."""
+    data = FighterData(
+        id="test", name="Test", description="",
+        base_health=5, base_speed=4, base_power=5, base_intellect=4,
+        technique_ids=[], exclusive_technique_ids=[], panoply={}
+    )
+    instance = FighterInstance(fighter_data=data)
+    instance.active_debuffs = [DebuffType.DAZED]
+    assert get_effective_intellect(instance) == 3  # 4 - 1
+
+
+def test_get_effective_intellect_floor_one():
+    """Effective intellect should never go below 1."""
+    data = FighterData(
+        id="test", name="Test", description="",
+        base_health=5, base_speed=4, base_power=5, base_intellect=1,
+        technique_ids=[], exclusive_technique_ids=[], panoply={}
+    )
+    instance = FighterInstance(fighter_data=data)
+    instance.active_debuffs = [DebuffType.DAZED]
+    assert get_effective_intellect(instance) == 1  # floor at 1
+
+
+def test_compare_speed_order_faster_first():
+    """Faster fighter should go first."""
+    fast = make_test_fighter("Fast", speed=7, power=5)
+    slow = make_test_fighter("Slow", speed=2, power=5)
+    assert compare_speed_order(fast, slow) == -1  # f1 faster
+    assert compare_speed_order(slow, fast) == 1   # f2 faster
+
+
+def test_compare_speed_order_intellect_breaks_tie():
+    """When speed is equal, higher intellect should go first."""
+    smart = make_test_fighter("Smart", speed=4, power=5, health=5, intellect=6)
+    dumb = make_test_fighter("Dumb", speed=4, power=5, health=5, intellect=3)
+    assert compare_speed_order(smart, dumb) == -1  # f1 smarter
+    assert compare_speed_order(dumb, smart) == 1   # f2 smarter
+
+
+def test_compare_speed_order_true_tie():
+    """When speed and intellect are equal, should be true tie."""
+    f1 = make_test_fighter("A", speed=4, power=5, health=5, intellect=4)
+    f2 = make_test_fighter("B", speed=4, power=5, health=5, intellect=4)
+    assert compare_speed_order(f1, f2) == 0
