@@ -90,3 +90,45 @@ def test_load_fighter_missing_file():
     """load_fighter should raise FileNotFoundError for missing file."""
     with pytest.raises(FileNotFoundError):
         load_fighter("nonexistent_fighter.json")
+
+
+def test_fighter_data_has_intellect():
+    """FighterData should support base_intellect field."""
+    fighter = FighterData(
+        id="test",
+        name="Test",
+        description="A test fighter.",
+        base_health=5,
+        base_speed=4,
+        base_power=5,
+        base_intellect=6,
+        technique_ids=[],
+        exclusive_technique_ids=[],
+        panoply={}
+    )
+    assert fighter.base_intellect == 6
+
+
+def test_load_fighter_with_intellect():
+    """load_fighter should parse base_intellect from JSON."""
+    data = dict(FIGHTER_JSON, base_intellect=6)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(data, f)
+        temp_path = f.name
+    try:
+        fighter = load_fighter(temp_path)
+        assert fighter.base_intellect == 6
+    finally:
+        os.unlink(temp_path)
+
+
+def test_load_fighter_intellect_defaults_to_zero():
+    """Fighter JSON without base_intellect should default to 0."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(FIGHTER_JSON, f)
+        temp_path = f.name
+    try:
+        fighter = load_fighter(temp_path)
+        assert fighter.base_intellect == 0
+    finally:
+        os.unlink(temp_path)

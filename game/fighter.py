@@ -22,6 +22,7 @@ class FighterData:
     technique_ids: list[str]
     exclusive_technique_ids: list[str]
     panoply: dict[BodySlot, list[str]]
+    base_intellect: int = 0
 
 
 def load_fighter(filepath: str) -> FighterData:
@@ -58,6 +59,7 @@ def _dict_to_fighter(data: dict) -> FighterData:
         base_health=data["base_health"],
         base_speed=data["base_speed"],
         base_power=data["base_power"],
+        base_intellect=data.get("base_intellect", 0),
         technique_ids=data["technique_ids"],
         exclusive_technique_ids=data.get("exclusive_technique_ids", []),
         panoply=panoply,
