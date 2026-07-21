@@ -15,6 +15,7 @@ from menu import Menu, MenuItem
 from game.fighter import load_all_fighters
 from game.technique import load_all_techniques
 from game.item import load_all_items
+from game.enums import ActionType, MatchPhase
 
 
 class App:
@@ -90,10 +91,9 @@ class App:
         from game.ai import choose_ai_fighter, choose_ai_techniques, choose_ai_items
         from game.combat import FighterInstance
         from game.match import MatchState, advance_phase
-        from game.enums import MatchPhase
 
         # Fighter selection
-        fighter = self._select_fighter_screen(for_player=True)
+        fighter = self._select_fighter_screen()
         if fighter is None:
             return
 
@@ -141,7 +141,7 @@ class App:
         # Run combat
         from game.ai import choose_ai_actions
         while match.phase == MatchPhase.COMBAT:
-            self._run_combat_volley(match, is_online=False)
+            self._run_combat_volley(match)
             from game.match import check_round_end, apply_round_result, clear_actions
             winner = check_round_end(match)
             if winner:
@@ -197,7 +197,7 @@ class App:
                     break
                 speak("Main Menu", False)
 
-    def _select_fighter_screen(self, for_player: bool = True) -> Optional[object]:
+    def _select_fighter_screen(self) -> Optional[object]:
         """Show fighter selection menu. Returns FighterData or None."""
         fighter_list = list(self.fighters.values())
         items = []
@@ -328,10 +328,9 @@ class App:
                 else:
                     speak("You already have 2 items selected. Unselect one first.", False)
 
-    def _run_combat_volley(self, match, is_online: bool = False) -> None:
+    def _run_combat_volley(self, match) -> None:
         """Run one volley (3 actions) of combat for local play."""
-        from game.combat import resolve_exchange, FighterInstance
-        from game.enums import ActionType
+        from game.combat import resolve_exchange, get_effective_speed
         from game.ai import choose_ai_actions
 
         player = match.team_a[0]
@@ -357,8 +356,8 @@ class App:
             except ValueError:
                 ai_action_type = ActionType.STRIKE
 
-            p_speed = player.fighter_data.base_speed
-            ai_speed = ai.fighter_data.base_speed
+            p_speed = get_effective_speed(player)
+            ai_speed = get_effective_speed(ai)
 
             if p_speed >= ai_speed:
                 result = resolve_exchange(player, ai, p_action_type, ai_action_type)
