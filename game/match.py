@@ -66,20 +66,41 @@ def clear_actions(match: MatchState) -> MatchState:
     return match
 
 
-def check_round_end(match: MatchState) -> Optional[str]:
-    """Check if the round is over. Returns winning team ('a' or 'b') or None."""
+def check_round_end(match: MatchState, max_volleys: Optional[int] = None) -> Optional[str]:
+    """Check if the round is over. Returns winning team ('a' or 'b') or None.
+
+    Args:
+        match: The current match state.
+        max_volleys: If set, the round ends at this volley count with the
+            fighter who took less damage declared the winner. Draw if equal.
+
+    Returns:
+        'a', 'b', 'draw', or None.
+    """
     if match.phase != MatchPhase.COMBAT:
         return None
 
     a_alive = any(f.current_health > 0 for f in match.team_a)
     b_alive = any(f.current_health > 0 for f in match.team_b)
 
+    # Health-based win takes priority
     if not a_alive and not b_alive:
         return "draw"
     if not b_alive:
         return "a"
     if not a_alive:
         return "b"
+
+    # Turn limit check
+    if max_volleys is not None and match.current_volley >= max_volleys:
+        a_damage = sum(f.damage_taken_this_round for f in match.team_a)
+        b_damage = sum(f.damage_taken_this_round for f in match.team_b)
+        if a_damage < b_damage:
+            return "a"
+        if b_damage < a_damage:
+            return "b"
+        return "draw"
+
     return None
 
 
