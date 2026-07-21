@@ -492,11 +492,24 @@ class App:
                 if item_id in selected:
                     selected.remove(item_id)
                     speak(f"Unselected. {len(selected)} items selected.", False)
-                elif len(selected) < 2:
-                    selected.append(item_id)
-                    speak(f"Selected. {len(selected)} items selected.", False)
                 else:
-                    speak("You already have 2 items selected. Unselect one first.", False)
+                    new_item = self.items[item_id]
+                    # Check for slot conflict: deselect any item in the same slot.
+                    replaced = None
+                    for sid in selected:
+                        if self.items[sid].slot == new_item.slot:
+                            replaced = sid
+                            break
+                    if replaced:
+                        selected.remove(replaced)
+                        selected.append(item_id)
+                        replaced_name = self.items[replaced].name
+                        speak(f"Replaced {replaced_name}. {new_item.name} selected. {len(selected)} items selected.", False)
+                    elif len(selected) < 2:
+                        selected.append(item_id)
+                        speak(f"Selected. {len(selected)} items selected.", False)
+                    else:
+                        speak("You already have 2 items selected. Unselect one first.", False)
 
     def _run_combat_volley(self, match) -> None:
         """Run one volley (3 actions) of combat for local play."""
