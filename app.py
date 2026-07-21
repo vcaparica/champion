@@ -169,6 +169,12 @@ class App:
 
         speak("Combat begins! Declare your actions carefully.", True)
 
+        # Match-start announcement
+        speak(f"{fighter.name} versus opponent! Fight!", True)
+        if not self._wait_for_continue():
+            client.close()
+            return
+
         # Combat loop
         round_num = 0
         rounds_won_player = 0
@@ -203,20 +209,30 @@ class App:
                 a_hp = ex.get("attacker_health", 0)
                 d_hp = ex.get("defender_health", 0)
                 text = (f"Exchange {i + 1}: {flavor} "
-                        f"{attacker} health: {a_hp}. {defender_name} health: {d_hp}.")
+                        f"{attacker} health: {a_hp}. {defender} health: {d_hp}.")
                 speak(text, True)
                 pygame.time.wait(500)
 
             # Check for round/match end
             if msg.get("round_end"):
                 round_winner = msg.get("round_winner", "draw")
+                time_up = msg.get("time_up", False)
+                if time_up:
+                    speak("Time up!", True)
                 if round_winner == "a":
                     rounds_won_player += 1
                     speak(f"You win round {round_num + 1}!", True)
-                else:
+                elif round_winner == "b":
                     rounds_won_opponent += 1
                     speak(f"Opponent wins round {round_num + 1}!", True)
+                else:
+                    speak(f"Round {round_num + 1} is a draw!", True)
                 round_num += 1
+
+                # Pause for player to process
+                if not self._wait_for_continue():
+                    client.close()
+                    return
 
                 if msg.get("match_end"):
                     match_winner = msg.get("match_winner", "draw")
@@ -226,7 +242,10 @@ class App:
                         speak("Defeat! Your opponent wins the match!", True)
                     break
 
-                speak(f"Score: You {rounds_won_player} - {rounds_won_opponent} Opponent. Prepare for next round!", False)
+                speak(f"Score: You {rounds_won_player} - {rounds_won_opponent} Opponent. Round {round_num + 1}, fight!", False)
+                if not self._wait_for_continue():
+                    client.close()
+                    return
                 client.send({"type": "ready_for_next_round"})
 
         client.close()
