@@ -8,6 +8,7 @@ import pygame
 from typing import Optional
 
 from sr import speak
+from controls import GameControls
 from game.fighter import FighterData
 
 
@@ -169,6 +170,40 @@ class FighterSelectScreen:
         self._play_sfx(self._sfx_move)
         self._announce_section()
 
+    def _process_gamepad_navigation(self) -> Optional[tuple]:
+        """Process gamepad d-pad and left stick for 2D navigation.
+
+        Returns:
+            ('fighter', direction) or ('section', direction) or None.
+            direction is -1 (up/left) or 1 (down/right).
+        """
+        # D-pad
+        hat_x, hat_y = self._controls.get_gamepad_hat(0)
+
+        # Left analog stick
+        stick_x = self._controls.get_gamepad_axis(GameControls.AXIS_LEFT_X)
+        stick_y = self._controls.get_gamepad_axis(GameControls.AXIS_LEFT_Y)
+
+        # Combine: d-pad takes priority
+        horiz = hat_x if hat_x != 0 else (
+            1 if stick_x > self._AXIS_THRESHOLD else (
+                -1 if stick_x < -self._AXIS_THRESHOLD else 0
+            )
+        )
+        vert = hat_y if hat_y != 0 else (
+            -1 if stick_y < -self._AXIS_THRESHOLD else (
+                1 if stick_y > self._AXIS_THRESHOLD else 0
+            )
+        )
+
+        # Horizontal (fighter switch) takes priority over vertical
+        if horiz != 0:
+            return ('fighter', horiz)
+        if vert != 0:
+            return ('section', -vert)  # invert: stick up = negative, but we want up = -1
+
+        return None
+
     def run(self) -> Optional[FighterData]:
         """Run the fighter selection screen.
 
@@ -246,6 +281,16 @@ class FighterSelectScreen:
             # Help
             elif self._is_bound_key_pressed(pygame.K_h):
                 self._speak_help()
+
+            # --- Gamepad d-pad / analog stick navigation ---
+            # Process only when no keyboard nav key was pressed this frame
+            nav = self._process_gamepad_navigation()
+            if nav is not None:
+                axis, direction = nav
+                if axis == 'fighter':
+                    self._move_fighter(direction)
+                elif axis == 'section':
+                    self._move_section(direction)
 
             # --- Update controls state AFTER key checks ---
             self._controls.update()
