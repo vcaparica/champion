@@ -560,6 +560,8 @@ class App:
                 d_health = max(0, ai.current_health - result.damage_to_defender)
                 player.current_health = a_health
                 ai.current_health = d_health
+                player.damage_taken_this_round += result.damage_to_attacker
+                ai.damage_taken_this_round += result.damage_to_defender
             else:
                 result = resolve_exchange(
                     ai, player, ai_action_type, p_action_type,
@@ -573,6 +575,8 @@ class App:
                 d_health = max(0, player.current_health - result.damage_to_defender)
                 ai.current_health = a_health
                 player.current_health = d_health
+                ai.damage_taken_this_round += result.damage_to_attacker
+                player.damage_taken_this_round += result.damage_to_defender
 
             exchange_text = self._announce_exchange(
                 i, result, attacker_name, defender_name, a_health, d_health,
