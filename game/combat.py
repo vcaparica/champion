@@ -26,6 +26,7 @@ class FighterInstance:
     speed_modifier: int = 0
     damage_reduction: int = 0
     intellect_modifier: int = 0
+    damage_taken_this_round: int = 0
 
     def __post_init__(self):
         if self.current_health == 0:
