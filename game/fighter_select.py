@@ -79,6 +79,12 @@ class FighterSelectScreen:
         self._announce_fighter()
         self._announce_section()
 
+    def _move_section(self, direction: int) -> None:
+        """Move section selection by +1 or -1. Wraps around."""
+        self._section_index = (self._section_index + direction) % self.SECTION_COUNT
+        self._play_sfx(self._sfx_move)
+        self._announce_section()
+
     def run(self) -> Optional[FighterData]:
         """Run the fighter selection screen. Returns selected fighter or None."""
         return None
