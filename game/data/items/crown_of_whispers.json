@@ -1,0 +1,10 @@
+{
+  "id": "crown_of_whispers",
+  "name": "Crown of Whispers",
+  "description": "Voices from beyond murmur tactical insights. The keener the mind, the harder the strikes. | Power scales with Intellect.",
+  "slot": "head",
+  "passive_buffs": [
+    {"buff_type": "power", "value": 1, "scales_with": "intellect"}
+  ],
+  "reactive": null
+}

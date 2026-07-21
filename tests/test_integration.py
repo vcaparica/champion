@@ -16,7 +16,7 @@ def test_load_all_game_data():
 
     assert len(fighters) == 4
     assert len(techniques) == 35  # was 29, +6 new
-    assert len(items) >= 20
+    assert len(items) >= 41
 
     for f in fighters.values():
         assert len(f.technique_ids) == 8

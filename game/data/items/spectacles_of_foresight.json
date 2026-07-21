@@ -1,0 +1,11 @@
+{
+  "id": "spectacles_of_foresight",
+  "name": "Spectacles of Foresight",
+  "description": "Etched lenses that show where the next blow will land. Anticipation is the best armor. | Damage reduction and Health scale with Intellect.",
+  "slot": "eyes",
+  "passive_buffs": [
+    {"buff_type": "damage_reduction", "value": 1, "scales_with": "intellect"},
+    {"buff_type": "health", "value": 2, "scales_with": "intellect"}
+  ],
+  "reactive": null
+}

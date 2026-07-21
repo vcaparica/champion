@@ -1,0 +1,10 @@
+{
+  "id": "lens_of_clarity",
+  "name": "Lens of Clarity",
+  "description": "This crystalline lens reveals the truth behind feints. A sharp mind sees through deception. | Speed scales with Intellect.",
+  "slot": "eyes",
+  "passive_buffs": [
+    {"buff_type": "speed", "value": 1, "scales_with": "intellect"}
+  ],
+  "reactive": null
+}

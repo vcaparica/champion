@@ -1,0 +1,11 @@
+{
+  "id": "scholars_crown",
+  "name": "Scholar's Crown",
+  "description": "A circlet that sharpens the mind of the learned. The smarter the wearer, the greater the benefit. | Speed and Health scale with Intellect.",
+  "slot": "head",
+  "passive_buffs": [
+    {"buff_type": "speed", "value": 1, "scales_with": "intellect"},
+    {"buff_type": "health", "value": 2, "scales_with": "intellect"}
+  ],
+  "reactive": null
+}

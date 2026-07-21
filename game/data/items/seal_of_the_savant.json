@@ -1,0 +1,10 @@
+{
+  "id": "seal_of_the_savant",
+  "name": "Seal of the Savant",
+  "description": "Those who underestimate the wearer pay dearly. Mental fortitude resists all debilitation. | Resist debuff scales with Intellect.",
+  "slot": "ring2",
+  "passive_buffs": [
+    {"buff_type": "resist_debuff", "value": 1, "scales_with": "intellect"}
+  ],
+  "reactive": null
+}

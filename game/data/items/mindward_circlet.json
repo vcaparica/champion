@@ -1,0 +1,11 @@
+{
+  "id": "mindward_circlet",
+  "name": "Mindward Circlet",
+  "description": "A simple band that shields against mental assault. Clarity of thought wards off harm. | Resist debuff and Health scale with Intellect.",
+  "slot": "head",
+  "passive_buffs": [
+    {"buff_type": "resist_debuff", "value": 1, "scales_with": "intellect"},
+    {"buff_type": "health", "value": 2, "scales_with": "intellect"}
+  ],
+  "reactive": null
+}
