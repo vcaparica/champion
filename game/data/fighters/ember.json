@@ -5,6 +5,7 @@
   "base_health": 4,
   "base_speed": 6,
   "base_power": 6,
+  "base_intellect": 4,
   "technique_ids": [
     "flame_strike",
     "fire_dance",

@@ -5,6 +5,7 @@
   "base_health": 3,
   "base_speed": 7,
   "base_power": 4,
+  "base_intellect": 6,
   "technique_ids": [
     "gale_slash",
     "wind_step",

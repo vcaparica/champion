@@ -2,7 +2,7 @@
 from game.fighter import load_all_fighters
 from game.technique import load_all_techniques
 from game.item import load_all_items
-from game.combat import FighterInstance, resolve_exchange, apply_buffs
+from game.combat import FighterInstance, resolve_exchange, apply_buffs, compare_speed_order
 from game.match import MatchState, advance_phase, check_round_end, apply_round_result
 from game.enums import ActionType, MatchPhase
 from game.ai import choose_ai_fighter, choose_ai_techniques, choose_ai_items, choose_ai_actions
@@ -22,6 +22,7 @@ def test_load_all_game_data():
         assert len(f.technique_ids) == 8
         assert len(f.exclusive_technique_ids) == 2
         assert len(f.panoply) == 12  # all body slots
+        assert 1 <= f.base_intellect <= 7, f"{f.id} intellect out of 1-7 range"
 
 
 def test_fighter_techniques_exist():
@@ -97,10 +98,7 @@ def test_complete_combat_flow():
             p_act = ActionType(player_actions[i]["action"])
             ai_act = ActionType(ai_actions[i]["action"])
 
-            p_speed = player_instance.fighter_data.base_speed
-            ai_speed = ai_instance.fighter_data.base_speed
-
-            if p_speed >= ai_speed:
+            if compare_speed_order(player_instance, ai_instance) <= 0:
                 result = resolve_exchange(player_instance, ai_instance, p_act, ai_act)
                 player_instance.current_health = max(0, player_instance.current_health - result.damage_to_attacker)
                 ai_instance.current_health = max(0, ai_instance.current_health - result.damage_to_defender)

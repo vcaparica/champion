@@ -5,6 +5,7 @@
   "base_health": 7,
   "base_speed": 2,
   "base_power": 7,
+  "base_intellect": 4,
   "technique_ids": [
     "bone_crusher",
     "skull_splitter",
