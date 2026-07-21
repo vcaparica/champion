@@ -70,6 +70,76 @@ class FighterSelectScreen:
         fighter = self._current_fighter()
         speak(fighter.name, True)
 
+    def _play_sfx(self, sfx_name: Optional[str]) -> None:
+        """Play a named SFX if configured."""
+        if sfx_name is not None:
+            try:
+                self._dj.play_sfx(sfx_name)
+            except Exception:
+                pass
+
+    def _announce_section(self) -> None:
+        """Speak the current section's content for the current fighter."""
+        fighter = self._current_fighter()
+
+        if self._section_index == self.SECTION_NAME_DESC:
+            self._speak_name_and_description(fighter)
+
+        elif self._section_index == self.SECTION_STATS:
+            self._speak_stats(fighter)
+
+        elif self._section_index == self.SECTION_TECHNIQUES:
+            self._speak_techniques(fighter)
+
+        elif self._section_index == self.SECTION_EQUIPMENT:
+            self._speak_equipment(fighter)
+
+        elif self._section_index == self.SECTION_SELECT:
+            speak(f"Press Enter to select {fighter.name}.", True)
+
+    def _speak_name_and_description(self, fighter: FighterData) -> None:
+        """Speak the fighter's name and full description."""
+        speak(fighter.name, True)
+        speak(fighter.description, False)
+
+    def _speak_stats(self, fighter: FighterData) -> None:
+        """Speak the fighter's base stats."""
+        speak(
+            f"Health {fighter.base_health}. "
+            f"Speed {fighter.base_speed}. "
+            f"Power {fighter.base_power}.",
+            True
+        )
+
+    def _speak_techniques(self, fighter: FighterData) -> None:
+        """Speak all available techniques for the current fighter."""
+        found = 0
+        parts = []
+        for tid in fighter.technique_ids:
+            tech = self._techniques.get(tid)
+            if tech is not None:
+                parts.append(f"{tech.name}: {tech.description}")
+                found += 1
+        if found == 0:
+            speak("No techniques available.", True)
+        else:
+            speak(f"{found} techniques. " + " ".join(parts), True)
+
+    def _speak_equipment(self, fighter: FighterData) -> None:
+        """Speak all available items organized by body slot."""
+        found = 0
+        parts = []
+        for slot, item_ids in fighter.panoply.items():
+            for iid in item_ids:
+                item = self._items.get(iid)
+                if item is not None:
+                    parts.append(f"{slot.value}: {item.name}: {item.description}")
+                    found += 1
+        if found == 0:
+            speak("No equipment available.", True)
+        else:
+            speak(f"{found} items. " + " ".join(parts), True)
+
     def _move_fighter(self, direction: int) -> None:
         """Move fighter selection by +1 or -1. Wraps around. Resets section to top."""
         count = len(self._fighter_list)
