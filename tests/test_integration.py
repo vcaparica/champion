@@ -2,7 +2,7 @@
 from game.fighter import load_all_fighters
 from game.technique import load_all_techniques
 from game.item import load_all_items
-from game.combat import FighterInstance, resolve_exchange, apply_buffs, compare_speed_order
+from game.combat import FighterInstance, resolve_exchange, apply_buffs, compare_speed_order, get_effective_intellect
 from game.match import MatchState, advance_phase, check_round_end, apply_round_result
 from game.enums import ActionType, MatchPhase
 from game.ai import choose_ai_fighter, choose_ai_techniques, choose_ai_items, choose_ai_actions
@@ -144,3 +144,51 @@ def test_exchange_results_are_valid():
             assert result.damage_to_defender >= 0
             assert result.damage_to_attacker >= 0
             assert len(result.flavor_text) > 0
+
+
+def test_intellect_technique_selection_counts():
+    """Each fighter's technique count should match their base_intellect."""
+    fighters = load_all_fighters("game/data/fighters")
+    for f in fighters.values():
+        assert 1 <= f.base_intellect <= 7
+        # All fighters currently have 8 techniques, so intellect <= 8
+        assert f.base_intellect <= len(f.technique_ids)
+
+
+def test_intellect_in_combat_flow():
+    """Full combat should work with intellect attribute and new techniques."""
+    fighters = load_all_fighters("game/data/fighters")
+    techniques = load_all_techniques("game/data/techniques")
+    items = load_all_items("game/data/items")
+
+    thorn = FighterInstance(fighter_data=fighters["thorn"])
+    brutus = FighterInstance(fighter_data=fighters["brutus"])
+
+    # Thorn has intellect 6 vs Brutus 4
+    assert get_effective_intellect(thorn) == 6
+    assert get_effective_intellect(brutus) == 4
+
+    # Both have speed 4, so Thorn (higher intellect) should go first
+    if thorn.fighter_data.base_speed == brutus.fighter_data.base_speed:
+        assert compare_speed_order(thorn, brutus) == -1
+
+    # Test a volley with intellect techniques
+    thorn.selected_techniques = ["mind_over_matter", "iron_discipline", "shield_bash", "pommel_strike", "last_stand", "rallying_call"]
+    brutus.selected_techniques = ["bone_crusher", "skull_splitter", "read_the_pattern", "unstoppable_charge"]
+
+    thorn.selected_items = ["iron_helm", "gauntlets_of_might"]
+    brutus.selected_items = ["war_helm", "collar_of_the_juggernaut"]
+
+    thorn = apply_buffs(thorn, items)
+    brutus = apply_buffs(brutus, items)
+
+    # Run a few exchanges
+    for a_act in [ActionType.STRIKE, ActionType.FEINT, ActionType.BLOCK]:
+        for d_act in [ActionType.STRIKE, ActionType.COUNTER, ActionType.AVOID]:
+            order = compare_speed_order(thorn, brutus)
+            if order <= 0:
+                result = resolve_exchange(thorn, brutus, a_act, d_act)
+            else:
+                result = resolve_exchange(brutus, thorn, a_act, d_act)
+            assert result.outcome in ("hit", "blocked", "countered", "miss", "clash", "bypassed", "whiff")
+            assert result.flavor_text
