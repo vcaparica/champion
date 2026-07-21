@@ -3,7 +3,7 @@ from game.fighter import load_all_fighters
 from game.technique import load_all_techniques
 from game.item import load_all_items
 from game.combat import FighterInstance, resolve_exchange, apply_buffs, compare_speed_order, get_effective_intellect
-from game.match import MatchState, advance_phase, check_round_end, apply_round_result
+from game.match import MatchState, advance_phase, check_round_end, apply_round_result, clear_actions
 from game.enums import ActionType, MatchPhase
 from game.ai import choose_ai_fighter, choose_ai_techniques, choose_ai_items, choose_ai_actions
 
@@ -192,3 +192,79 @@ def test_intellect_in_combat_flow():
                 result = resolve_exchange(brutus, thorn, a_act, d_act)
             assert result.outcome in ("hit", "blocked", "countered", "miss", "clash", "bypassed", "whiff")
             assert result.flavor_text
+
+
+def test_turn_limit_less_damage_wins():
+    """After 17 volleys with both fighters alive, less damage taken wins."""
+    fighters = load_all_fighters("game/data/fighters")
+    techniques = load_all_techniques("game/data/techniques")
+    items = load_all_items("game/data/items")
+
+    player_fighter = fighters["thorn"]
+    ai_fighter = fighters["ember"]
+
+    ai_instance = FighterInstance(fighter_data=ai_fighter)
+    player_instance = FighterInstance(fighter_data=player_fighter)
+    player_instance.selected_techniques = ["iron_wall", "shield_bash", "war_cry"]
+    ai_instance.selected_techniques = ["fireball", "inferno", "heat_wave"]
+
+    player_instance = apply_buffs(player_instance, items)
+    ai_instance = apply_buffs(ai_instance, items)
+
+    # Boost HP so both survive 17 volleys of combat
+    player_instance.current_health = 1000
+    ai_instance.current_health = 1000
+
+    match = MatchState(team_a=[player_instance], team_b=[ai_instance])
+    for _ in range(4):
+        match = advance_phase(match)
+
+    assert match.phase == MatchPhase.COMBAT
+
+    # Simulate volleys; turn limit via max_volleys=17 ends the round
+    winner = None
+    max_safe_volleys = 50
+    volley_count = 0
+    while match.phase == MatchPhase.COMBAT and volley_count < max_safe_volleys:
+        for _ in range(3):
+            # Use strike vs feint: attacker always hits for base power damage
+            if compare_speed_order(player_instance, ai_instance) <= 0:
+                result = resolve_exchange(
+                    player_instance, ai_instance, ActionType.STRIKE, ActionType.FEINT
+                )
+                player_instance.current_health = max(0, player_instance.current_health - result.damage_to_attacker)
+                ai_instance.current_health = max(0, ai_instance.current_health - result.damage_to_defender)
+                player_instance.damage_taken_this_round += result.damage_to_attacker
+                ai_instance.damage_taken_this_round += result.damage_to_defender
+            else:
+                result = resolve_exchange(
+                    ai_instance, player_instance, ActionType.STRIKE, ActionType.FEINT
+                )
+                ai_instance.current_health = max(0, ai_instance.current_health - result.damage_to_attacker)
+                player_instance.current_health = max(0, player_instance.current_health - result.damage_to_defender)
+                ai_instance.damage_taken_this_round += result.damage_to_attacker
+                player_instance.damage_taken_this_round += result.damage_to_defender
+
+            if player_instance.current_health <= 0 or ai_instance.current_health <= 0:
+                break
+
+        winner = check_round_end(match, max_volleys=17)
+        if winner:
+            apply_round_result(match, winner)
+            break
+        clear_actions(match)
+        volley_count += 1
+
+    # Verify turn limit ended the round (not KO)
+    assert match.phase == MatchPhase.ROUND_END
+    assert match.current_volley >= 17, "Turn limit of 17 volleys should have been reached"
+    assert winner is not None, "A winner should have been determined"
+    assert player_instance.current_health > 0, "Both fighters should survive turn limit"
+    assert ai_instance.current_health > 0, "Both fighters should survive turn limit"
+
+    # Winner should be the one who took less damage
+    if winner != "draw":
+        if winner == "a":
+            assert player_instance.damage_taken_this_round < ai_instance.damage_taken_this_round
+        else:
+            assert ai_instance.damage_taken_this_round < player_instance.damage_taken_this_round
