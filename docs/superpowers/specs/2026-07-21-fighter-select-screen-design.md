@@ -32,9 +32,9 @@ Replace the current simple vertical-menu fighter selection with a rich 2D naviga
 
 1. **Stats** — Base stats: health, speed, power. Spoken as "Health 50. Speed 5. Power 8."
 
-2. **Techniques** — Lists all 8 techniques by name with brief descriptions. Left/right within this section navigates through individual technique descriptions in more detail. Techniques are resolved from `App.techniques` dict using the fighter's `technique_ids`.
+2. **Techniques** — Speaks all available techniques by name with their descriptions. Each technique is spoken as "Technique name: description." Techniques are resolved from `App.techniques` dict using the fighter's `technique_ids`. Left/right still switches fighters (consistent across all sections).
 
-3. **Equipment** — Items organized by body slot. Each slot's items are listed with their names and descriptions. Resolved from `App.items` using the fighter's `panoply`.
+3. **Equipment** — Speaks all available items organized by body slot, with names and descriptions. Each item spoken as "Slot: Item name: description." Resolved from `App.items` using the fighter's `panoply`. Left/right still switches fighters.
 
 4. **Select this fighter** — "Press Enter to select <fighter name>." Enter confirms immediately and returns the `FighterData`. No confirmation dialog.
 
@@ -81,7 +81,6 @@ The class follows the same pattern as `Menu`: it accepts external `DJ` and `Game
 - `fighter_list`: ordered list of `FighterData` from the fighters dict
 - `fighter_index`: current horizontal position
 - `section_index`: current vertical position (0-4)
-- `technique_detail_index`: within section 2, which technique is being examined (0-7)
 
 **Key methods:**
 - `run()`: main loop, processes events via `controls`, handles Alt+F4, delegates to navigation methods
