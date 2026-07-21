@@ -249,22 +249,26 @@ def resolve_exchange(
 
     elif pair == (ActionType.STRIKE, ActionType.CHARGE):
         result.outcome = "hit"
-        result.damage_to_defender = d_damage
-        result.damage_to_attacker = a_damage
-        result.flavor_text = "The charge crashes through the strike, both combatants feel the impact!"
-        if d_speed > a_speed:
-            result.damage_to_attacker = 0
+        order = compare_speed_order(attacker, defender)
+        if order == 1:  # defender faster — interrupts charge
+            result.damage_to_attacker = a_damage
+            result.damage_to_defender = 0
             result.flavor_text = "The strike lands first, stopping the charge in its tracks!"
+        else:
+            result.damage_to_defender = d_damage
+            result.damage_to_attacker = a_damage
+            result.flavor_text = "The charge crashes through the strike, both combatants feel the impact!"
 
     elif pair == (ActionType.STRIKE, ActionType.STRIKE):
         result.outcome = "clash"
-        if a_speed > d_speed:
+        order = compare_speed_order(attacker, defender)
+        if order == -1:  # attacker faster
             result.damage_to_defender = a_damage
             result.damage_to_attacker = max(1, d_damage // 2)
-        elif d_speed > a_speed:
+        elif order == 1:  # defender faster
             result.damage_to_attacker = d_damage
             result.damage_to_defender = max(1, a_damage // 2)
-        else:
+        else:  # true tie
             result.damage_to_defender = max(1, a_damage // 2)
             result.damage_to_attacker = max(1, d_damage // 2)
         result.flavor_text = "Steel meets steel in a shower of sparks!"
@@ -353,12 +357,14 @@ def resolve_exchange(
 
     elif pair == (ActionType.CHARGE, ActionType.STRIKE):
         result.outcome = "hit"
-        result.damage_to_attacker = d_damage
-        result.flavor_text = "The strike catches the charger before they build momentum!"
-        if a_speed > d_speed:
+        order = compare_speed_order(attacker, defender)
+        if order == -1:  # attacker faster — charge hits first
             result.damage_to_defender = a_damage
             result.damage_to_attacker = 0
             result.flavor_text = "The charge hits first, overwhelming the strike!"
+        else:
+            result.damage_to_attacker = d_damage
+            result.flavor_text = "The strike catches the charger before they build momentum!"
 
     elif pair == (ActionType.CHARGE, ActionType.BLOCK):
         result.outcome = "hit"

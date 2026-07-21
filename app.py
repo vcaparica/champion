@@ -507,7 +507,7 @@ class App:
 
     def _run_combat_volley(self, match) -> None:
         """Run one volley (3 actions) of combat for local play."""
-        from game.combat import resolve_exchange, get_effective_speed
+        from game.combat import resolve_exchange, get_effective_speed, compare_speed_order
         from game.ai import choose_ai_actions
 
         player = match.team_a[0]
@@ -539,10 +539,8 @@ class App:
             p_technique = self.techniques.get(p_tech_id) if p_tech_id else None
             ai_technique = self.techniques.get(ai_tech_id) if ai_tech_id else None
 
-            p_speed = get_effective_speed(player)
-            ai_speed = get_effective_speed(ai)
-
-            if p_speed >= ai_speed:
+            order = compare_speed_order(player, ai)
+            if order <= 0:  # player goes first (or tie — player preference)
                 result = resolve_exchange(
                     player, ai, p_action_type, ai_action_type,
                     attacker_technique=p_technique, defender_technique=ai_technique

@@ -3,7 +3,7 @@ server/combat_resolver.py - Server-side combat resolution
 ===========================================================
 Authoritatively resolves combat exchanges on the server.
 """
-from game.combat import resolve_exchange, FighterInstance, get_effective_speed
+from game.combat import resolve_exchange, FighterInstance, get_effective_speed, compare_speed_order
 from game.enums import ActionType
 
 
@@ -34,16 +34,14 @@ def resolve_volley_server(match) -> dict:
             b_action_type = ActionType.STRIKE
 
         # Determine who is attacker/defender for this exchange
-        # In 1v1, the faster fighter attacks first
-        a_speed = get_effective_speed(attacker)
-        b_speed = get_effective_speed(defender)
-
+        # In 1v1, the faster fighter attacks first (ties resolved by intellect)
         # TODO: Load technique data on the server and pass real TechniqueData objects.
         # For now, techniques are passed as None, making technique effects inert server-side.
         a_technique = None
         b_technique = None
 
-        if a_speed >= b_speed:
+        order = compare_speed_order(attacker, defender)
+        if order <= 0:  # attacker goes first
             result = resolve_exchange(
                 attacker, defender, a_action_type, b_action_type,
                 attacker_technique=a_technique, defender_technique=b_technique
