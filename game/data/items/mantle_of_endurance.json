@@ -1,14 +1,17 @@
 {
-    "id": "mantle_of_endurance",
-    "name": "Mantle of Endurance",
-    "description": "A mantle enchanted to help the wearer endure punishment.",
-    "slot": "shoulders",
-    "passive_buffs": [
-        {"buff_type": "health", "value": 10}
-    ],
-    "reactive": {
-        "trigger": "when_low_health",
-        "effect": "heal",
-        "value": 8
+  "id": "mantle_of_endurance",
+  "name": "Mantle of Endurance",
+  "description": "A mantle enchanted to help the wearer endure punishment. | +10 HP; When at low health: heal 8 HP.",
+  "slot": "shoulders",
+  "passive_buffs": [
+    {
+      "buff_type": "health",
+      "value": 10
     }
+  ],
+  "reactive": {
+    "trigger": "when_low_health",
+    "effect": "heal",
+    "value": 8
+  }
 }

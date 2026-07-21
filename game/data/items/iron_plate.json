@@ -1,12 +1,21 @@
 {
-    "id": "iron_plate",
-    "name": "Iron Plate",
-    "description": "Full plate armor offering maximum protection at the cost of mobility.",
-    "slot": "body",
-    "passive_buffs": [
-        {"buff_type": "health", "value": 20},
-        {"buff_type": "damage_reduction", "value": 4},
-        {"buff_type": "speed", "value": -1}
-    ],
-    "reactive": null
+  "id": "iron_plate",
+  "name": "Iron Plate",
+  "description": "Full plate armor offering maximum protection at the cost of mobility. | +20 HP; +4 damage reduction; -1 speed.",
+  "slot": "body",
+  "passive_buffs": [
+    {
+      "buff_type": "health",
+      "value": 20
+    },
+    {
+      "buff_type": "damage_reduction",
+      "value": 4
+    },
+    {
+      "buff_type": "speed",
+      "value": -1
+    }
+  ],
+  "reactive": null
 }

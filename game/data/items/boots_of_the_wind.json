@@ -1,10 +1,13 @@
 {
-    "id": "boots_of_the_wind",
-    "name": "Boots of the Wind",
-    "description": "Lightweight boots that make the wearer incredibly fast.",
-    "slot": "feet",
-    "passive_buffs": [
-        {"buff_type": "speed", "value": 2}
-    ],
-    "reactive": null
+  "id": "boots_of_the_wind",
+  "name": "Boots of the Wind",
+  "description": "Lightweight boots that make the wearer incredibly fast. | +2 speed.",
+  "slot": "feet",
+  "passive_buffs": [
+    {
+      "buff_type": "speed",
+      "value": 2
+    }
+  ],
+  "reactive": null
 }

@@ -1,14 +1,17 @@
 {
-    "id": "sandals_of_drifting",
-    "name": "Sandals of Drifting",
-    "description": "Sandals that let the wearer drift like a leaf on the wind.",
-    "slot": "feet",
-    "passive_buffs": [
-        {"buff_type": "speed", "value": 1}
-    ],
-    "reactive": {
-        "trigger": "when_avoid_success",
-        "effect": "reposition",
-        "value": 0
+  "id": "sandals_of_drifting",
+  "name": "Sandals of Drifting",
+  "description": "Sandals that let the wearer drift like a leaf on the wind. | +1 speed; When dodge succeeds: reposition.",
+  "slot": "feet",
+  "passive_buffs": [
+    {
+      "buff_type": "speed",
+      "value": 1
     }
+  ],
+  "reactive": {
+    "trigger": "when_avoid_success",
+    "effect": "reposition",
+    "value": 0
+  }
 }

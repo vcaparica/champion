@@ -1,11 +1,11 @@
 {
-    "id": "eye_of_the_storm",
-    "name": "Eye of the Storm",
-    "description": "Find calm in chaos. Heal while maintaining perfect defense.",
-    "base_action": "block",
-    "effects": {
-        "heal_on_hit": 8,
-        "gain_advantage": "defensive"
-    },
-    "predictability_increase": 1
+  "id": "eye_of_the_storm",
+  "name": "Eye of the Storm",
+  "description": "Find calm in chaos. Heal while maintaining perfect defense. | heals 8 HP on hit; gains defensive advantage; +1 predictability.",
+  "base_action": "block",
+  "effects": {
+    "heal_on_hit": 8,
+    "gain_advantage": "defensive"
+  },
+  "predictability_increase": 1
 }

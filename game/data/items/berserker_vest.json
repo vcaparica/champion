@@ -1,14 +1,17 @@
 {
-    "id": "berserker_vest",
-    "name": "Berserker Vest",
-    "description": "A vest that tightens as the wearer takes damage, fueling rage.",
-    "slot": "torso",
-    "passive_buffs": [
-        {"buff_type": "power", "value": 2}
-    ],
-    "reactive": {
-        "trigger": "when_struck",
-        "effect": "power_boost",
-        "value": 2
+  "id": "berserker_vest",
+  "name": "Berserker Vest",
+  "description": "A vest that tightens as the wearer takes damage, fueling rage. | +2 power; When struck: +2 power.",
+  "slot": "torso",
+  "passive_buffs": [
+    {
+      "buff_type": "power",
+      "value": 2
     }
+  ],
+  "reactive": {
+    "trigger": "when_struck",
+    "effect": "power_boost",
+    "value": 2
+  }
 }

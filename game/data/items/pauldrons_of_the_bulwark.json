@@ -1,14 +1,17 @@
 {
-    "id": "pauldrons_of_the_bulwark",
-    "name": "Pauldrons of the Bulwark",
-    "description": "Massive pauldrons that absorb heavy impacts.",
-    "slot": "shoulders",
-    "passive_buffs": [
-        {"buff_type": "damage_reduction", "value": 3}
-    ],
-    "reactive": {
-        "trigger": "when_struck",
-        "effect": "counter_damage",
-        "value": 2
+  "id": "pauldrons_of_the_bulwark",
+  "name": "Pauldrons of the Bulwark",
+  "description": "Massive pauldrons that absorb heavy impacts. | +3 damage reduction; When struck: deal 2 damage back.",
+  "slot": "shoulders",
+  "passive_buffs": [
+    {
+      "buff_type": "damage_reduction",
+      "value": 3
     }
+  ],
+  "reactive": {
+    "trigger": "when_struck",
+    "effect": "counter_damage",
+    "value": 2
+  }
 }

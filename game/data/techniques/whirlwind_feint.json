@@ -1,10 +1,10 @@
 {
-    "id": "whirlwind_feint",
-    "name": "Whirlwind Feint",
-    "description": "A dizzying series of false attacks that leaves the opponent vulnerable.",
-    "base_action": "feint",
-    "effects": {
-        "apply_debuff": "vulnerable"
-    },
-    "predictability_increase": 2
+  "id": "whirlwind_feint",
+  "name": "Whirlwind Feint",
+  "description": "A dizzying series of false attacks that leaves the opponent vulnerable. | applies vulnerable; +2 predictability.",
+  "base_action": "feint",
+  "effects": {
+    "apply_debuff": "vulnerable"
+  },
+  "predictability_increase": 2
 }

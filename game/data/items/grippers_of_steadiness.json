@@ -1,10 +1,13 @@
 {
-    "id": "grippers_of_steadiness",
-    "name": "Grippers of Steadiness",
-    "description": "Gloves that steady your grip, making techniques harder to predict.",
-    "slot": "hands",
-    "passive_buffs": [
-        {"buff_type": "resist_debuff", "value": 1}
-    ],
-    "reactive": null
+  "id": "grippers_of_steadiness",
+  "name": "Grippers of Steadiness",
+  "description": "Gloves that steady your grip, making techniques harder to predict. | +1 debuff resistance.",
+  "slot": "hands",
+  "passive_buffs": [
+    {
+      "buff_type": "resist_debuff",
+      "value": 1
+    }
+  ],
+  "reactive": null
 }

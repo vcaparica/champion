@@ -1,14 +1,17 @@
 {
-    "id": "crown_of_resolve",
-    "name": "Crown of Resolve",
-    "description": "A crown that bolsters the wearer's willpower and endurance.",
-    "slot": "head",
-    "passive_buffs": [
-        {"buff_type": "health", "value": 15}
-    ],
-    "reactive": {
-        "trigger": "when_low_health",
-        "effect": "heal",
-        "value": 10
+  "id": "crown_of_resolve",
+  "name": "Crown of Resolve",
+  "description": "A crown that bolsters the wearer's willpower and endurance. | +15 HP; When at low health: heal 10 HP.",
+  "slot": "head",
+  "passive_buffs": [
+    {
+      "buff_type": "health",
+      "value": 15
     }
+  ],
+  "reactive": {
+    "trigger": "when_low_health",
+    "effect": "heal",
+    "value": 10
+  }
 }

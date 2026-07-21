@@ -1,11 +1,17 @@
 {
-    "id": "field_armor",
-    "name": "Field Armor",
-    "description": "Lighter armor designed for mobility on the battlefield.",
-    "slot": "body",
-    "passive_buffs": [
-        {"buff_type": "health", "value": 10},
-        {"buff_type": "damage_reduction", "value": 2}
-    ],
-    "reactive": null
+  "id": "field_armor",
+  "name": "Field Armor",
+  "description": "Lighter armor designed for mobility on the battlefield. | +10 HP; +2 damage reduction.",
+  "slot": "body",
+  "passive_buffs": [
+    {
+      "buff_type": "health",
+      "value": 10
+    },
+    {
+      "buff_type": "damage_reduction",
+      "value": 2
+    }
+  ],
+  "reactive": null
 }

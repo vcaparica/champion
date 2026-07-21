@@ -55,6 +55,9 @@ class App:
         self.techniques = load_all_techniques("game/data/techniques")
         self.items = load_all_items("game/data/items")
 
+        # Remember last action position for quicker selection
+        self._last_action_index = 0
+
     def _init_window(self) -> None:
         self.screen = pygame.display.set_mode(self.window_size)
         pygame.display.set_caption(self.window_title)
@@ -560,16 +563,20 @@ class App:
             if player.current_health <= 0 or ai.current_health <= 0:
                 break
 
-    def _wait_for_continue(self, repeat_text: str = "") -> None:
+    def _wait_for_continue(self, repeat_text: str = "") -> bool:
         """Wait for the player to press Enter, Space, or R before continuing.
 
         Args:
             repeat_text: If provided, pressing R will re-speak this text.
+
+        Returns:
+            True if the player chose to continue, False if Alt+F4 or quit.
         """
         speak("Press Enter or Space to continue, or R to repeat.", False)
         while True:
             if not self.process_events():
-                return
+                self.running = False
+                return False
             # Check keys BEFORE update() since update() transitions
             # PRESSED -> HELD and is_key_pressed only sees PRESSED state.
             enter_pressed = (self.controls.is_key_pressed(pygame.K_RETURN) or
@@ -578,8 +585,15 @@ class App:
             esc_pressed = self.controls.is_key_pressed(pygame.K_ESCAPE)
             r_pressed = self.controls.is_key_pressed(pygame.K_r)
             a_pressed = self.controls.is_gamepad_button_pressed(GameControls.GAMEPAD_A)
+            # Alt+F4: set running to False to quit the app globally
+            alt_f4 = (self.controls.is_key_pressed(pygame.K_F4) and
+                     self.controls.is_modifier_held(pygame.KMOD_ALT))
 
             self.update()
+
+            if alt_f4:
+                self.running = False
+                return False
 
             if r_pressed and repeat_text:
                 speak(repeat_text, True)
@@ -588,7 +602,7 @@ class App:
             if enter_pressed or space_pressed or esc_pressed or a_pressed:
                 break
 
-            pygame.time.wait(10)
+        return True
 
     def _declare_actions_screen(self, player, opponent) -> Optional[list[dict]]:
         """Screen for declaring 3 actions for a volley."""
@@ -617,10 +631,19 @@ class App:
                 sfx_move=self.SFX_MENU_MOVE, sfx_select=self.SFX_MENU_SELECT,
                 sfx_cancel=self.SFX_MENU_EXIT
             )
+            # Start at the last chosen action for faster selection
+            if self._last_action_index < len(items):
+                menu.current_index = self._last_action_index
 
             result = menu.run()
             if result is None or result.get('action') == 'cancel':
                 return None
+
+            # Remember position of chosen item for next time
+            for idx, item in enumerate(items):
+                if item.id == result.get('id'):
+                    self._last_action_index = idx
+                    break
 
             choice = result.get('id', 'strike')
             if choice.startswith("tech_"):

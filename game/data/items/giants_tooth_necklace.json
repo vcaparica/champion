@@ -1,10 +1,13 @@
 {
-    "id": "giants_tooth_necklace",
-    "name": "Giant's Tooth Necklace",
-    "description": "A necklace strung with teeth from a fallen giant.",
-    "slot": "neck",
-    "passive_buffs": [
-        {"buff_type": "power", "value": 3}
-    ],
-    "reactive": null
+  "id": "giants_tooth_necklace",
+  "name": "Giant's Tooth Necklace",
+  "description": "A necklace strung with teeth from a fallen giant. | +3 power.",
+  "slot": "neck",
+  "passive_buffs": [
+    {
+      "buff_type": "power",
+      "value": 3
+    }
+  ],
+  "reactive": null
 }

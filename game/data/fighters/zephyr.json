@@ -1,24 +1,66 @@
 {
-    "id": "zephyr",
-    "name": "Zephyr",
-    "description": "A wind dancer whose fighting style emphasizes speed and evasion over raw power. Zephyr flits around opponents, never where they expect, striking from unexpected angles.",
-    "base_health": 75,
-    "base_speed": 10,
-    "base_power": 6,
-    "technique_ids": ["gale_slash", "wind_step", "cyclone_strike", "feather_counter", "tempest_fury", "whirlwind_feint", "eye_of_the_storm", "pommel_strike"],
-    "exclusive_technique_ids": ["wind_step", "tempest_fury"],
-    "panoply": {
-        "head": ["iron_helm", "crown_of_resolve"],
-        "eyes": ["goggles_of_the_hawk"],
-        "neck": ["pendant_of_fortitude", "guardian_amulet"],
-        "torso": ["reinforced_vest"],
-        "body": ["field_armor", "iron_plate"],
-        "shoulders": ["cape_of_the_zephyr", "mantle_of_endurance"],
-        "arms": ["bracers_of_the_storm"],
-        "hands": ["grippers_of_steadiness", "gauntlets_of_might"],
-        "ring1": ["ring_of_vitality"],
-        "ring2": ["band_of_iron_will"],
-        "waist": ["belt_of_quick_draw"],
-        "feet": ["boots_of_the_wind", "sandals_of_drifting"]
-    }
+  "id": "zephyr",
+  "name": "Zephyr",
+  "description": "A wind dancer whose fighting style emphasizes speed and evasion over raw power. Zephyr flits around opponents, never where they expect, striking from unexpected angles.",
+  "base_health": 37,
+  "base_speed": 10,
+  "base_power": 6,
+  "technique_ids": [
+    "gale_slash",
+    "wind_step",
+    "cyclone_strike",
+    "feather_counter",
+    "tempest_fury",
+    "whirlwind_feint",
+    "eye_of_the_storm",
+    "pommel_strike"
+  ],
+  "exclusive_technique_ids": [
+    "wind_step",
+    "tempest_fury"
+  ],
+  "panoply": {
+    "head": [
+      "iron_helm",
+      "crown_of_resolve"
+    ],
+    "eyes": [
+      "goggles_of_the_hawk"
+    ],
+    "neck": [
+      "pendant_of_fortitude",
+      "guardian_amulet"
+    ],
+    "torso": [
+      "reinforced_vest"
+    ],
+    "body": [
+      "field_armor",
+      "iron_plate"
+    ],
+    "shoulders": [
+      "cape_of_the_zephyr",
+      "mantle_of_endurance"
+    ],
+    "arms": [
+      "bracers_of_the_storm"
+    ],
+    "hands": [
+      "grippers_of_steadiness",
+      "gauntlets_of_might"
+    ],
+    "ring1": [
+      "ring_of_vitality"
+    ],
+    "ring2": [
+      "band_of_iron_will"
+    ],
+    "waist": [
+      "belt_of_quick_draw"
+    ],
+    "feet": [
+      "boots_of_the_wind",
+      "sandals_of_drifting"
+    ]
+  }
 }

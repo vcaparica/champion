@@ -1,11 +1,17 @@
 {
-    "id": "war_helm",
-    "name": "War Helm",
-    "description": "A brutal-looking helm that intimidates opponents.",
-    "slot": "head",
-    "passive_buffs": [
-        {"buff_type": "power", "value": 2},
-        {"buff_type": "health", "value": 5}
-    ],
-    "reactive": null
+  "id": "war_helm",
+  "name": "War Helm",
+  "description": "A brutal-looking helm that intimidates opponents. | +2 power; +5 HP.",
+  "slot": "head",
+  "passive_buffs": [
+    {
+      "buff_type": "power",
+      "value": 2
+    },
+    {
+      "buff_type": "health",
+      "value": 5
+    }
+  ],
+  "reactive": null
 }

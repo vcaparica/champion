@@ -1,10 +1,13 @@
 {
-    "id": "gauntlets_of_might",
-    "name": "Gauntlets of Might",
-    "description": "Heavy gauntlets that add power to every strike.",
-    "slot": "hands",
-    "passive_buffs": [
-        {"buff_type": "power", "value": 3}
-    ],
-    "reactive": null
+  "id": "gauntlets_of_might",
+  "name": "Gauntlets of Might",
+  "description": "Heavy gauntlets that add power to every strike. | +3 power.",
+  "slot": "hands",
+  "passive_buffs": [
+    {
+      "buff_type": "power",
+      "value": 3
+    }
+  ],
+  "reactive": null
 }

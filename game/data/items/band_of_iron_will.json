@@ -1,10 +1,13 @@
 {
-    "id": "band_of_iron_will",
-    "name": "Band of Iron Will",
-    "description": "A band that hardens the wearer's resolve against debilitation.",
-    "slot": "ring2",
-    "passive_buffs": [
-        {"buff_type": "resist_debuff", "value": 2}
-    ],
-    "reactive": null
+  "id": "band_of_iron_will",
+  "name": "Band of Iron Will",
+  "description": "A band that hardens the wearer's resolve against debilitation. | +2 debuff resistance.",
+  "slot": "ring2",
+  "passive_buffs": [
+    {
+      "buff_type": "resist_debuff",
+      "value": 2
+    }
+  ],
+  "reactive": null
 }

@@ -1,10 +1,13 @@
 {
-    "id": "war_wraps",
-    "name": "War Wraps",
-    "description": "Hand wraps stained with the blood of countless battles.",
-    "slot": "hands",
-    "passive_buffs": [
-        {"buff_type": "power", "value": 2}
-    ],
-    "reactive": null
+  "id": "war_wraps",
+  "name": "War Wraps",
+  "description": "Hand wraps stained with the blood of countless battles. | +2 power.",
+  "slot": "hands",
+  "passive_buffs": [
+    {
+      "buff_type": "power",
+      "value": 2
+    }
+  ],
+  "reactive": null
 }

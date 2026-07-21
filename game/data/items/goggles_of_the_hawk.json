@@ -1,10 +1,13 @@
 {
-    "id": "goggles_of_the_hawk",
-    "name": "Goggles of the Hawk",
-    "description": "Goggles that sharpen visual acuity, helping read feints.",
-    "slot": "eyes",
-    "passive_buffs": [
-        {"buff_type": "speed", "value": 2}
-    ],
-    "reactive": null
+  "id": "goggles_of_the_hawk",
+  "name": "Goggles of the Hawk",
+  "description": "Goggles that sharpen visual acuity, helping read feints. | +2 speed.",
+  "slot": "eyes",
+  "passive_buffs": [
+    {
+      "buff_type": "speed",
+      "value": 2
+    }
+  ],
+  "reactive": null
 }

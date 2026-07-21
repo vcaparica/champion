@@ -1,11 +1,11 @@
 {
-    "id": "last_stand",
-    "name": "Last Stand",
-    "description": "When all seems lost, dig deep and fight on. Heals significantly when at low health.",
-    "base_action": "counter",
-    "effects": {
-        "damage_modifier": 4,
-        "heal_on_hit": 10
-    },
-    "predictability_increase": 3
+  "id": "last_stand",
+  "name": "Last Stand",
+  "description": "When all seems lost, dig deep and fight on. Heals significantly when at low health. | +4 damage; heals 10 HP on hit; +3 predictability.",
+  "base_action": "counter",
+  "effects": {
+    "damage_modifier": 4,
+    "heal_on_hit": 10
+  },
+  "predictability_increase": 3
 }

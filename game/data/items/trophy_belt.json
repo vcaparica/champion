@@ -1,10 +1,13 @@
 {
-    "id": "trophy_belt",
-    "name": "Trophy Belt",
-    "description": "A belt adorned with trophies from past victories. Inspires confidence.",
-    "slot": "waist",
-    "passive_buffs": [
-        {"buff_type": "health", "value": 12}
-    ],
-    "reactive": null
+  "id": "trophy_belt",
+  "name": "Trophy Belt",
+  "description": "A belt adorned with trophies from past victories. Inspires confidence. | +12 HP.",
+  "slot": "waist",
+  "passive_buffs": [
+    {
+      "buff_type": "health",
+      "value": 12
+    }
+  ],
+  "reactive": null
 }

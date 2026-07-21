@@ -1,10 +1,13 @@
 {
-    "id": "belt_of_quick_draw",
-    "name": "Belt of Quick Draw",
-    "description": "A belt that lets the wearer switch items with blinding speed.",
-    "slot": "waist",
-    "passive_buffs": [
-        {"buff_type": "speed", "value": 2}
-    ],
-    "reactive": null
+  "id": "belt_of_quick_draw",
+  "name": "Belt of Quick Draw",
+  "description": "A belt that lets the wearer switch items with blinding speed. | +2 speed.",
+  "slot": "waist",
+  "passive_buffs": [
+    {
+      "buff_type": "speed",
+      "value": 2
+    }
+  ],
+  "reactive": null
 }

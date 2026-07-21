@@ -1,10 +1,10 @@
 {
-    "id": "phoenix_rebirth",
-    "name": "Phoenix Rebirth",
-    "description": "Channel phoenix energy to heal wounds dramatically.",
-    "base_action": "block",
-    "effects": {
-        "heal_on_hit": 15
-    },
-    "predictability_increase": 3
+  "id": "phoenix_rebirth",
+  "name": "Phoenix Rebirth",
+  "description": "Channel phoenix energy to heal wounds dramatically. | heals 15 HP on hit; +3 predictability.",
+  "base_action": "block",
+  "effects": {
+    "heal_on_hit": 15
+  },
+  "predictability_increase": 3
 }

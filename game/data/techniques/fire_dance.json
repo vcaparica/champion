@@ -1,11 +1,11 @@
 {
-    "id": "fire_dance",
-    "name": "Fire Dance",
-    "description": "A mesmerizing pattern of footwork that confuses the opponent.",
-    "base_action": "avoid",
-    "effects": {
-        "gain_advantage": "offensive",
-        "apply_debuff": "predictable"
-    },
-    "predictability_increase": 1
+  "id": "fire_dance",
+  "name": "Fire Dance",
+  "description": "A mesmerizing pattern of footwork that confuses the opponent. | applies predictable; gains offensive advantage; +1 predictability.",
+  "base_action": "avoid",
+  "effects": {
+    "gain_advantage": "offensive",
+    "apply_debuff": "predictable"
+  },
+  "predictability_increase": 1
 }

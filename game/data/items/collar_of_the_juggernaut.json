@@ -1,10 +1,13 @@
 {
-    "id": "collar_of_the_juggernaut",
-    "name": "Collar of the Juggernaut",
-    "description": "A heavy collar that makes the wearer unstoppable while charging.",
-    "slot": "neck",
-    "passive_buffs": [
-        {"buff_type": "power", "value": 2}
-    ],
-    "reactive": null
+  "id": "collar_of_the_juggernaut",
+  "name": "Collar of the Juggernaut",
+  "description": "A heavy collar that makes the wearer unstoppable while charging. | +2 power.",
+  "slot": "neck",
+  "passive_buffs": [
+    {
+      "buff_type": "power",
+      "value": 2
+    }
+  ],
+  "reactive": null
 }

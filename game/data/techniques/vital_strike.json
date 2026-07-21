@@ -1,10 +1,10 @@
 {
-    "id": "vital_strike",
-    "name": "Vital Strike",
-    "description": "A precise strike targeting vital areas. Bypasses armor.",
-    "base_action": "strike",
-    "effects": {
-        "damage_modifier": 4
-    },
-    "predictability_increase": 1
+  "id": "vital_strike",
+  "name": "Vital Strike",
+  "description": "A precise strike targeting vital areas. Bypasses armor. | +4 damage; +1 predictability.",
+  "base_action": "strike",
+  "effects": {
+    "damage_modifier": 4
+  },
+  "predictability_increase": 1
 }

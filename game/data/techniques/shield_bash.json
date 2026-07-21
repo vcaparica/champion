@@ -1,11 +1,11 @@
 {
-    "id": "shield_bash",
-    "name": "Shield Bash",
-    "description": "A strike that uses your shield as a weapon. Pushes the opponent back to far range.",
-    "base_action": "strike",
-    "effects": {
-        "damage_modifier": 2,
-        "reposition_to": "far"
-    },
-    "predictability_increase": 1
+  "id": "shield_bash",
+  "name": "Shield Bash",
+  "description": "A strike that uses your shield as a weapon. Pushes the opponent back to far range. | +2 damage; moves to far range; +1 predictability.",
+  "base_action": "strike",
+  "effects": {
+    "damage_modifier": 2,
+    "reposition_to": "far"
+  },
+  "predictability_increase": 1
 }
