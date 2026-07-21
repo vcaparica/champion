@@ -1,0 +1,110 @@
+"""
+server/match_manager.py - Match lifecycle management
+======================================================
+Handles lobby queue, player pairing, and match state.
+"""
+import uuid
+from dataclasses import dataclass, field
+from typing import Optional
+
+
+@dataclass
+class ServerMatch:
+    """Server-side match tracking."""
+    match_id: str
+    mode: str
+    match_state: any  # MatchState
+    player_a_id: str = ""
+    player_b_id: str = ""
+    player_a_name: str = ""
+    player_b_name: str = ""
+    phase: str = "lobby"
+    fighter_choices: dict = field(default_factory=dict)
+    technique_choices: dict = field(default_factory=dict)
+    item_choices: dict = field(default_factory=dict)
+    ready_for_round: set = field(default_factory=set)
+
+
+class MatchManager:
+    """Manages matchmaking and active matches."""
+
+    def __init__(self):
+        self._queue: list[tuple[str, str]] = []  # (player_id, mode)
+        self._matches: dict[str, ServerMatch] = {}
+
+    def add_to_queue(self, player_id: str, mode: str) -> Optional[str]:
+        """Add player to queue. Returns match_id if paired, None otherwise."""
+        # Check for existing match
+        for pid, qmode in self._queue:
+            if qmode == mode and pid != player_id:
+                self._queue.remove((pid, qmode))
+                match_id = str(uuid.uuid4())[:8]
+                match = ServerMatch(match_id=match_id, mode=mode, match_state=None)
+                match.player_a_id = pid
+                match.player_b_id = player_id
+                self._matches[match_id] = match
+                return match_id
+        self._queue.append((player_id, mode))
+        return None
+
+    def set_fighter_choice(self, match_id: str, player_id: str, fighter_id: str) -> None:
+        match = self._matches.get(match_id)
+        if match:
+            match.fighter_choices[player_id] = fighter_id
+
+    def set_technique_choices(self, match_id: str, player_id: str, technique_ids: list[str]) -> None:
+        match = self._matches.get(match_id)
+        if match:
+            match.technique_choices[player_id] = technique_ids
+
+    def set_item_choices(self, match_id: str, player_id: str, item_ids: list[str]) -> None:
+        match = self._matches.get(match_id)
+        if match:
+            match.item_choices[player_id] = item_ids
+
+    def get_match(self, match_id: str) -> Optional[ServerMatch]:
+        return self._matches.get(match_id)
+
+    def get_player_team(self, match: ServerMatch, player_id: str) -> str:
+        if match.player_a_id == player_id:
+            return "a"
+        return "b"
+
+    def resolve_volley(self, match_id: str, player_id: str, actions: list) -> dict:
+        match = self._matches.get(match_id)
+        if not match:
+            return {"type": "error", "message": "Match not found"}
+
+        team = self.get_player_team(match, player_id)
+        if team == "a":
+            match.match_state.actions_declared_a = actions
+        else:
+            match.match_state.actions_declared_b = actions
+
+        from game.match import all_actions_declared
+        if not all_actions_declared(match.match_state):
+            return {"type": "actions_received", "team": team}
+
+        from server.combat_resolver import resolve_volley_server
+        result = resolve_volley_server(match)
+
+        from game.match import clear_actions, check_round_end, apply_round_result
+        clear_actions(match.match_state)
+
+        round_winner = check_round_end(match.match_state)
+        if round_winner:
+            apply_round_result(match.match_state, round_winner)
+            from game.match import check_match_end
+            match_winner = check_match_end(match.match_state)
+            result["round_end"] = True
+            result["round_winner"] = round_winner
+            if match_winner:
+                result["match_end"] = True
+                result["match_winner"] = match_winner
+
+        return result
+
+    def player_ready_for_round(self, match_id: str, player_id: str) -> None:
+        match = self._matches.get(match_id)
+        if match:
+            match.ready_for_round.add(player_id)
