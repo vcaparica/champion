@@ -22,6 +22,9 @@ class FighterInstance:
     selected_items: list[str] = field(default_factory=list)
     active_debuffs: list[DebuffType] = field(default_factory=list)
     predictability: int = 0
+    power_modifier: int = 0
+    speed_modifier: int = 0
+    damage_reduction: int = 0
 
     def __post_init__(self):
         if self.current_health == 0:
@@ -45,21 +48,21 @@ class ExchangeResult:
 
 def get_effective_speed(instance: FighterInstance) -> int:
     """Get speed after buffs and debuffs."""
-    speed = instance.fighter_data.base_speed
+    speed = instance.fighter_data.base_speed + instance.speed_modifier
     if DebuffType.SLOWED in instance.active_debuffs:
         speed = max(1, speed - 2)
-    return speed
+    return max(1, speed)
 
 
 def get_effective_power(instance: FighterInstance) -> int:
     """Get power after buffs and debuffs."""
-    power = instance.fighter_data.base_power
+    power = instance.fighter_data.base_power + instance.power_modifier
     if DebuffType.WEAKENED in instance.active_debuffs:
         power = max(1, power - 3)
-    return power
+    return max(1, power)
 
 
-def compute_damage(base_power: int, advantage: Advantage, is_vulnerable: bool = False) -> int:
+def compute_damage(base_power: int, advantage: Advantage, is_vulnerable: bool = False, damage_reduction: int = 0) -> int:
     """Compute base damage from power and advantage."""
     damage = base_power
     if advantage == Advantage.OFFENSIVE:
@@ -68,6 +71,7 @@ def compute_damage(base_power: int, advantage: Advantage, is_vulnerable: bool = 
         damage = max(1, damage - 2)
     if is_vulnerable:
         damage += 3
+    damage -= damage_reduction
     return max(1, damage)
 
 
@@ -86,6 +90,14 @@ def apply_buffs(instance: FighterInstance, all_items: dict) -> FighterInstance:
                     value = buff.value
                 if buff_type == BuffType.HEALTH:
                     instance.current_health += value
+                elif buff_type == BuffType.POWER:
+                    instance.power_modifier += value
+                elif buff_type == BuffType.SPEED:
+                    instance.speed_modifier += value
+                elif buff_type == BuffType.DAMAGE_REDUCTION:
+                    instance.damage_reduction += value
+                elif buff_type == BuffType.RESIST_DEBUFF:
+                    pass  # Handled during debuff application
     return instance
 
 
@@ -111,8 +123,8 @@ def resolve_exchange(
     a_vulnerable = DebuffType.VULNERABLE in attacker.active_debuffs
     d_vulnerable = DebuffType.VULNERABLE in defender.active_debuffs
 
-    a_damage = compute_damage(a_power, attacker.current_advantage, d_vulnerable)
-    d_damage = compute_damage(d_power, defender.current_advantage, a_vulnerable)
+    a_damage = compute_damage(a_power, attacker.current_advantage, d_vulnerable, defender.damage_reduction)
+    d_damage = compute_damage(d_power, defender.current_advantage, a_vulnerable, attacker.damage_reduction)
 
     # Apply technique damage modifier
     if attacker_technique:
@@ -134,6 +146,7 @@ def resolve_exchange(
             except ValueError:
                 pass
         if attacker_technique.effects.heal_on_hit:
+            # Healing applied after interaction matrix determines outcome
             pass
 
     if defender_technique:
@@ -290,7 +303,7 @@ def resolve_exchange(
         result.flavor_text = "The charge barrels through the feint!"
 
     elif pair == (ActionType.CHARGE, ActionType.COUNTER):
-        result.outcome = "hit"
+        result.outcome = "countered"
         result.damage_to_attacker = d_damage
         result.flavor_text = "The counter catches the charging opponent!"
 
@@ -336,6 +349,7 @@ def resolve_exchange(
 
     # Apply technique healing
     if attacker_technique and attacker_technique.effects.heal_on_hit and result.outcome == "hit":
+        attacker.current_health += attacker_technique.effects.heal_on_hit
         result.flavor_text += f" {attacker.fighter_data.name} recovers stamina."
 
     # Ensure non-negative damage

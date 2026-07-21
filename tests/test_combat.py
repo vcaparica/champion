@@ -159,6 +159,40 @@ def test_apply_buffs_modifies_stats():
     assert get_effective_speed(instance) == 5
 
 
+def test_heal_on_hit():
+    """A technique with heal_on_hit should restore health on a successful hit."""
+    attacker = make_test_fighter("Attacker", power=8, health=100)
+    defender = make_test_fighter("Defender", health=200)
+    initial_health = attacker.current_health
+
+    tech = TechniqueData(
+        id="life_strike", name="Life Strike", description="",
+        base_action=ActionType.STRIKE,
+        effects=TechniqueEffect(heal_on_hit=15),
+        predictability_increase=1
+    )
+
+    result = resolve_exchange(attacker, defender, ActionType.STRIKE, ActionType.FEINT, attacker_technique=tech)
+    assert result.outcome == "hit"
+    assert attacker.current_health == initial_health + 15
+
+
+def test_power_buff_increases_damage():
+    """POWER buff from items should increase damage output."""
+    attacker_buffed = make_test_fighter("Buffed", power=8, health=200)
+    attacker_buffed.power_modifier = 5
+    attacker_unbuffed = make_test_fighter("Unbuffed", power=8, health=200)
+    defender_a = make_test_fighter("DefenderA", health=200)
+    defender_b = make_test_fighter("DefenderB", health=200)
+
+    result_buffed = resolve_exchange(attacker_buffed, defender_a, ActionType.STRIKE, ActionType.FEINT)
+    result_unbuffed = resolve_exchange(attacker_unbuffed, defender_b, ActionType.STRIKE, ActionType.FEINT)
+
+    assert result_buffed.outcome == "hit"
+    assert result_unbuffed.outcome == "hit"
+    assert result_buffed.damage_to_defender > result_unbuffed.damage_to_defender
+
+
 def test_fighter_instance_defaults():
     """FighterInstance should initialize with defaults from FighterData."""
     data = FighterData(
