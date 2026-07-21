@@ -62,6 +62,8 @@ def resolve_volley_server(match) -> dict:
             # Apply damage
             defender.current_health = max(0, defender.current_health - result.damage_to_defender)
             attacker.current_health = max(0, attacker.current_health - result.damage_to_attacker)
+            attacker.damage_taken_this_round += result.damage_to_attacker
+            defender.damage_taken_this_round += result.damage_to_defender
 
             # Apply range and advantage changes
             if result.range_change:
@@ -93,6 +95,8 @@ def resolve_volley_server(match) -> dict:
             }
             attacker.current_health = max(0, attacker.current_health - result.damage_to_defender)
             defender.current_health = max(0, defender.current_health - result.damage_to_attacker)
+            attacker.damage_taken_this_round += result.damage_to_defender
+            defender.damage_taken_this_round += result.damage_to_attacker
             if result.range_change:
                 defender.current_range = result.range_change
             if result.attacker_advantage_change:
