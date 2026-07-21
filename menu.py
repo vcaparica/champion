@@ -534,7 +534,10 @@ class Menu:
         Menu._focus_memory[self.title] = self.current_index
         if self.current_index == orig_index:
             # Boundary hit: index didn't change
-            self._play_boundary_sfx()
+            if self.sfx_boundary is not None:
+                self._play_boundary_sfx()
+            else:
+                self._speak_current()
         elif (direction > 0 and self.current_index < orig_index) or \
              (direction < 0 and self.current_index > orig_index):
             # Wrapped around
@@ -562,7 +565,7 @@ class Menu:
             self._move(1 if step >= 0 else -1)
         else:
             if self.current_index == orig_index:
-                self._play_boundary_sfx()
+                self._play_boundary_sfx() if self.sfx_boundary is not None else self._speak_current()
             elif (step > 0 and self.current_index < orig_index) or \
                  (step < 0 and self.current_index > orig_index):
                 self._play_wrap_sfx()
@@ -587,7 +590,10 @@ class Menu:
             self._play_move_sfx()
             self._speak_current()
         else:
-            self._play_boundary_sfx()
+            if self.sfx_boundary is not None:
+                self._play_boundary_sfx()
+            else:
+                self._speak_current()
 
     def _repeat(self):
         """Repeat the current item announcement."""
