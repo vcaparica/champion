@@ -34,6 +34,10 @@ async def _handle_join_queue(session, message: dict, match_manager, session_mana
     mode = message.get("mode", "1v1")
     match_id = match_manager.add_to_queue(session.player_id, mode)
     if match_id:
+        # TODO: Set session.current_match_id = match_id for BOTH players' sessions
+        # when the match is created. The match_manager returns match_id but does not
+        # have access to session_manager. The caller should look up both sessions
+        # (player_a and player_b) via session_manager and set their current_match_id.
         return {"type": "match_found", "match_id": match_id}
     return {"type": "queue_joined", "mode": mode}
 

@@ -33,7 +33,13 @@ class MatchManager:
         self._matches: dict[str, ServerMatch] = {}
 
     def add_to_queue(self, player_id: str, mode: str) -> Optional[str]:
-        """Add player to queue. Returns match_id if paired, None otherwise."""
+        """Add player to queue. Returns match_id if paired, None otherwise.
+
+        NOTE: When a match_id is returned, the caller (e.g. server/main.py)
+        MUST set session.current_match_id on both players' sessions so that
+        subsequent messages (select_fighter, declare_actions, etc.) can
+        look up the match via the session.
+        """
         # Check for existing match
         for pid, qmode in self._queue:
             if qmode == mode and pid != player_id:

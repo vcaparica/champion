@@ -3,7 +3,7 @@ server/combat_resolver.py - Server-side combat resolution
 ===========================================================
 Authoritatively resolves combat exchanges on the server.
 """
-from game.combat import resolve_exchange, FighterInstance
+from game.combat import resolve_exchange, FighterInstance, get_effective_speed
 from game.enums import ActionType
 
 
@@ -35,11 +35,19 @@ def resolve_volley_server(match) -> dict:
 
         # Determine who is attacker/defender for this exchange
         # In 1v1, the faster fighter attacks first
-        a_speed = attacker.fighter_data.base_speed
-        b_speed = defender.fighter_data.base_speed
+        a_speed = get_effective_speed(attacker)
+        b_speed = get_effective_speed(defender)
+
+        # TODO: Load technique data on the server and pass real TechniqueData objects.
+        # For now, techniques are passed as None, making technique effects inert server-side.
+        a_technique = None
+        b_technique = None
 
         if a_speed >= b_speed:
-            result = resolve_exchange(attacker, defender, a_action_type, b_action_type)
+            result = resolve_exchange(
+                attacker, defender, a_action_type, b_action_type,
+                attacker_technique=a_technique, defender_technique=b_technique
+            )
             exchange = {
                 "exchange_num": i + 1,
                 "attacker_name": attacker.fighter_data.name,
@@ -68,7 +76,10 @@ def resolve_volley_server(match) -> dict:
                 if debuff not in defender.active_debuffs:
                     defender.active_debuffs.append(debuff)
         else:
-            result = resolve_exchange(defender, attacker, b_action_type, a_action_type)
+            result = resolve_exchange(
+                defender, attacker, b_action_type, a_action_type,
+                attacker_technique=b_technique, defender_technique=a_technique
+            )
             exchange = {
                 "exchange_num": i + 1,
                 "attacker_name": defender.fighter_data.name,

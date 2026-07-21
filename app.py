@@ -356,11 +356,20 @@ class App:
             except ValueError:
                 ai_action_type = ActionType.STRIKE
 
+            # Look up technique data for both fighters
+            p_tech_id = p_act.get("technique_id")
+            ai_tech_id = ai_actions[i].get("technique_id")
+            p_technique = self.techniques.get(p_tech_id) if p_tech_id else None
+            ai_technique = self.techniques.get(ai_tech_id) if ai_tech_id else None
+
             p_speed = get_effective_speed(player)
             ai_speed = get_effective_speed(ai)
 
             if p_speed >= ai_speed:
-                result = resolve_exchange(player, ai, p_action_type, ai_action_type)
+                result = resolve_exchange(
+                    player, ai, p_action_type, ai_action_type,
+                    attacker_technique=p_technique, defender_technique=ai_technique
+                )
                 attacker_name = player.fighter_data.name
                 defender_name = ai.fighter_data.name
                 a_health = max(0, player.current_health - result.damage_to_attacker)
@@ -368,7 +377,10 @@ class App:
                 player.current_health = a_health
                 ai.current_health = d_health
             else:
-                result = resolve_exchange(ai, player, ai_action_type, p_action_type)
+                result = resolve_exchange(
+                    ai, player, ai_action_type, p_action_type,
+                    attacker_technique=ai_technique, defender_technique=p_technique
+                )
                 attacker_name = ai.fighter_data.name
                 defender_name = player.fighter_data.name
                 a_health = max(0, ai.current_health - result.damage_to_attacker)
