@@ -60,3 +60,7 @@ class FighterSelectScreen:
     def quit_requested(self) -> bool:
         """True if Alt+F4 was pressed during the screen."""
         return self._quit_requested
+
+    def run(self) -> Optional[FighterData]:
+        """Run the fighter selection screen. Returns selected fighter or None."""
+        return None
