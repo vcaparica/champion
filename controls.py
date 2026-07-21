@@ -355,8 +355,10 @@ class GameControls:
     def _handle_key_up(self, event: pygame.event.Event) -> bool:
         """Handle keyboard key release."""
         key = event.key
-        self._modifiers = event.mod
-        
+        # Don't overwrite self._modifiers from KEYUP events — the event.mod
+        # field reflects modifiers after the release, which can zero out the
+        # Alt mask and break Alt+F4 detection in the same frame.
+
         self._keyboard[key] = InputState.JUST_RELEASED
         self._keyboard_released_this_frame.add(key)
         

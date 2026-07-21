@@ -288,6 +288,8 @@ class App:
         from game.ai import choose_ai_actions
         while match.phase == MatchPhase.COMBAT:
             self._run_combat_volley(match)
+            if not self.running:
+                break
             from game.match import check_round_end, apply_round_result, clear_actions
             winner = check_round_end(match)
             if winner:
@@ -379,7 +381,9 @@ class App:
         )
 
         result = menu.run()
-        if result is None or result.get('action') == 'cancel':
+        if result is None or result.get('action') in ('cancel', 'quit'):
+            if result and result.get('action') == 'quit':
+                self._handle_quit()
             return None
         selected_id = result.get('id')
         if selected_id == 'back':
@@ -419,7 +423,9 @@ class App:
             )
 
             result = menu.run()
-            if result is None or result.get('action') == 'cancel':
+            if result is None or result.get('action') in ('cancel', 'quit'):
+                if result and result.get('action') == 'quit':
+                    self._handle_quit()
                 return None
 
             item_id = result.get('id')
@@ -472,7 +478,9 @@ class App:
             )
 
             result = menu.run()
-            if result is None or result.get('action') == 'cancel':
+            if result is None or result.get('action') in ('cancel', 'quit'):
+                if result and result.get('action') == 'quit':
+                    self._handle_quit()
                 return None
 
             item_id = result.get('id')
@@ -560,6 +568,9 @@ class App:
             )
             self._wait_for_continue(repeat_text=exchange_text)
 
+            if not self.running:
+                return
+
             if player.current_health <= 0 or ai.current_health <= 0:
                 break
 
@@ -636,7 +647,9 @@ class App:
                 menu.current_index = self._last_action_index
 
             result = menu.run()
-            if result is None or result.get('action') == 'cancel':
+            if result is None or result.get('action') in ('cancel', 'quit'):
+                if result and result.get('action') == 'quit':
+                    self._handle_quit()
                 return None
 
             # Remember position of chosen item for next time
