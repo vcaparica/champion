@@ -191,8 +191,8 @@ class FighterSelectScreen:
             )
         )
         vert = hat_y if hat_y != 0 else (
-            -1 if stick_y < -self._AXIS_THRESHOLD else (
-                1 if stick_y > self._AXIS_THRESHOLD else 0
+            1 if stick_y < -self._AXIS_THRESHOLD else (
+                -1 if stick_y > self._AXIS_THRESHOLD else 0
             )
         )
 
