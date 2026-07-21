@@ -531,6 +531,8 @@ class App:
                 )
                 attacker_name = player.fighter_data.name
                 defender_name = ai.fighter_data.name
+                attacker_action = p_action_type.value
+                defender_action = ai_action_type.value
                 a_health = max(0, player.current_health - result.damage_to_attacker)
                 d_health = max(0, ai.current_health - result.damage_to_defender)
                 player.current_health = a_health
@@ -542,32 +544,50 @@ class App:
                 )
                 attacker_name = ai.fighter_data.name
                 defender_name = player.fighter_data.name
+                attacker_action = ai_action_type.value
+                defender_action = p_action_type.value
                 a_health = max(0, ai.current_health - result.damage_to_attacker)
                 d_health = max(0, player.current_health - result.damage_to_defender)
                 ai.current_health = a_health
                 player.current_health = d_health
 
-            self._announce_exchange(i, result, attacker_name, defender_name, a_health, d_health)
-            self._wait_for_continue()
+            exchange_text = self._announce_exchange(
+                i, result, attacker_name, defender_name, a_health, d_health,
+                attacker_action=attacker_action, defender_action=defender_action
+            )
+            self._wait_for_continue(repeat_text=exchange_text)
 
             if player.current_health <= 0 or ai.current_health <= 0:
                 break
 
-    def _wait_for_continue(self) -> None:
-        """Wait for the player to press Enter, Escape, or Space before continuing."""
-        speak("Press Enter or Space to continue.", False)
+    def _wait_for_continue(self, repeat_text: str = "") -> None:
+        """Wait for the player to press Enter, Space, or R before continuing.
+
+        Args:
+            repeat_text: If provided, pressing R will re-speak this text.
+        """
+        speak("Press Enter or Space to continue, or R to repeat.", False)
         while True:
             if not self.process_events():
                 return
+            # Check keys BEFORE update() since update() transitions
+            # PRESSED -> HELD and is_key_pressed only sees PRESSED state.
+            enter_pressed = (self.controls.is_key_pressed(pygame.K_RETURN) or
+                           self.controls.is_key_pressed(pygame.K_KP_ENTER))
+            space_pressed = self.controls.is_key_pressed(pygame.K_SPACE)
+            esc_pressed = self.controls.is_key_pressed(pygame.K_ESCAPE)
+            r_pressed = self.controls.is_key_pressed(pygame.K_r)
+            a_pressed = self.controls.is_gamepad_button_pressed(GameControls.GAMEPAD_A)
+
             self.update()
-            if (self.controls.is_key_pressed(pygame.K_RETURN) or
-                self.controls.is_key_pressed(pygame.K_KP_ENTER) or
-                self.controls.is_key_pressed(pygame.K_SPACE) or
-                self.controls.is_key_pressed(pygame.K_ESCAPE)):
+
+            if r_pressed and repeat_text:
+                speak(repeat_text, True)
+                continue
+
+            if enter_pressed or space_pressed or esc_pressed or a_pressed:
                 break
-            # Also check gamepad A button
-            if self.controls.is_gamepad_button_pressed(GameControls.GAMEPAD_A):
-                break
+
             pygame.time.wait(10)
 
     def _declare_actions_screen(self, player, opponent) -> Optional[list[dict]]:
@@ -614,11 +634,19 @@ class App:
         return actions
 
     def _announce_exchange(self, idx: int, result, attacker_name: str, defender_name: str,
-                           a_hp: int, d_hp: int) -> None:
-        """Announce the result of one exchange."""
+                           a_hp: int, d_hp: int,
+                           attacker_action: str = "", defender_action: str = "") -> str:
+        """Announce the result of one exchange. Returns the spoken text for repeat."""
         num = idx + 1
-        text = f"Exchange {num}: {result.flavor_text} {attacker_name} health: {a_hp}. {defender_name} health: {d_hp}."
+        action_text = ""
+        if attacker_action and defender_action:
+            action_text = (f"{attacker_name} used {attacker_action}. "
+                         f"{defender_name} used {defender_action}. ")
+        text = (f"Exchange {num}: {action_text}"
+                f"{result.flavor_text} "
+                f"{attacker_name} health: {a_hp}. {defender_name} health: {d_hp}.")
         speak(text, True)
+        return text
 
     def _announce_round_result(self, match, winner: str) -> None:
         """Announce round result."""
