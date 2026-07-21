@@ -23,10 +23,12 @@
   "panoply": {
     "head": [
       "iron_helm",
-      "crown_of_resolve"
+      "crown_of_resolve",
+      "mindward_circlet"
     ],
     "eyes": [
-      "goggles_of_the_hawk"
+      "goggles_of_the_hawk",
+      "lens_of_clarity"
     ],
     "neck": [
       "pendant_of_fortitude",
@@ -54,7 +56,8 @@
       "ring_of_vitality"
     ],
     "ring2": [
-      "band_of_iron_will"
+      "band_of_iron_will",
+      "seal_of_the_savant"
     ],
     "waist": [
       "belt_of_quick_draw"
