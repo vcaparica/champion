@@ -79,3 +79,38 @@ def test_load_all_items():
         assert len(items) == 2
         assert "iron_helm" in items
         assert "crown_of_resolve" in items
+
+
+def test_item_buff_with_scales_with():
+    """ItemBuff should support optional scales_with field."""
+    buff = ItemBuff(buff_type=BuffType.POWER, value=1, scales_with="intellect")
+    assert buff.scales_with == "intellect"
+    assert buff.value == 1  # base value, scaling applied at combat time
+
+
+def test_load_item_with_scales_with():
+    """load_item should parse scales_with from JSON."""
+    data = dict(ITEM_JSON)
+    data["passive_buffs"] = [
+        {"buff_type": "power", "value": 1, "scales_with": "intellect"}
+    ]
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(data, f)
+        temp_path = f.name
+    try:
+        item = load_item(temp_path)
+        assert item.passive_buffs[0].scales_with == "intellect"
+    finally:
+        os.unlink(temp_path)
+
+
+def test_load_item_buff_without_scales_with():
+    """ItemBuff without scales_with in JSON should default to None."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(ITEM_JSON, f)
+        temp_path = f.name
+    try:
+        item = load_item(temp_path)
+        assert item.passive_buffs[0].scales_with is None
+    finally:
+        os.unlink(temp_path)

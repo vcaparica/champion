@@ -15,6 +15,7 @@ class ItemBuff:
     """A passive stat modification from an item."""
     buff_type: BuffType
     value: int
+    scales_with: Optional[str] = None
 
 
 @dataclass
@@ -60,7 +61,11 @@ def _dict_to_item(data: dict) -> ItemData:
     """Convert a raw JSON dict to an ItemData instance."""
     buffs = []
     for b in data.get("passive_buffs", []):
-        buffs.append(ItemBuff(buff_type=BuffType(b["buff_type"]), value=b["value"]))
+        buffs.append(ItemBuff(
+            buff_type=BuffType(b["buff_type"]),
+            value=b["value"],
+            scales_with=b.get("scales_with")
+        ))
 
     reactive = None
     if data.get("reactive"):
