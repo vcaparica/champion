@@ -99,6 +99,11 @@ class MatchManager:
 
         round_winner = check_round_end(match.match_state, max_volleys=17)
         if round_winner:
+            # Check if this was a turn-limit win (both fighters still alive)
+            a_alive = any(f.current_health > 0 for f in match.match_state.team_a)
+            b_alive = any(f.current_health > 0 for f in match.match_state.team_b)
+            if a_alive and b_alive and round_winner != "draw":
+                result["time_up"] = True
             apply_round_result(match.match_state, round_winner)
             from game.match import check_match_end
             match_winner = check_match_end(match.match_state)
