@@ -66,6 +66,7 @@ class BuffType(Enum):
     SPEED = "speed"
     DAMAGE_REDUCTION = "damage_reduction"
     RESIST_DEBUFF = "resist_debuff"
+    INTELLECT = "intellect"
 
 
 class DebuffType(Enum):
@@ -74,3 +75,4 @@ class DebuffType(Enum):
     SLOWED = "slowed"           # reduced speed
     VULNERABLE = "vulnerable"   # increased damage taken
     PREDICTABLE = "predictable" # easier to predict next actions
+    DAZED = "dazed"             # reduced intellect
