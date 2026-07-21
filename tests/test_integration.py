@@ -248,16 +248,16 @@ def test_turn_limit_less_damage_wins():
             if player_instance.current_health <= 0 or ai_instance.current_health <= 0:
                 break
 
+        clear_actions(match)
         winner = check_round_end(match, max_volleys=17)
         if winner:
             apply_round_result(match, winner)
             break
-        clear_actions(match)
         volley_count += 1
 
     # Verify turn limit ended the round (not KO)
     assert match.phase == MatchPhase.ROUND_END
-    assert match.current_volley >= 17, "Turn limit of 17 volleys should have been reached"
+    assert match.current_volley == 17, "Turn limit of 17 volleys should have been reached"
     assert winner is not None, "A winner should have been determined"
     assert player_instance.current_health > 0, "Both fighters should survive turn limit"
     assert ai_instance.current_health > 0, "Both fighters should survive turn limit"

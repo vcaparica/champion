@@ -318,6 +318,7 @@ class App:
             if not self.running:
                 break
             from game.match import check_round_end, apply_round_result, clear_actions
+            clear_actions(match)
             winner = check_round_end(match, max_volleys=17)
             if winner:
                 apply_round_result(match, winner)
@@ -341,8 +342,6 @@ class App:
                     speak(f"Round {match.round_number + 1}, fight!", True)
                     if not self._wait_for_continue():
                         break
-            else:
-                clear_actions(match)
 
         speak("Returning to main menu.", False)
 
