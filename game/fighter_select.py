@@ -61,6 +61,24 @@ class FighterSelectScreen:
         """True if Alt+F4 was pressed during the screen."""
         return self._quit_requested
 
+    def _current_fighter(self) -> FighterData:
+        """Return the currently selected fighter."""
+        return self._fighter_list[self._fighter_index]
+
+    def _announce_fighter(self) -> None:
+        """Speak the current fighter's name."""
+        fighter = self._current_fighter()
+        speak(fighter.name, True)
+
+    def _move_fighter(self, direction: int) -> None:
+        """Move fighter selection by +1 or -1. Wraps around. Resets section to top."""
+        count = len(self._fighter_list)
+        self._fighter_index = (self._fighter_index + direction) % count
+        self._section_index = 0
+        self._play_sfx(self._sfx_move)
+        self._announce_fighter()
+        self._announce_section()
+
     def run(self) -> Optional[FighterData]:
         """Run the fighter selection screen. Returns selected fighter or None."""
         return None
