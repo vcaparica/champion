@@ -10,11 +10,11 @@
     "iron_wall",
     "shield_bash",
     "pommel_strike",
-    "war_cry",
-    "defensive_stance",
     "shield_wall",
     "last_stand",
-    "rallying_call"
+    "rallying_call",
+    "mind_over_matter",
+    "iron_discipline"
   ],
   "exclusive_technique_ids": [
     "iron_wall",
