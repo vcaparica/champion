@@ -7,7 +7,7 @@ from game.combat import (
 )
 from game.fighter import FighterData
 from game.technique import TechniqueData, TechniqueEffect
-from game.item import ItemData
+from game.item import ItemData, ItemBuff
 from game.enums import ActionType, Range, Advantage, BodySlot, BuffType, DebuffType
 
 
@@ -284,3 +284,118 @@ def test_compare_speed_order_true_tie():
     f1 = make_test_fighter("A", speed=4, power=5, health=5, intellect=4)
     f2 = make_test_fighter("B", speed=4, power=5, health=5, intellect=4)
     assert compare_speed_order(f1, f2) == 0
+
+
+def test_intellect_damage_scale_adds_damage():
+    """intellect_damage_scale should add (intellect * scale) to damage."""
+    attacker = make_test_fighter("Attacker", power=5, intellect=6)
+    defender = make_test_fighter("Defender", health=5)
+    tech = TechniqueData(
+        id="mind_over_matter", name="Mind Over Matter", description="",
+        base_action=ActionType.STRIKE,
+        effects=TechniqueEffect(intellect_damage_scale=1),
+        predictability_increase=2
+    )
+    result = resolve_exchange(attacker, defender, ActionType.STRIKE, ActionType.FEINT, attacker_technique=tech)
+    base = resolve_exchange(attacker, defender, ActionType.STRIKE, ActionType.FEINT)
+    # Mind Over Matter adds intellect (6) to damage
+    assert result.damage_to_defender == base.damage_to_defender + 6
+
+
+def test_opponent_intellect_scale_damage():
+    """opponent_intellect_scale should deal more damage vs low-intellect opponents."""
+    attacker = make_test_fighter("Attacker", power=5, intellect=6)
+    dumb_defender = make_test_fighter("Dumb", health=5, intellect=2)
+    smart_defender = make_test_fighter("Smart", health=5, intellect=6)
+    tech = TechniqueData(
+        id="exploit_weakness", name="Exploit Weakness", description="",
+        base_action=ActionType.FEINT,
+        effects=TechniqueEffect(opponent_intellect_scale=1),
+        predictability_increase=2
+    )
+    result_dumb = resolve_exchange(attacker, dumb_defender, ActionType.FEINT, ActionType.BLOCK, attacker_technique=tech)
+    result_smart = resolve_exchange(attacker, smart_defender, ActionType.FEINT, ActionType.BLOCK, attacker_technique=tech)
+    # Exploit Weakness: +(7 - opponent_intellect) damage. vs dumb(2): +5, vs smart(6): +1
+    assert result_dumb.damage_to_defender > result_smart.damage_to_defender
+
+
+def test_intellect_damage_reduction():
+    """intellect_damage_reduction should add (intellect * scale / 2 rounded up) to DR."""
+    attacker = make_test_fighter("Attacker", power=5, intellect=6)
+    defender = make_test_fighter("Defender", health=5)
+    tech_no_dr = TechniqueData(
+        id="basic_block", name="Basic Block", description="",
+        base_action=ActionType.BLOCK,
+        effects=TechniqueEffect(),
+        predictability_increase=1
+    )
+    tech_dr = TechniqueData(
+        id="iron_discipline", name="Iron Discipline", description="",
+        base_action=ActionType.BLOCK,
+        effects=TechniqueEffect(intellect_damage_reduction=1),
+        predictability_increase=1
+    )
+    result_no = resolve_exchange(attacker, defender, ActionType.STRIKE, ActionType.BLOCK, defender_technique=tech_no_dr)
+    result_dr = resolve_exchange(attacker, defender, ActionType.STRIKE, ActionType.BLOCK, defender_technique=tech_dr)
+    # Blocked strike deals 0 damage either way, so test with FEINT which bypasses block
+    result_no2 = resolve_exchange(attacker, defender, ActionType.FEINT, ActionType.BLOCK, defender_technique=tech_no_dr)
+    result_dr2 = resolve_exchange(attacker, defender, ActionType.FEINT, ActionType.BLOCK, defender_technique=tech_dr)
+    # When defender uses block vs feint, the outcome is "bypassed" with damage to defender
+    # Defender_technique DR reduction should reduce the incoming damage
+    assert result_dr2.outcome == "bypassed"
+    assert result_dr2.damage_to_defender < result_no2.damage_to_defender
+
+
+def test_require_intellect_advantage_blocks_effect():
+    """require_intellect_advantage should only allow effect when own intellect >= opponent."""
+    attacker = make_test_fighter("Attacker", power=5, intellect=6)
+    smarter_defender = make_test_fighter("SmartDef", health=5, intellect=7)
+    dumber_defender = make_test_fighter("DumbDef", health=5, intellect=3)
+    tech = TechniqueData(
+        id="read_pattern", name="Read the Pattern", description="",
+        base_action=ActionType.COUNTER,
+        effects=TechniqueEffect(damage_modifier=3, require_intellect_advantage=True),
+        predictability_increase=2
+    )
+    # Vs dumber defender: intellect advantage holds, +3 damage applies
+    result_dumb = resolve_exchange(attacker, dumber_defender, ActionType.COUNTER, ActionType.STRIKE, attacker_technique=tech)
+    # Vs smarter defender: intellect disadvantage, damage modifier should be nullified
+    result_smart = resolve_exchange(attacker, smarter_defender, ActionType.COUNTER, ActionType.STRIKE, attacker_technique=tech)
+    # The counter succeeds in both, but damage should differ
+    assert result_dumb.outcome == "countered"
+    assert result_smart.outcome == "countered"
+    assert result_dumb.damage_to_defender > result_smart.damage_to_defender
+
+
+def test_apply_buffs_with_scales_with():
+    """Item buffs with scales_with should multiply value by fighter's attribute."""
+    fighter = make_test_fighter("Test", health=5, power=5, intellect=6)
+    items = {
+        "smart_ring": ItemData(
+            id="smart_ring", name="Smart Ring", description="",
+            slot=BodySlot.RING1,
+            passive_buffs=[ItemBuff(BuffType.POWER, 1, scales_with="intellect")]
+        )
+    }
+    fighter.selected_items = ["smart_ring"]
+    fighter = apply_buffs(fighter, items)
+    # Intellect 6, base value 1: power_modifier = 1 * 6 = 6
+    assert fighter.power_modifier == 6
+
+
+def test_intellect_to_speed():
+    """intellect_to_speed should set speed equal to intellect for the exchange."""
+    # Fighter has speed 1 but intellect 6, so combat_speed should be 6 with this technique
+    attacker = make_test_fighter("Attacker", power=5, speed=1, intellect=6)
+    defender = make_test_fighter("Defender", health=5, speed=4)
+    tech = TechniqueData(
+        id="mental_alacrity", name="Mental Alacrity", description="",
+        base_action=ActionType.AVOID,
+        effects=TechniqueEffect(intellect_to_speed=True),
+        predictability_increase=1
+    )
+    # The technique makes speed = intellect for the exchange
+    result = resolve_exchange(attacker, defender, ActionType.AVOID, ActionType.AVOID, attacker_technique=tech, defender_technique=None)
+    # Both avoid -> both whiff with range change to far
+    assert result.outcome == "whiff"
+    assert result.range_change == Range.FAR

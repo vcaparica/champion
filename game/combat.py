@@ -118,9 +118,19 @@ def apply_buffs(instance: FighterInstance, all_items: dict) -> FighterInstance:
                 if isinstance(buff, dict):
                     buff_type = BuffType(buff["buff_type"])
                     value = buff["value"]
+                    scales_with = buff.get("scales_with")
                 else:
                     buff_type = buff.buff_type
                     value = buff.value
+                    scales_with = buff.scales_with
+
+                # Apply scaling if the buff scales with an attribute
+                if scales_with == "intellect":
+                    value = value * get_effective_intellect(instance)
+                elif scales_with == "power":
+                    value = value * get_effective_power(instance)
+                elif scales_with == "speed":
+                    value = value * get_effective_speed(instance)
                 if buff_type == BuffType.HEALTH:
                     instance.current_health += value
                 elif buff_type == BuffType.POWER:
@@ -155,6 +165,13 @@ def resolve_exchange(
     d_power = get_effective_power(defender)
     a_speed = get_effective_speed(attacker)
     d_speed = get_effective_speed(defender)
+
+    # intellect_to_speed override: replace speed with intellect for this exchange
+    if attacker_technique and attacker_technique.effects.intellect_to_speed:
+        a_speed = get_effective_intellect(attacker)
+    if defender_technique and defender_technique.effects.intellect_to_speed:
+        d_speed = get_effective_intellect(defender)
+
     a_vulnerable = DebuffType.VULNERABLE in attacker.active_debuffs
     d_vulnerable = DebuffType.VULNERABLE in defender.active_debuffs
 
@@ -192,6 +209,22 @@ def resolve_exchange(
                 result.defender_advantage_change = Advantage(defender_technique.effects.gain_advantage)
             except ValueError:
                 pass
+
+    # Apply intellect-scaling damage for attacker
+    if attacker_technique:
+        if attacker_technique.effects.intellect_damage_scale:
+            a_damage += get_effective_intellect(attacker) * attacker_technique.effects.intellect_damage_scale
+        if attacker_technique.effects.opponent_intellect_scale:
+            a_damage += max(0, 7 - get_effective_intellect(defender)) * attacker_technique.effects.opponent_intellect_scale
+        if attacker_technique.effects.require_intellect_advantage:
+            if get_effective_intellect(attacker) < get_effective_intellect(defender):
+                a_damage -= attacker_technique.effects.damage_modifier
+
+    # Apply intellect-based damage reduction for defender
+    if defender_technique and defender_technique.effects.intellect_damage_reduction:
+        # Ceil division: -(-(n) // d) rounds n/d up
+        dr_amount = -(-(get_effective_intellect(defender) * defender_technique.effects.intellect_damage_reduction) // 2)
+        a_damage = max(1, a_damage - dr_amount)
 
     # Interaction matrix
     pair = (attacker_action, defender_action)
