@@ -81,3 +81,29 @@ def test_load_all_techniques():
         assert len(techniques) == 2
         assert "iron_wall" in techniques
         assert techniques["shield_bash"].base_action == ActionType.STRIKE
+
+
+def test_technique_effect_intellect_fields_default():
+    """New intellect fields should default to 0/False."""
+    effect = TechniqueEffect()
+    assert effect.intellect_damage_scale == 0
+    assert effect.opponent_intellect_scale == 0
+    assert effect.intellect_to_speed is False
+    assert effect.intellect_damage_reduction == 0
+    assert effect.require_intellect_advantage is False
+
+
+def test_load_technique_with_intellect_effects():
+    """load_technique should parse intellect effect fields from JSON."""
+    data = dict(TECHNIQUE_JSON)
+    data["effects"]["intellect_damage_scale"] = 1
+    data["effects"]["intellect_to_speed"] = True
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(data, f)
+        temp_path = f.name
+    try:
+        tech = load_technique(temp_path)
+        assert tech.effects.intellect_damage_scale == 1
+        assert tech.effects.intellect_to_speed is True
+    finally:
+        os.unlink(temp_path)

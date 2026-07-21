@@ -22,6 +22,11 @@ class TechniqueEffect:
     switch_own_item: bool = False
     gain_advantage: Optional[str] = None
     multi_target: bool = False
+    intellect_damage_scale: int = 0
+    opponent_intellect_scale: int = 0
+    intellect_to_speed: bool = False
+    intellect_damage_reduction: int = 0
+    require_intellect_advantage: bool = False
 
 
 @dataclass
@@ -68,6 +73,11 @@ def _dict_to_technique(data: dict) -> TechniqueData:
         switch_own_item=effects_raw.get("switch_own_item", False),
         gain_advantage=effects_raw.get("gain_advantage"),
         multi_target=effects_raw.get("multi_target", False),
+        intellect_damage_scale=effects_raw.get("intellect_damage_scale", 0),
+        opponent_intellect_scale=effects_raw.get("opponent_intellect_scale", 0),
+        intellect_to_speed=effects_raw.get("intellect_to_speed", False),
+        intellect_damage_reduction=effects_raw.get("intellect_damage_reduction", 0),
+        require_intellect_advantage=effects_raw.get("require_intellect_advantage", False),
     )
     return TechniqueData(
         id=data["id"],
