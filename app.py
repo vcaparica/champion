@@ -24,6 +24,9 @@ class App:
     SFX_MENU_EXIT = "menu_exit"
     BGM_MAIN_MENU = "main_menu_bgm"
 
+    # Champion game server URL
+    SERVER_URL = "wss://cegoemtiroteio.com.br/champion/ws"
+
     def __init__(
         self,
         window_title: str = "Champion",
@@ -84,7 +87,147 @@ class App:
         self.controls.update()
 
     def _on_play_online(self, menu: Menu, item: MenuItem) -> None:
-        speak("Online play is not yet available in this version.", True)
+        """Connect to the game server and play an online match."""
+        from game.network import GameClient
+
+        speak("Connecting to Champion server...", True)
+        client = GameClient()
+        connected = client.connect(self.SERVER_URL)
+
+        if not connected:
+            speak("Could not connect to the server. Check your internet connection.", True)
+            return
+
+        speak("Connected! Waiting for the server...", False)
+
+        # Wait for the initial connected message
+        msg = self._wait_for_message(client, "connected", timeout=5.0)
+        if msg is None:
+            speak("Did not receive server greeting. Disconnecting.", True)
+            client.close()
+            return
+
+        player_id = msg.get("player_id", "unknown")
+        speak(f"Logged in as player {player_id[:4]}. Entering matchmaking.", False)
+
+        # Set player name
+        client.send({"type": "set_name", "name": f"Player_{player_id[:4]}"})
+        self._wait_for_message(client, "name_set", timeout=2.0)
+
+        # Join matchmaking queue
+        speak("Searching for an opponent...", True)
+        client.send({"type": "join_queue", "mode": "1v1"})
+
+        # Wait for match
+        msg = self._wait_for_message(client, "match_found", timeout=120.0)
+        if msg is None:
+            speak("No opponent found. Returning to main menu.", True)
+            client.close()
+            return
+
+        match_id = msg.get("match_id", "unknown")
+        speak(f"Opponent found! Match {match_id[:4]}. Preparing for battle.", True)
+
+        # Fighter selection
+        fighter = self._select_fighter_screen()
+        if fighter is None:
+            client.close()
+            return
+        client.send({"type": "select_fighter", "fighter_id": fighter.id})
+        speak("Waiting for opponent to choose their fighter...", False)
+        self._wait_for_message(client, "fighter_selected", timeout=30.0)
+
+        # Technique selection
+        player_techs = self._select_techniques_screen(fighter)
+        if player_techs is None:
+            client.close()
+            return
+        client.send({"type": "select_techniques", "technique_ids": player_techs})
+        speak("Waiting for opponent to choose their techniques...", False)
+        self._wait_for_message(client, "techniques_selected", timeout=30.0)
+
+        # Item selection
+        player_items = self._select_items_screen(fighter)
+        if player_items is None:
+            client.close()
+            return
+        client.send({"type": "select_items", "item_ids": player_items})
+        speak("Waiting for opponent to choose their items...", False)
+        self._wait_for_message(client, "items_selected", timeout=30.0)
+
+        # Build local fighter instance for combat tracking
+        from game.combat import FighterInstance, apply_buffs
+        player_instance = FighterInstance(
+            fighter_data=fighter,
+            selected_techniques=player_techs,
+            selected_items=player_items
+        )
+        player_instance = apply_buffs(player_instance, self.items)
+
+        speak("Combat begins! Declare your actions carefully.", True)
+
+        # Combat loop
+        round_num = 0
+        rounds_won_player = 0
+        rounds_won_opponent = 0
+
+        while client.is_connected:
+            # Declare 3 actions
+            opponent_health = "unknown"
+            player_actions = self._declare_actions_screen(
+                player_instance,
+                FighterInstance(fighter_data=fighter)  # placeholder for speech only
+            )
+            if player_actions is None:
+                client.close()
+                return
+
+            client.send({"type": "declare_actions", "actions": player_actions})
+            speak("Waiting for opponent's actions...", False)
+
+            # Wait for volley result
+            msg = self._wait_for_message(client, "volley_result", timeout=60.0)
+            if msg is None:
+                speak("Connection lost during combat.", True)
+                client.close()
+                return
+
+            exchanges = msg.get("exchanges", [])
+            for i, ex in enumerate(exchanges):
+                flavor = ex.get("flavor_text", "")
+                attacker = ex.get("attacker_name", "Unknown")
+                defender = ex.get("defender_name", "Unknown")
+                a_hp = ex.get("attacker_health", 0)
+                d_hp = ex.get("defender_health", 0)
+                text = (f"Exchange {i + 1}: {flavor} "
+                        f"{attacker} health: {a_hp}. {defender_name} health: {d_hp}.")
+                speak(text, True)
+                pygame.time.wait(500)
+
+            # Check for round/match end
+            if msg.get("round_end"):
+                round_winner = msg.get("round_winner", "draw")
+                if round_winner == "a":
+                    rounds_won_player += 1
+                    speak(f"You win round {round_num + 1}!", True)
+                else:
+                    rounds_won_opponent += 1
+                    speak(f"Opponent wins round {round_num + 1}!", True)
+                round_num += 1
+
+                if msg.get("match_end"):
+                    match_winner = msg.get("match_winner", "draw")
+                    if match_winner == "a":
+                        speak("Victory! You win the match!", True)
+                    else:
+                        speak("Defeat! Your opponent wins the match!", True)
+                    break
+
+                speak(f"Score: You {rounds_won_player} - {rounds_won_opponent} Opponent. Prepare for next round!", False)
+                client.send({"type": "ready_for_next_round"})
+
+        client.close()
+        speak("Returning to main menu.", False)
 
     def _on_local_match(self, menu: Menu, item: MenuItem) -> None:
         """Start a local match against AI."""
@@ -158,6 +301,22 @@ class App:
                 clear_actions(match)
 
         speak("Returning to main menu.", False)
+
+    def _wait_for_message(self, client, expected_type: str, timeout: float = 10.0) -> Optional[dict]:
+        """Poll the client for a specific message type, with timeout in seconds."""
+        import time
+        start = time.time()
+        while time.time() - start < timeout:
+            msg = client.receive()
+            if msg is not None:
+                if msg.get("type") == expected_type:
+                    return msg
+                # Log unexpected messages
+                elif msg.get("type") == "error":
+                    speak(f"Server error: {msg.get('message', 'unknown')}", True)
+                    return None
+            pygame.time.wait(50)
+        return None
 
     def _on_options(self, menu: Menu, item: MenuItem) -> None:
         speak("Options menu is not yet available.", True)
