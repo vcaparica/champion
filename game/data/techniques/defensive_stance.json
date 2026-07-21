@@ -4,7 +4,7 @@
   "description": "Take a measured defensive position, recovering some stamina. | heals 5 HP on hit; gains defensive advantage; +1 predictability.",
   "base_action": "block",
   "effects": {
-    "heal_on_hit": 5,
+    "heal_on_hit": 3,
     "gain_advantage": "defensive"
   },
   "predictability_increase": 1

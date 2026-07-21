@@ -4,7 +4,7 @@
   "description": "Unleash the full fury of the storm in a devastating charge. | +6 damage; +2 predictability.",
   "base_action": "charge",
   "effects": {
-    "damage_modifier": 6
+    "damage_modifier": 3
   },
   "predictability_increase": 2
 }

@@ -6,7 +6,7 @@
   "passive_buffs": [
     {
       "buff_type": "health",
-      "value": 8
+      "value": 6
     }
   ],
   "reactive": null

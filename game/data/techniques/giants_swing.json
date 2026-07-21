@@ -4,7 +4,7 @@
   "description": "Put all your weight behind one massive swing. | +6 damage; +3 predictability.",
   "base_action": "strike",
   "effects": {
-    "damage_modifier": 6
+    "damage_modifier": 3
   },
   "predictability_increase": 3
 }

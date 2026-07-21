@@ -4,7 +4,7 @@
   "description": "An overhead charge that cracks through any defense. | +5 damage; +2 predictability.",
   "base_action": "charge",
   "effects": {
-    "damage_modifier": 5
+    "damage_modifier": 2
   },
   "predictability_increase": 2
 }

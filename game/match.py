@@ -113,7 +113,7 @@ def check_match_end(match: MatchState) -> Optional[str]:
 def reset_for_new_round(match: MatchState) -> MatchState:
     """Reset combatants for a new round."""
     for fighter in match.team_a + match.team_b:
-        fighter.current_health = fighter.fighter_data.base_health
+        fighter.current_health = fighter.fighter_data.base_health * 10
         fighter.current_range = Range.MEDIUM
         fighter.current_advantage = Advantage.NEUTRAL
         fighter.active_debuffs = []

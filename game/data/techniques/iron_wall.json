@@ -4,7 +4,7 @@
   "description": "An unbreakable defensive stance. Attackers who strike into it take damage from the rebound. | +3 damage; gains defensive advantage; +2 predictability.",
   "base_action": "block",
   "effects": {
-    "damage_modifier": 3,
+    "damage_modifier": 1,
     "gain_advantage": "defensive"
   },
   "predictability_increase": 2

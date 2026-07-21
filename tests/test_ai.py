@@ -9,7 +9,7 @@ from game.enums import ActionType
 def make_test_fighter(name="Test", technique_ids=None):
     data = FighterData(
         id=name.lower(), name=name, description="",
-        base_health=100, base_speed=5, base_power=8,
+        base_health=5, base_speed=4, base_power=5,
         technique_ids=technique_ids or ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8"],
         exclusive_technique_ids=[],
         panoply={}
@@ -85,13 +85,13 @@ def test_choose_ai_items_returns_two():
     }
     items = {
         "i1": ItemData(id="i1", name="Item 1", description="", slot=BodySlot.HEAD,
-                       passive_buffs=[ItemBuff(BuffType.HEALTH, 10)]),
+                       passive_buffs=[ItemBuff(BuffType.HEALTH, 8)]),
         "i2": ItemData(id="i2", name="Item 2", description="", slot=BodySlot.HANDS,
-                       passive_buffs=[ItemBuff(BuffType.POWER, 2)]),
+                       passive_buffs=[ItemBuff(BuffType.POWER, 1)]),
         "i3": ItemData(id="i3", name="Item 3", description="", slot=BodySlot.FEET,
                        passive_buffs=[ItemBuff(BuffType.SPEED, 1)]),
         "i4": ItemData(id="i4", name="Item 4", description="", slot=BodySlot.WAIST,
-                       passive_buffs=[ItemBuff(BuffType.HEALTH, 5)]),
+                       passive_buffs=[ItemBuff(BuffType.HEALTH, 4)]),
     }
     selected = choose_ai_items(fighter, items)
     assert len(selected) == 2

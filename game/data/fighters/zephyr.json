@@ -2,9 +2,9 @@
   "id": "zephyr",
   "name": "Zephyr",
   "description": "A wind dancer whose fighting style emphasizes speed and evasion over raw power. Zephyr flits around opponents, never where they expect, striking from unexpected angles.",
-  "base_health": 37,
-  "base_speed": 10,
-  "base_power": 6,
+  "base_health": 3,
+  "base_speed": 7,
+  "base_power": 4,
   "technique_ids": [
     "gale_slash",
     "wind_step",

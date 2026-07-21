@@ -129,7 +129,7 @@ class FighterSelectScreen:
     def _speak_stats(self, fighter: FighterData) -> None:
         """Speak the fighter's base stats."""
         speak(
-            f"Health {fighter.base_health}. "
+            f"Health {fighter.base_health * 10}. "
             f"Speed {fighter.base_speed}. "
             f"Power {fighter.base_power}.",
             True

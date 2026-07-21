@@ -4,7 +4,7 @@
   "description": "Channel phoenix energy to heal wounds dramatically. | heals 15 HP on hit; +3 predictability.",
   "base_action": "block",
   "effects": {
-    "heal_on_hit": 15
+    "heal_on_hit": 10
   },
   "predictability_increase": 3
 }

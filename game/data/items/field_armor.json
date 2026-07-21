@@ -6,11 +6,11 @@
   "passive_buffs": [
     {
       "buff_type": "health",
-      "value": 10
+      "value": 8
     },
     {
       "buff_type": "damage_reduction",
-      "value": 2
+      "value": 1
     }
   ],
   "reactive": null

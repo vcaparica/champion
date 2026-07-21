@@ -4,7 +4,7 @@
   "description": "A spinning attack that can hit multiple opponents. | +3 damage; hits multiple targets; +2 predictability.",
   "base_action": "strike",
   "effects": {
-    "damage_modifier": 3,
+    "damage_modifier": 1,
     "multi_target": true
   },
   "predictability_increase": 2

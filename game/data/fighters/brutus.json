@@ -2,9 +2,9 @@
   "id": "brutus",
   "name": "Brutus",
   "description": "A towering brute who relies on overwhelming physical strength. Brutus smashes through defenses with bone-crushing power, though his massive frame makes him an easy target for faster opponents.",
-  "base_health": 60,
-  "base_speed": 3,
-  "base_power": 10,
+  "base_health": 7,
+  "base_speed": 2,
+  "base_power": 7,
   "technique_ids": [
     "bone_crusher",
     "skull_splitter",

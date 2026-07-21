@@ -6,11 +6,11 @@
   "passive_buffs": [
     {
       "buff_type": "health",
-      "value": 20
+      "value": 15
     },
     {
       "buff_type": "damage_reduction",
-      "value": 4
+      "value": 2
     },
     {
       "buff_type": "speed",

@@ -4,7 +4,7 @@
   "description": "A quick strike with the pommel of your weapon. Fast enough to interrupt charges. | +1 damage; ignores range; +1 predictability.",
   "base_action": "strike",
   "effects": {
-    "damage_modifier": 1,
+    "damage_modifier": 0,
     "bypass_range": true
   },
   "predictability_increase": 1

@@ -7,7 +7,7 @@ from game.fighter import FighterData
 from game.enums import BodySlot
 
 
-def _make_fighter(fid="test", name="Test", health=50, speed=5, power=8):
+def _make_fighter(fid="test", name="Test", health=5, speed=4, power=5):
     """Helper to create a minimal FighterData for tests."""
     return FighterData(
         id=fid,

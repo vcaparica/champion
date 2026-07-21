@@ -4,7 +4,7 @@
   "description": "A strike so fast that the opponent's guard is useless. | +4 damage; +1 predictability.",
   "base_action": "strike",
   "effects": {
-    "damage_modifier": 4
+    "damage_modifier": 2
   },
   "predictability_increase": 1
 }

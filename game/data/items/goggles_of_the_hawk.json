@@ -6,7 +6,7 @@
   "passive_buffs": [
     {
       "buff_type": "speed",
-      "value": 2
+      "value": 1
     }
   ],
   "reactive": null

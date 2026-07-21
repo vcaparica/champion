@@ -6,12 +6,12 @@
   "passive_buffs": [
     {
       "buff_type": "power",
-      "value": 2
+      "value": 1
     }
   ],
   "reactive": {
     "trigger": "when_struck",
     "effect": "power_boost",
-    "value": 2
+    "value": 1
   }
 }

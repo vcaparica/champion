@@ -6,12 +6,12 @@
   "passive_buffs": [
     {
       "buff_type": "damage_reduction",
-      "value": 3
+      "value": 2
     }
   ],
   "reactive": {
     "trigger": "when_struck",
     "effect": "counter_damage",
-    "value": 2
+    "value": 1
   }
 }

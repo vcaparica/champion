@@ -2,9 +2,9 @@
   "id": "ember",
   "name": "Ember",
   "description": "A fire mage who channels raw flame into every strike. Ember overwhelms opponents with blazing speed and searing attacks, but lacks the raw durability of armored fighters.",
-  "base_health": 40,
-  "base_speed": 8,
-  "base_power": 9,
+  "base_health": 4,
+  "base_speed": 6,
+  "base_power": 6,
   "technique_ids": [
     "flame_strike",
     "fire_dance",

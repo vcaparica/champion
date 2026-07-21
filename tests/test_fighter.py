@@ -11,9 +11,9 @@ FIGHTER_JSON = {
     "id": "thorn",
     "name": "Thorn",
     "description": "A battle-hardened knight of the Iron Order.",
-    "base_health": 100,
-    "base_speed": 5,
-    "base_power": 8,
+    "base_health": 5,
+    "base_speed": 4,
+    "base_power": 5,
     "technique_ids": ["iron_wall", "shield_bash", "pommel_strike", "war_cry",
                        "defensive_stance", "shield_wall", "last_stand", "rallying_call"],
     "exclusive_technique_ids": ["iron_wall", "last_stand"],
@@ -49,7 +49,7 @@ def test_fighter_data_from_dict():
     )
     assert fighter.id == "thorn"
     assert fighter.name == "Thorn"
-    assert fighter.base_health == 100
+    assert fighter.base_health == 5
     assert len(fighter.technique_ids) == 8
     assert len(fighter.exclusive_technique_ids) == 2
     assert BodySlot.HEAD in fighter.panoply
@@ -64,7 +64,7 @@ def test_load_fighter_from_json_file():
     try:
         fighter = load_fighter(temp_path)
         assert fighter.id == "thorn"
-        assert fighter.base_speed == 5
+        assert fighter.base_speed == 4
         assert fighter.panoply[BodySlot.HANDS] == ["gauntlets_of_might", "grippers_of_steadiness"]
     finally:
         os.unlink(temp_path)

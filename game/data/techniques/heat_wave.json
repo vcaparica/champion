@@ -4,7 +4,7 @@
   "description": "Release a wave of searing heat. Strikes at any range. | +3 damage; ignores range; +2 predictability.",
   "base_action": "strike",
   "effects": {
-    "damage_modifier": 3,
+    "damage_modifier": 1,
     "bypass_range": true
   },
   "predictability_increase": 2

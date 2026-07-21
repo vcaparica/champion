@@ -4,7 +4,7 @@
   "description": "A counter-attack that leaves searing burns on the opponent. | +4 damage; applies vulnerable; +2 predictability.",
   "base_action": "counter",
   "effects": {
-    "damage_modifier": 4,
+    "damage_modifier": 2,
     "apply_debuff": "vulnerable"
   },
   "predictability_increase": 2

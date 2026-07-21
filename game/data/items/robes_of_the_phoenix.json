@@ -6,12 +6,12 @@
   "passive_buffs": [
     {
       "buff_type": "health",
-      "value": 10
+      "value": 8
     }
   ],
   "reactive": {
     "trigger": "when_low_health",
     "effect": "heal",
-    "value": 15
+    "value": 12
   }
 }

@@ -28,7 +28,7 @@ class FighterInstance:
 
     def __post_init__(self):
         if self.current_health == 0:
-            self.current_health = self.fighter_data.base_health
+            self.current_health = self.fighter_data.base_health * 10
 
 
 @dataclass
@@ -50,7 +50,7 @@ def get_effective_speed(instance: FighterInstance) -> int:
     """Get speed after buffs and debuffs."""
     speed = instance.fighter_data.base_speed + instance.speed_modifier
     if DebuffType.SLOWED in instance.active_debuffs:
-        speed = max(1, speed - 2)
+        speed = max(1, speed - 1)
     return max(1, speed)
 
 
@@ -58,7 +58,7 @@ def get_effective_power(instance: FighterInstance) -> int:
     """Get power after buffs and debuffs."""
     power = instance.fighter_data.base_power + instance.power_modifier
     if DebuffType.WEAKENED in instance.active_debuffs:
-        power = max(1, power - 3)
+        power = max(1, power - 1)
     return max(1, power)
 
 
@@ -66,11 +66,11 @@ def compute_damage(base_power: int, advantage: Advantage, is_vulnerable: bool = 
     """Compute base damage from power and advantage."""
     damage = base_power
     if advantage == Advantage.OFFENSIVE:
-        damage += 2
+        damage += 1
     elif advantage == Advantage.DEFENSIVE:
-        damage = max(1, damage - 2)
+        damage = max(1, damage - 1)
     if is_vulnerable:
-        damage += 3
+        damage += 1
     damage -= damage_reduction
     return max(1, damage)
 
@@ -309,8 +309,8 @@ def resolve_exchange(
 
     elif pair == (ActionType.CHARGE, ActionType.CHARGE):
         result.outcome = "clash"
-        result.damage_to_defender = a_damage + 2
-        result.damage_to_attacker = d_damage + 2
+        result.damage_to_defender = a_damage + 1
+        result.damage_to_attacker = d_damage + 1
         result.flavor_text = "Both fighters charge! The collision is devastating!"
 
     elif pair == (ActionType.CHARGE, ActionType.AVOID):

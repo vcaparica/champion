@@ -4,7 +4,7 @@
   "description": "A counter so light and fast it is nearly invisible. | +3 damage; gains offensive advantage; +2 predictability.",
   "base_action": "counter",
   "effects": {
-    "damage_modifier": 3,
+    "damage_modifier": 1,
     "gain_advantage": "offensive"
   },
   "predictability_increase": 2

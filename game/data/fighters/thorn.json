@@ -2,9 +2,9 @@
   "id": "thorn",
   "name": "Thorn",
   "description": "A battle-hardened knight of the Iron Order. Thorn excels at defensive combat, using his shield to weather any assault and counter-attack with devastating precision.",
-  "base_health": 50,
-  "base_speed": 5,
-  "base_power": 8,
+  "base_health": 5,
+  "base_speed": 4,
+  "base_power": 5,
   "technique_ids": [
     "iron_wall",
     "shield_bash",

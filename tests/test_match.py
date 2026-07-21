@@ -11,7 +11,7 @@ from game.enums import MatchPhase
 def make_test_fighter(name="Test"):
     data = FighterData(
         id=name.lower(), name=name, description="",
-        base_health=100, base_speed=5, base_power=8,
+        base_health=5, base_speed=4, base_power=5,
         technique_ids=[], exclusive_technique_ids=[], panoply={}
     )
     return FighterInstance(fighter_data=data)
