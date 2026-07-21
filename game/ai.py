@@ -32,12 +32,7 @@ def choose_ai_actions(
     available_tech_ids = fighter.selected_techniques
 
     for i in range(3):
-        # Higher predictability = more likely to counter-pick
-        if opponent_predictability > 0 and random.random() < min(0.5, opponent_predictability * 0.1):
-            # Try to counter-pick: pick an action the opponent might use
-            action_type = random.choice(all_action_types)
-        else:
-            action_type = random.choice(all_action_types)
+        action_type = random.choice(all_action_types)
 
         # Decide whether to use a technique
         technique_id = None
@@ -60,9 +55,18 @@ def choose_ai_techniques(
 ) -> list[str]:
     """Pick 3 techniques from the fighter's available list."""
     available = [tid for tid in fighter.fighter_data.technique_ids if tid in techniques]
-    if len(available) <= 3:
-        return available
-    return random.sample(available, 3)
+    if len(available) >= 3:
+        return random.sample(available, 3)
+
+    # Pad with random techniques from the full pool if needed
+    result = list(available)
+    all_tech_ids = list(techniques.keys())
+    remaining = [tid for tid in all_tech_ids if tid not in result]
+    random.shuffle(remaining)
+    while len(result) < 3 and remaining:
+        result.append(remaining.pop())
+
+    return result
 
 
 def choose_ai_items(
@@ -78,16 +82,16 @@ def choose_ai_items(
     for slot, item_ids in fighter.fighter_data.panoply.items():
         all_item_ids.extend(item_ids)
 
-    # If panoply is empty, fall back to all item keys
+    # If panoply is empty, the AI gets no items
     if not all_item_ids:
-        all_item_ids = list(items.keys())
+        return []
 
     valid_items = [iid for iid in all_item_ids if iid in items]
 
     if len(valid_items) <= 2:
         return valid_items
 
-    # Score items: health > power > damage_reduction > speed
+    # Score items: power > health > damage_reduction > speed
     scored = []
     for iid in valid_items:
         item = items[iid]

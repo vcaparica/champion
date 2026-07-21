@@ -79,6 +79,10 @@ def test_choose_ai_items_returns_two():
     from game.item import ItemData
     from game.enums import BodySlot, BuffType
     from game.item import ItemBuff
+    fighter.fighter_data.panoply = {
+        BodySlot.HEAD: ["i1", "i2"],
+        BodySlot.HANDS: ["i3", "i4"],
+    }
     items = {
         "i1": ItemData(id="i1", name="Item 1", description="", slot=BodySlot.HEAD,
                        passive_buffs=[ItemBuff(BuffType.HEALTH, 10)]),
