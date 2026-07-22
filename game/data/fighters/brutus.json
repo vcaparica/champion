@@ -14,7 +14,13 @@
     "crushing_grip",
     "battle_roar",
     "giants_swing",
-    "read_the_pattern"
+    "read_the_pattern",
+    "tempo_strike",
+    "blitz",
+    "momentum_edge",
+    "quickened_guard",
+    "riposte_in_a_blink",
+    "slipstream"
   ],
   "exclusive_technique_ids": [
     "bone_crusher",
@@ -36,18 +42,21 @@
     ],
     "torso": [
       "berserker_vest",
-      "reinforced_vest"
+      "reinforced_vest",
+      "aegis_of_winds"
     ],
     "body": [
       "brute_plate",
-      "iron_plate"
+      "iron_plate",
+      "livewire_vest"
     ],
     "shoulders": [
       "pauldrons_of_the_bulwark",
       "mantle_of_endurance"
     ],
     "arms": [
-      "vambraces_of_deflection"
+      "vambraces_of_deflection",
+      "reflex_bracers"
     ],
     "hands": [
       "war_wraps",
@@ -58,15 +67,18 @@
       "ring_of_cunning"
     ],
     "ring2": [
-      "band_of_iron_will"
+      "band_of_iron_will",
+      "swiftedge_ring"
     ],
     "waist": [
       "trophy_belt",
-      "girdle_of_stone"
+      "girdle_of_stone",
+      "duelists_sash"
     ],
     "feet": [
       "greaves_of_the_ram",
-      "sabatons_of_patience"
+      "sabatons_of_patience",
+      "quicksilver_boots"
     ]
   }
 }

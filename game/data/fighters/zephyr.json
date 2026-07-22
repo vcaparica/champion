@@ -14,7 +14,13 @@
     "tempest_fury",
     "whirlwind_feint",
     "exploit_weakness",
-    "mental_alacrity"
+    "mental_alacrity",
+    "tempo_strike",
+    "blitz",
+    "momentum_edge",
+    "quickened_guard",
+    "riposte_in_a_blink",
+    "slipstream"
   ],
   "exclusive_technique_ids": [
     "wind_step",
@@ -35,18 +41,21 @@
       "guardian_amulet"
     ],
     "torso": [
-      "reinforced_vest"
+      "reinforced_vest",
+      "aegis_of_winds"
     ],
     "body": [
       "field_armor",
-      "iron_plate"
+      "iron_plate",
+      "livewire_vest"
     ],
     "shoulders": [
       "cape_of_the_zephyr",
       "mantle_of_endurance"
     ],
     "arms": [
-      "bracers_of_the_storm"
+      "bracers_of_the_storm",
+      "reflex_bracers"
     ],
     "hands": [
       "grippers_of_steadiness",
@@ -57,14 +66,17 @@
     ],
     "ring2": [
       "band_of_iron_will",
-      "seal_of_the_savant"
+      "seal_of_the_savant",
+      "swiftedge_ring"
     ],
     "waist": [
-      "belt_of_quick_draw"
+      "belt_of_quick_draw",
+      "duelists_sash"
     ],
     "feet": [
       "boots_of_the_wind",
-      "sandals_of_drifting"
+      "sandals_of_drifting",
+      "quicksilver_boots"
     ]
   }
 }

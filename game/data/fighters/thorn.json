@@ -14,7 +14,13 @@
     "last_stand",
     "rallying_call",
     "mind_over_matter",
-    "iron_discipline"
+    "iron_discipline",
+    "tempo_strike",
+    "blitz",
+    "momentum_edge",
+    "quickened_guard",
+    "riposte_in_a_blink",
+    "slipstream"
   ],
   "exclusive_technique_ids": [
     "iron_wall",
@@ -35,18 +41,21 @@
       "pendant_of_fortitude"
     ],
     "torso": [
-      "reinforced_vest"
+      "reinforced_vest",
+      "aegis_of_winds"
     ],
     "body": [
       "iron_plate",
-      "field_armor"
+      "field_armor",
+      "livewire_vest"
     ],
     "shoulders": [
       "pauldrons_of_the_bulwark",
       "mantle_of_endurance"
     ],
     "arms": [
-      "vambraces_of_deflection"
+      "vambraces_of_deflection",
+      "reflex_bracers"
     ],
     "hands": [
       "gauntlets_of_might",
@@ -58,14 +67,17 @@
     ],
     "ring2": [
       "band_of_iron_will",
-      "seal_of_the_savant"
+      "seal_of_the_savant",
+      "swiftedge_ring"
     ],
     "waist": [
-      "girdle_of_stone"
+      "girdle_of_stone",
+      "duelists_sash"
     ],
     "feet": [
       "greaves_of_the_ram",
-      "sabatons_of_patience"
+      "sabatons_of_patience",
+      "quicksilver_boots"
     ]
   }
 }

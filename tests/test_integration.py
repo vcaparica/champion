@@ -19,7 +19,7 @@ def test_load_all_game_data():
     assert len(items) >= 41
 
     for f in fighters.values():
-        assert len(f.technique_ids) == 8
+        assert len(f.technique_ids) == 14  # 8 original + 6 Speed techniques
         assert len(f.exclusive_technique_ids) == 2
         assert len(f.panoply) == 12  # all body slots
         assert 1 <= f.base_intellect <= 7, f"{f.id} intellect out of 1-7 range"

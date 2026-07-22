@@ -39,3 +39,16 @@ def test_new_speed_items_load():
     assert items["livewire_vest"].passive_buffs[0].scales_with == "speed"
     assert items["reflex_bracers"].passive_buffs[0].scales_with == "speed_half"
     assert items["swiftedge_ring"].passive_buffs[0].scales_with == "speed_half"
+
+
+from game.fighter import load_all_fighters
+
+FIGHTER_DIR = os.path.join("game", "data", "fighters")
+
+
+def test_all_fighters_have_speed_pool():
+    fighters = load_all_fighters(FIGHTER_DIR)
+    for f in fighters.values():
+        assert set(NEW_TECHS).issubset(set(f.technique_ids)), f.id
+        flat_items = {iid for ids in f.panoply.values() for iid in ids}
+        assert set(NEW_ITEMS).issubset(flat_items), f.id
