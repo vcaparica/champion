@@ -80,6 +80,14 @@ def get_effective_intellect(instance: FighterInstance) -> int:
     return max(1, intellect)
 
 
+def get_effective_health(instance: FighterInstance) -> int:
+    """Health attribute (2-6) used by Health-scaling techniques.
+
+    This is the static Health stat, deliberately distinct from current_health, which is
+    the multiplied HP pool. There is no Health attribute modifier."""
+    return instance.fighter_data.base_health
+
+
 def compare_speed_order(f1: FighterInstance, f2: FighterInstance) -> int:
     """Determine which fighter acts first in an exchange.
 
@@ -266,6 +274,8 @@ def resolve_exchange(
         # Intellect-scaling offense (unchanged behavior)
         if eff.intellect_damage_scale:
             a_damage += get_effective_intellect(attacker) * eff.intellect_damage_scale
+        if eff.health_damage_scale:
+            a_damage += get_effective_health(attacker) * eff.health_damage_scale
         if eff.opponent_intellect_scale:
             a_damage += max(0, 7 - get_effective_intellect(defender)) * eff.opponent_intellect_scale
         if eff.require_intellect_advantage and get_effective_intellect(attacker) < get_effective_intellect(defender):
@@ -289,6 +299,8 @@ def resolve_exchange(
             d_damage += d_speed * eff.speed_damage_scale
         if eff.speed_diff_scale:
             d_damage += max(0, d_speed - a_speed) * eff.speed_diff_scale
+        if eff.health_damage_scale:
+            d_damage += get_effective_health(defender) * eff.health_damage_scale
 
     # Speed-based damage reduction (defensive technique): reduces the holder's incoming damage.
     if attacker_technique and attacker_technique.effects.speed_damage_reduction:
@@ -302,6 +314,14 @@ def resolve_exchange(
     if defender_technique and defender_technique.effects.intellect_damage_reduction:
         # Ceil division: -(-(n) // d) rounds n/d up
         dr_amount = -(-(get_effective_intellect(defender) * defender_technique.effects.intellect_damage_reduction) // 2)
+        a_damage = max(1, a_damage - dr_amount)
+
+    # Health-based damage reduction, holder's incoming damage (both roles, like speed).
+    if attacker_technique and attacker_technique.effects.health_damage_reduction:
+        dr_amount = -(-(get_effective_health(attacker) * attacker_technique.effects.health_damage_reduction) // 2)
+        d_damage = max(1, d_damage - dr_amount)
+    if defender_technique and defender_technique.effects.health_damage_reduction:
+        dr_amount = -(-(get_effective_health(defender) * defender_technique.effects.health_damage_reduction) // 2)
         a_damage = max(1, a_damage - dr_amount)
 
     # Speed-difference item effects (offense and defense)

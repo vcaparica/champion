@@ -90,3 +90,50 @@ def test_speed_diff_item_defense_reduction():
     res = resolve_exchange(atk, dfn, ActionType.STRIKE, ActionType.FEINT)
     # damage_to_defender = a_damage 6 - (7-2)=5 -> floor 1
     assert res.damage_to_defender == 1
+
+
+def test_get_effective_health_returns_attribute():
+    from game.combat import FighterInstance, get_effective_health
+    from game.fighter import FighterData
+    data = FighterData(id="t", name="T", description="", base_health=6, base_speed=3,
+                       base_power=4, base_intellect=3, technique_ids=[],
+                       exclusive_technique_ids=[], panoply={})
+    assert get_effective_health(FighterInstance(fighter_data=data)) == 6
+
+
+def test_health_damage_scale_adds_health_to_damage():
+    from game.combat import FighterInstance, resolve_exchange
+    from game.fighter import FighterData
+    from game.technique import TechniqueData, TechniqueEffect
+    from game.enums import ActionType
+    attacker = FighterInstance(fighter_data=FighterData(id="a", name="A", description="",
+        base_health=6, base_speed=3, base_power=4, base_intellect=3,
+        technique_ids=[], exclusive_technique_ids=[], panoply={}))
+    defender = FighterInstance(fighter_data=FighterData(id="d", name="D", description="",
+        base_health=3, base_speed=3, base_power=4, base_intellect=3,
+        technique_ids=[], exclusive_technique_ids=[], panoply={}))
+    tech = TechniqueData(id="jb", name="JB", description="", base_action=ActionType.STRIKE,
+        effects=TechniqueEffect(health_damage_scale=1), predictability_increase=2)
+    res = resolve_exchange(attacker, defender, ActionType.STRIKE, ActionType.FEINT,
+                           attacker_technique=tech)
+    # base power 4 + attacker health 6 = 10
+    assert res.damage_to_defender == 10
+
+
+def test_health_damage_reduction_reduces_incoming():
+    from game.combat import FighterInstance, resolve_exchange
+    from game.fighter import FighterData
+    from game.technique import TechniqueData, TechniqueEffect
+    from game.enums import ActionType
+    attacker = FighterInstance(fighter_data=FighterData(id="a", name="A", description="",
+        base_health=3, base_speed=3, base_power=6, base_intellect=3,
+        technique_ids=[], exclusive_technique_ids=[], panoply={}))
+    defender = FighterInstance(fighter_data=FighterData(id="d", name="D", description="",
+        base_health=6, base_speed=3, base_power=4, base_intellect=3,
+        technique_ids=[], exclusive_technique_ids=[], panoply={}))
+    tech = TechniqueData(id="aw", name="AW", description="", base_action=ActionType.BLOCK,
+        effects=TechniqueEffect(health_damage_reduction=1), predictability_increase=2)
+    res = resolve_exchange(attacker, defender, ActionType.STRIKE, ActionType.FEINT,
+                           defender_technique=tech)
+    # attacker power 6, minus ceil(defender health 6 / 2) = 3 -> 3
+    assert res.damage_to_defender == 3
