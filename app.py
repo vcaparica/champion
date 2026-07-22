@@ -485,8 +485,22 @@ class App:
                     speak(f"You already have {num_slots} techniques selected. Unselect one first.", False)
 
     def _select_items_screen(self, fighter) -> Optional[list[str]]:
-        """Show item selection screen. Returns list of 2 item IDs or None."""
-        speak(f"Choose 2 items for {fighter.name}. Use Space to select and unselect.", True)
+        """Show item selection screen. Returns a list of item IDs or None.
+
+        A fighter may equip 1 to base_speed items. The first item is free; each
+        additional item lowers effective Speed by 1 (floor 1)."""
+        from game.combat import item_speed_penalty
+        cap = fighter.base_speed
+
+        def speed_after(n):
+            return max(1, fighter.base_speed - item_speed_penalty(n))
+
+        speak(
+            f"Choose 1 to {cap} items for {fighter.name}. "
+            f"The first item is free; each extra item lowers your Speed by 1. "
+            f"Use Space to select and unselect.",
+            True,
+        )
 
         selected = []
         all_item_ids = []
@@ -503,9 +517,16 @@ class App:
                     label=f"{marker} {item.name} ({item.slot.value}): {item.description}",
                     id=iid, value=iid
                 ))
+            if selected:
+                confirm_label = (
+                    f"Confirm ({len(selected)} of up to {cap} selected, "
+                    f"Speed {speed_after(len(selected))})"
+                )
+            else:
+                confirm_label = "Select at least 1 item"
             items.append(MenuItem(
-                label=f"Confirm ({len(selected)}/2 selected)" if len(selected) == 2 else f"Need {2 - len(selected)} more",
-                id="confirm", value="confirm", enabled=(len(selected) == 2)
+                label=confirm_label, id="confirm", value="confirm",
+                enabled=(1 <= len(selected) <= cap)
             ))
             items.append(MenuItem(label="Back", id="back", value="back"))
 
@@ -524,13 +545,15 @@ class App:
 
             item_id = result.get('id')
             if item_id == 'confirm':
-                return selected
+                if 1 <= len(selected) <= cap:
+                    return selected
+                continue
             if item_id == 'back':
                 return None
             if item_id in available:
                 if item_id in selected:
                     selected.remove(item_id)
-                    speak(f"Unselected. {len(selected)} items selected.", False)
+                    speak(f"Unselected. {len(selected)} items. Speed {speed_after(len(selected))}.", False)
                 else:
                     new_item = self.items[item_id]
                     # Check for slot conflict: deselect any item in the same slot.
@@ -543,12 +566,14 @@ class App:
                         selected.remove(replaced)
                         selected.append(item_id)
                         replaced_name = self.items[replaced].name
-                        speak(f"Replaced {replaced_name}. {new_item.name} selected. {len(selected)} items selected.", False)
-                    elif len(selected) < 2:
+                        speak(f"Replaced {replaced_name}. {new_item.name} selected. "
+                              f"{len(selected)} items. Speed {speed_after(len(selected))}.", False)
+                    elif len(selected) < cap:
                         selected.append(item_id)
-                        speak(f"Selected. {len(selected)} items selected.", False)
+                        speak(f"Selected. {len(selected)} items. Speed {speed_after(len(selected))}.", False)
                     else:
-                        speak("You already have 2 items selected. Unselect one first.", False)
+                        speak(f"You can equip at most {cap} items at Speed {fighter.base_speed}. "
+                              f"Unselect one first.", False)
 
     def _run_combat_volley(self, match) -> None:
         """Run one volley (3 actions) of combat for local play."""
