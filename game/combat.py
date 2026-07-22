@@ -117,41 +117,82 @@ def compute_damage(base_power: int, advantage: Advantage, is_vulnerable: bool = 
     return max(1, damage)
 
 
-def apply_buffs(instance: FighterInstance, all_items: dict) -> FighterInstance:
-    """Apply passive buffs from selected items to a fighter instance."""
-    for item_id in instance.selected_items:
-        if item_id in all_items:
-            item = all_items[item_id]
-            for buff in item.passive_buffs:
-                # Handle both dict and ItemBuff formats
-                if isinstance(buff, dict):
-                    buff_type = BuffType(buff["buff_type"])
-                    value = buff["value"]
-                    scales_with = buff.get("scales_with")
-                else:
-                    buff_type = buff.buff_type
-                    value = buff.value
-                    scales_with = buff.scales_with
+def _normalize_buff(buff):
+    """Return (buff_type, value, scales_with, min_speed) from a dict or ItemBuff."""
+    if isinstance(buff, dict):
+        return (BuffType(buff["buff_type"]), buff["value"],
+                buff.get("scales_with"), buff.get("min_speed"))
+    return (buff.buff_type, buff.value, buff.scales_with, buff.min_speed)
 
-                # Apply scaling if the buff scales with an attribute
-                if scales_with == "intellect":
-                    value = value * get_effective_intellect(instance)
-                elif scales_with == "power":
-                    value = value * get_effective_power(instance)
-                elif scales_with == "speed":
-                    value = value * get_effective_speed(instance)
-                if buff_type == BuffType.HEALTH:
-                    instance.current_health += value
-                elif buff_type == BuffType.POWER:
-                    instance.power_modifier += value
-                elif buff_type == BuffType.SPEED:
-                    instance.speed_modifier += value
-                elif buff_type == BuffType.INTELLECT:
-                    instance.intellect_modifier += value
-                elif buff_type == BuffType.DAMAGE_REDUCTION:
-                    instance.damage_reduction += value
-                elif buff_type == BuffType.RESIST_DEBUFF:
-                    pass  # Handled during debuff application
+
+def _scaled_value(instance, value, scales_with):
+    if scales_with == "intellect":
+        return value * get_effective_intellect(instance)
+    if scales_with == "power":
+        return value * get_effective_power(instance)
+    if scales_with == "speed":
+        return value * get_effective_speed(instance)
+    if scales_with == "speed_half":
+        return value * (get_effective_speed(instance) // 2)
+    return value
+
+
+def _apply_single_buff(instance, buff_type, value):
+    if buff_type == BuffType.HEALTH:
+        instance.current_health += value
+    elif buff_type == BuffType.POWER:
+        instance.power_modifier += value
+    elif buff_type == BuffType.SPEED:
+        instance.speed_modifier += value
+    elif buff_type == BuffType.INTELLECT:
+        instance.intellect_modifier += value
+    elif buff_type == BuffType.DAMAGE_REDUCTION:
+        instance.damage_reduction += value
+    elif buff_type == BuffType.SPEED_DIFF_DAMAGE:
+        instance.speed_diff_damage_bonus += value
+    elif buff_type == BuffType.SPEED_DIFF_REDUCTION:
+        instance.speed_diff_damage_reduction += value
+    elif buff_type == BuffType.RESIST_DEBUFF:
+        pass  # handled during debuff application
+
+
+def _buff_phase(scales_with, min_speed):
+    """Application phase so each buff reads only already-settled stats.
+
+    0: intellect-scaled (intellect is never modified by items)
+    1: flat, unconditional (modifies power/speed/etc. with no dependency)
+    2: speed-scaled or speed-gated (after flat + intellect-scaled speed settle)
+    3: power-scaled (after speed_half power settles)
+    """
+    if scales_with == "intellect":
+        return 0
+    if scales_with in ("speed", "speed_half") or min_speed is not None:
+        return 2
+    if scales_with == "power":
+        return 3
+    return 1
+
+
+def apply_buffs(instance: FighterInstance, all_items: dict) -> FighterInstance:
+    """Apply passive buffs from selected items.
+
+    Buffs are applied in dependency-phase order so that speed-scaling and
+    speed-gated buffs see a settled effective Speed regardless of item order.
+    """
+    buffs = []
+    for item_id in instance.selected_items:
+        item = all_items.get(item_id)
+        if not item:
+            continue
+        for buff in item.passive_buffs:
+            buffs.append(_normalize_buff(buff))
+
+    buffs.sort(key=lambda b: _buff_phase(b[2], b[3]))
+
+    for buff_type, value, scales_with, min_speed in buffs:
+        if min_speed is not None and get_effective_speed(instance) < min_speed:
+            continue
+        _apply_single_buff(instance, buff_type, _scaled_value(instance, value, scales_with))
     return instance
 
 
