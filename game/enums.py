@@ -67,6 +67,8 @@ class BuffType(Enum):
     DAMAGE_REDUCTION = "damage_reduction"
     RESIST_DEBUFF = "resist_debuff"
     INTELLECT = "intellect"
+    SPEED_DIFF_DAMAGE = "speed_diff_damage"       # bonus damage per point of Speed over the opponent
+    SPEED_DIFF_REDUCTION = "speed_diff_reduction" # damage reduction per point of Speed over the opponent
 
 
 class DebuffType(Enum):

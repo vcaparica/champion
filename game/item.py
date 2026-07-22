@@ -16,6 +16,7 @@ class ItemBuff:
     buff_type: BuffType
     value: int
     scales_with: Optional[str] = None
+    min_speed: Optional[int] = None
 
 
 @dataclass
@@ -64,7 +65,8 @@ def _dict_to_item(data: dict) -> ItemData:
         buffs.append(ItemBuff(
             buff_type=BuffType(b["buff_type"]),
             value=b["value"],
-            scales_with=b.get("scales_with")
+            scales_with=b.get("scales_with"),
+            min_speed=b.get("min_speed"),
         ))
 
     reactive = None

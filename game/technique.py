@@ -27,6 +27,11 @@ class TechniqueEffect:
     intellect_to_speed: bool = False
     intellect_damage_reduction: int = 0
     require_intellect_advantage: bool = False
+    speed_damage_scale: int = 0
+    speed_instead_of_power: bool = False
+    speed_diff_scale: int = 0
+    speed_damage_reduction: int = 0
+    require_speed_advantage: bool = False
 
 
 @dataclass
@@ -78,6 +83,11 @@ def _dict_to_technique(data: dict) -> TechniqueData:
         intellect_to_speed=effects_raw.get("intellect_to_speed", False),
         intellect_damage_reduction=effects_raw.get("intellect_damage_reduction", 0),
         require_intellect_advantage=effects_raw.get("require_intellect_advantage", False),
+        speed_damage_scale=effects_raw.get("speed_damage_scale", 0),
+        speed_instead_of_power=effects_raw.get("speed_instead_of_power", False),
+        speed_diff_scale=effects_raw.get("speed_diff_scale", 0),
+        speed_damage_reduction=effects_raw.get("speed_damage_reduction", 0),
+        require_speed_advantage=effects_raw.get("require_speed_advantage", False),
     )
     return TechniqueData(
         id=data["id"],
