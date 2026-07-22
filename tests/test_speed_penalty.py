@@ -41,3 +41,24 @@ def test_losing_only_free_item_no_speed_gain():
     assert get_effective_speed(inst) == 5
     inst.selected_items.pop()
     assert get_effective_speed(inst) == 5
+
+
+def test_reset_then_reapply_restores_item_buffs():
+    from game.combat import apply_buffs
+    from game.item import ItemData, ItemBuff
+    from game.enums import BuffType, BodySlot
+    from game.match import MatchState, reset_for_new_round
+
+    boots = ItemData(id="b", name="B", description="", slot=BodySlot.FEET,
+                     passive_buffs=[ItemBuff(BuffType.POWER, 2)])
+    inst = mk(5, ["b"])
+    apply_buffs(inst, {"b": boots})
+    assert inst.power_modifier == 2
+
+    match = MatchState(team_a=[inst], team_b=[])
+    reset_for_new_round(match)
+    assert inst.power_modifier == 0  # reset cleared the modifier
+
+    for f in match.team_a + match.team_b:
+        apply_buffs(f, {"b": boots})
+    assert inst.power_modifier == 2  # re-applied for the new round

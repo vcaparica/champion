@@ -338,6 +338,9 @@ class App:
                     break
                 if match.phase != MatchPhase.MATCH_END:
                     reset_for_new_round(match)
+                    from game.combat import apply_buffs
+                    for inst in match.team_a + match.team_b:
+                        apply_buffs(inst, self.items)
                     # Announce next round
                     speak(f"Round {match.round_number + 1}, fight!", True)
                     if not self._wait_for_continue():
