@@ -14,15 +14,15 @@ def test_load_all_game_data():
     techniques = load_all_techniques("game/data/techniques")
     items = load_all_items("game/data/items")
 
-    assert len(fighters) == 4
+    assert len(fighters) == 12
     assert len(techniques) == 53  # 41 existing + 12 exclusive techniques
     assert len(items) >= 41
 
     for f in fighters.values():
-        assert len(f.technique_ids) == 14  # 8 original + 6 Speed techniques
-        assert len(f.exclusive_technique_ids) == 2
-        assert len(f.panoply) == 12  # all body slots
-        assert 1 <= f.base_intellect <= 7, f"{f.id} intellect out of 1-7 range"
+        assert len(f.technique_ids) == 7
+        assert len(f.exclusive_technique_ids) == 1
+        assert sum(len(ids) for ids in f.panoply.values()) == 7
+        assert 2 <= f.base_intellect <= 6, f"{f.id} intellect out of range"
 
 
 def test_fighter_techniques_exist():
@@ -52,7 +52,7 @@ def test_complete_combat_flow():
     techniques = load_all_techniques("game/data/techniques")
     items = load_all_items("game/data/items")
 
-    player_fighter = fighters["thorn"]
+    player_fighter = fighters["anvil"]
     ai_fighter = fighters["ember"]
 
     # AI picks techniques and items
@@ -65,8 +65,8 @@ def test_complete_combat_flow():
 
     # Player picks
     player_instance = FighterInstance(fighter_data=player_fighter)
-    player_techs = ["iron_wall", "shield_bash", "war_cry"]
-    player_items = ["iron_helm", "gauntlets_of_might"]
+    player_techs = ["iron_wall", "giants_swing", "juggernaut_blow"]
+    player_items = ["iron_helm", "ring_of_vitality"]
     player_instance.selected_techniques = player_techs
     player_instance.selected_items = player_items
     player_instance = apply_buffs(player_instance, items)
@@ -132,7 +132,7 @@ def test_complete_combat_flow():
 
 def test_exchange_results_are_valid():
     """Every action pair should produce a valid outcome."""
-    player = FighterInstance(fighter_data=load_all_fighters("game/data/fighters")["thorn"])
+    player = FighterInstance(fighter_data=load_all_fighters("game/data/fighters")["anvil"])
     ai = FighterInstance(fighter_data=load_all_fighters("game/data/fighters")["ember"])
 
     valid_outcomes = {"hit", "blocked", "countered", "miss", "clash", "bypassed", "whiff"}
@@ -150,8 +150,8 @@ def test_intellect_technique_selection_counts():
     """Each fighter's technique count should match their base_intellect."""
     fighters = load_all_fighters("game/data/fighters")
     for f in fighters.values():
-        assert 1 <= f.base_intellect <= 7
-        # All fighters currently have 8 techniques, so intellect <= 8
+        assert 2 <= f.base_intellect <= 6
+        # All fighters have 7 techniques, so intellect <= 7
         assert f.base_intellect <= len(f.technique_ids)
 
 
@@ -161,35 +161,32 @@ def test_intellect_in_combat_flow():
     techniques = load_all_techniques("game/data/techniques")
     items = load_all_items("game/data/items")
 
-    thorn = FighterInstance(fighter_data=fighters["thorn"])
-    brutus = FighterInstance(fighter_data=fighters["brutus"])
+    ember = FighterInstance(fighter_data=fighters["ember"])
+    anvil = FighterInstance(fighter_data=fighters["anvil"])
 
-    # Thorn has intellect 6 vs Brutus 4
-    assert get_effective_intellect(thorn) == 6
-    assert get_effective_intellect(brutus) == 4
+    # Ember has intellect 6 vs Anvil 3
+    assert get_effective_intellect(ember) == 6
+    assert get_effective_intellect(anvil) == 3
 
-    # Both have speed 4, so Thorn (higher intellect) should go first
-    if thorn.fighter_data.base_speed == brutus.fighter_data.base_speed:
-        assert compare_speed_order(thorn, brutus) == -1
+    # Both have speed 3, so Ember (higher intellect) should go first
+    if ember.fighter_data.base_speed == anvil.fighter_data.base_speed:
+        assert compare_speed_order(ember, anvil) == -1
 
-    # Test a volley with intellect techniques
-    thorn.selected_techniques = ["mind_over_matter", "iron_discipline", "shield_bash", "pommel_strike", "last_stand", "rallying_call"]
-    brutus.selected_techniques = ["bone_crusher", "skull_splitter", "read_the_pattern", "unstoppable_charge"]
+    ember.selected_techniques = ["mind_over_matter", "confounding_blow", "immolating_insight"]
+    anvil.selected_techniques = ["iron_wall", "giants_swing", "juggernaut_blow"]
+    ember.selected_items = ["crown_of_whispers", "ring_of_cunning"]
+    anvil.selected_items = ["iron_helm", "ring_of_vitality"]
 
-    thorn.selected_items = ["iron_helm", "gauntlets_of_might"]
-    brutus.selected_items = ["war_helm", "collar_of_the_juggernaut"]
+    ember = apply_buffs(ember, items)
+    anvil = apply_buffs(anvil, items)
 
-    thorn = apply_buffs(thorn, items)
-    brutus = apply_buffs(brutus, items)
-
-    # Run a few exchanges
     for a_act in [ActionType.STRIKE, ActionType.FEINT, ActionType.BLOCK]:
         for d_act in [ActionType.STRIKE, ActionType.COUNTER, ActionType.AVOID]:
-            order = compare_speed_order(thorn, brutus)
+            order = compare_speed_order(ember, anvil)
             if order <= 0:
-                result = resolve_exchange(thorn, brutus, a_act, d_act)
+                result = resolve_exchange(ember, anvil, a_act, d_act)
             else:
-                result = resolve_exchange(brutus, thorn, a_act, d_act)
+                result = resolve_exchange(anvil, ember, a_act, d_act)
             assert result.outcome in ("hit", "blocked", "countered", "miss", "clash", "bypassed", "whiff")
             assert result.flavor_text
 
@@ -200,13 +197,13 @@ def test_turn_limit_less_damage_wins():
     techniques = load_all_techniques("game/data/techniques")
     items = load_all_items("game/data/items")
 
-    player_fighter = fighters["thorn"]
+    player_fighter = fighters["anvil"]
     ai_fighter = fighters["ember"]
 
     ai_instance = FighterInstance(fighter_data=ai_fighter)
     player_instance = FighterInstance(fighter_data=player_fighter)
-    player_instance.selected_techniques = ["iron_wall", "shield_bash", "war_cry"]
-    ai_instance.selected_techniques = ["fireball", "inferno", "heat_wave"]
+    player_instance.selected_techniques = ["iron_wall", "giants_swing", "juggernaut_blow"]
+    ai_instance.selected_techniques = ["flame_strike", "heat_wave", "immolating_insight"]
 
     player_instance = apply_buffs(player_instance, items)
     ai_instance = apply_buffs(ai_instance, items)

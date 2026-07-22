@@ -1,0 +1,9 @@
+{
+  "id": "mirage",
+  "name": "Mirage, the Bewildering Phantom",
+  "description": "Mirage, the Bewildering Phantom. An illusionist who fills the eye with false images while the true strike lands where only a sharp mind would look.",
+  "base_health": 3, "base_speed": 5, "base_power": 3, "base_intellect": 6,
+  "technique_ids": ["mental_alacrity", "feign_vulnerability", "mind_over_matter", "fire_dance", "whirlwind_feint", "eye_of_the_storm", "labyrinth_of_mirrors"],
+  "exclusive_technique_ids": ["labyrinth_of_mirrors"],
+  "panoply": {"eyes": ["lens_of_clarity"], "shoulders": ["cape_of_the_zephyr"], "arms": ["reflex_bracers"], "clothing": ["livewire_vest"], "ring": ["seal_of_the_savant", "ring_of_cunning"], "feet": ["sandals_of_drifting"]}
+}

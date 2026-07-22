@@ -1,82 +1,9 @@
 {
   "id": "ember",
-  "name": "Ember",
-  "description": "A fire mage who channels raw flame into every strike. Ember overwhelms opponents with blazing speed and searing attacks, but lacks the raw durability of armored fighters.",
-  "base_health": 4,
-  "base_speed": 6,
-  "base_power": 6,
-  "base_intellect": 4,
-  "technique_ids": [
-    "flame_strike",
-    "fire_dance",
-    "heat_wave",
-    "blazing_counter",
-    "phoenix_rebirth",
-    "ember_storm",
-    "defensive_stance",
-    "confounding_blow",
-    "tempo_strike",
-    "blitz",
-    "momentum_edge",
-    "quickened_guard",
-    "riposte_in_a_blink",
-    "slipstream"
-  ],
-  "exclusive_technique_ids": [
-    "flame_strike",
-    "phoenix_rebirth"
-  ],
-  "panoply": {
-    "head": [
-      "flame_crown",
-      "iron_helm",
-      "crown_of_whispers"
-    ],
-    "eyes": [
-      "spectacles_of_perception",
-      "spectacles_of_foresight"
-    ],
-    "neck": [
-      "pendant_of_fortitude",
-      "guardian_amulet"
-    ],
-    "torso": [
-      "reinforced_vest",
-      "aegis_of_winds"
-    ],
-    "body": [
-      "robes_of_the_phoenix",
-      "field_armor",
-      "livewire_vest"
-    ],
-    "shoulders": [
-      "mantle_of_endurance",
-      "pauldrons_of_the_bulwark"
-    ],
-    "arms": [
-      "vambraces_of_deflection",
-      "reflex_bracers"
-    ],
-    "hands": [
-      "gauntlets_of_might",
-      "grippers_of_steadiness"
-    ],
-    "ring1": [
-      "ring_of_vitality",
-      "ring_of_cunning"
-    ],
-    "ring2": [
-      "band_of_iron_will",
-      "swiftedge_ring"
-    ],
-    "waist": [
-      "girdle_of_stone",
-      "duelists_sash"
-    ],
-    "feet": [
-      "sabatons_of_patience",
-      "greaves_of_the_ram",
-      "quicksilver_boots"
-    ]
-  }
+  "name": "Ember, the Fiery Mistress",
+  "description": "Ember, the Fiery Mistress. A brilliant sorceress who bends living flame to a razor-keen mind, burning through any guard she has already read.",
+  "base_health": 3, "base_speed": 3, "base_power": 5, "base_intellect": 6,
+  "technique_ids": ["mind_over_matter", "confounding_blow", "exploit_weakness", "flame_strike", "heat_wave", "phoenix_rebirth", "immolating_insight"],
+  "exclusive_technique_ids": ["immolating_insight"],
+  "panoply": {"head": ["crown_of_whispers"], "neck": ["giants_tooth_necklace"], "arms": ["bracers_of_the_storm"], "clothing": ["robes_of_the_phoenix"], "ring": ["ring_of_cunning", "seal_of_the_savant"], "feet": ["greaves_of_the_ram"]}
 }

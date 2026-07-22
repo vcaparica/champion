@@ -1,0 +1,9 @@
+{
+  "id": "anvil",
+  "name": "Anvil, the Unbroken",
+  "description": "Anvil, the Unbroken. An immovable wall of a fighter who turns sheer endurance into a weapon and refuses to fall.",
+  "base_health": 6, "base_speed": 3, "base_power": 5, "base_intellect": 3,
+  "technique_ids": ["iron_wall", "shield_wall", "defensive_stance", "giants_swing", "unstoppable_charge", "pommel_strike", "juggernaut_blow"],
+  "exclusive_technique_ids": ["juggernaut_blow"],
+  "panoply": {"head": ["iron_helm"], "shoulders": ["pauldrons_of_the_bulwark"], "waist": ["trophy_belt"], "armor": ["iron_plate"], "ring": ["ring_of_vitality", "ring_of_cunning"], "feet": ["boots_of_the_wind"]}
+}

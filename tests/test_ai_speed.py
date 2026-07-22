@@ -25,14 +25,12 @@ def test_ai_items_within_cap_and_one_per_slot():
 
 
 def test_ai_fast_fighter_takes_more_items_than_slow():
-    zephyr = FighterInstance(fighter_data=FIGHTERS["zephyr"])  # speed 7
-    brutus = FighterInstance(fighter_data=FIGHTERS["brutus"])  # speed 2
-    assert len(choose_ai_items(zephyr, ITEMS)) > len(choose_ai_items(brutus, ITEMS))
+    falcon = FighterInstance(fighter_data=FIGHTERS["falcon"])  # speed 6
+    cipher = FighterInstance(fighter_data=FIGHTERS["cipher"])  # speed 2
+    assert len(choose_ai_items(falcon, ITEMS)) > len(choose_ai_items(cipher, ITEMS))
 
 
 def test_ai_slow_fighter_avoids_speed_techniques():
-    brutus = FighterInstance(fighter_data=FIGHTERS["brutus"])  # speed 2
-    picks = choose_ai_techniques(brutus, TECHS)
-    assert "tempo_strike" not in picks
+    boulder = FighterInstance(fighter_data=FIGHTERS["boulder"])  # speed 4, pool has blitz
+    picks = choose_ai_techniques(boulder, TECHS)
     assert "blitz" not in picks
-    assert "momentum_edge" not in picks

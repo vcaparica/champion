@@ -1,0 +1,9 @@
+{
+  "id": "cipher",
+  "name": "Cipher, the Inscrutable",
+  "description": "Cipher, the Inscrutable. A patient, armored scholar who reads a fight like a book and is never where the blow expects.",
+  "base_health": 5, "base_speed": 2, "base_power": 4, "base_intellect": 6,
+  "technique_ids": ["read_the_pattern", "iron_discipline", "confounding_blow", "shield_wall", "last_stand", "crushing_grip", "prescient_guard"],
+  "exclusive_technique_ids": ["prescient_guard"],
+  "panoply": {"head": ["scholars_crown"], "shoulders": ["mantle_of_endurance"], "waist": ["girdle_of_stone"], "armor": ["field_armor"], "ring": ["ring_of_cunning", "seal_of_the_savant"], "feet": ["sabatons_of_patience"]}
+}
