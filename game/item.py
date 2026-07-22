@@ -58,6 +58,22 @@ def load_all_items(directory: str) -> dict[str, ItemData]:
     return items
 
 
+def resolve_item_conflict(selected_ids, new_id, items):
+    """Return the id of an already-selected item that equipping new_id displaces, or None.
+
+    Rings are hand-agnostic: up to two may be worn, so a new ring displaces the oldest
+    ring only once two are already equipped. Every other slot holds a single item, which
+    the new item replaces."""
+    new_item = items[new_id]
+    if new_item.slot == BodySlot.RING:
+        worn_rings = [sid for sid in selected_ids if items[sid].slot == BodySlot.RING]
+        return worn_rings[0] if len(worn_rings) >= 2 else None
+    for sid in selected_ids:
+        if items[sid].slot == new_item.slot:
+            return sid
+    return None
+
+
 def _dict_to_item(data: dict) -> ItemData:
     """Convert a raw JSON dict to an ItemData instance."""
     buffs = []

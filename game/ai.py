@@ -6,7 +6,7 @@ Uses a mix of randomness and basic heuristics based on
 opponent predictability and fighter stats.
 """
 import random
-from game.enums import ActionType
+from game.enums import ActionType, BodySlot
 from game.combat import FighterInstance
 from game.technique import TechniqueData
 
@@ -143,16 +143,13 @@ def choose_ai_items(fighter, items) -> list[str]:
 
     best_per_slot = []
     for slot, item_ids in panoply.items():
-        best_id = None
-        best_score = None
-        for iid in item_ids:
-            if iid not in items:
-                continue
-            score = _score_item(items[iid], base_speed)
-            if best_score is None or score > best_score:
-                best_id, best_score = iid, score
-        if best_id is not None:
-            best_per_slot.append((best_id, best_score))
+        scored = [(_score_item(items[iid], base_speed), iid) for iid in item_ids if iid in items]
+        if not scored:
+            continue
+        scored.sort(reverse=True)
+        take = 2 if slot == BodySlot.RING else 1
+        for score, iid in scored[:take]:
+            best_per_slot.append((iid, score))
 
     if not best_per_slot:
         return []

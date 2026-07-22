@@ -126,3 +126,19 @@ def test_choose_ai_fighter():
     }
     selected = choose_ai_fighter(fighters)
     assert selected in fighters
+
+
+def test_choose_ai_items_can_equip_two_rings():
+    from game.enums import BodySlot, BuffType
+    from game.item import ItemData, ItemBuff
+    from game.fighter import FighterData
+    from game.combat import FighterInstance
+    data = FighterData(id="t", name="T", description="", base_health=5, base_speed=6,
+                       base_power=5, base_intellect=3, technique_ids=[],
+                       exclusive_technique_ids=[], panoply={BodySlot.RING: ["r1", "r2"]})
+    items = {
+        "r1": ItemData("r1", "R1", "", BodySlot.RING, [ItemBuff(BuffType.HEALTH, 8)]),
+        "r2": ItemData("r2", "R2", "", BodySlot.RING, [ItemBuff(BuffType.HEALTH, 8)]),
+    }
+    chosen = choose_ai_items(FighterInstance(fighter_data=data), items)
+    assert set(chosen) == {"r1", "r2"}

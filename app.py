@@ -14,7 +14,7 @@ from controls import GameControls
 from menu import Menu, MenuItem
 from game.fighter import load_all_fighters
 from game.technique import load_all_techniques
-from game.item import load_all_items
+from game.item import load_all_items, resolve_item_conflict
 from game.enums import ActionType, MatchPhase
 
 
@@ -559,12 +559,8 @@ class App:
                     speak(f"Unselected. {len(selected)} items. Speed {speed_after(len(selected))}.", False)
                 else:
                     new_item = self.items[item_id]
-                    # Check for slot conflict: deselect any item in the same slot.
-                    replaced = None
-                    for sid in selected:
-                        if self.items[sid].slot == new_item.slot:
-                            replaced = sid
-                            break
+                    # Rings are hand-agnostic (up to two worn); every other slot holds one.
+                    replaced = resolve_item_conflict(selected, item_id, self.items)
                     if replaced:
                         selected.remove(replaced)
                         selected.append(item_id)

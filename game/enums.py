@@ -46,6 +46,9 @@ class BodySlot(Enum):
     RING2 = "ring2"
     WAIST = "waist"
     FEET = "feet"
+    CLOTHING = "clothing"
+    ARMOR = "armor"
+    RING = "ring"
 
 
 class MatchPhase(Enum):

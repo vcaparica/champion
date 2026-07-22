@@ -114,3 +114,19 @@ def test_load_item_buff_without_scales_with():
         assert item.passive_buffs[0].scales_with is None
     finally:
         os.unlink(temp_path)
+
+
+def test_resolve_item_conflict_rings_allow_two():
+    from game.enums import BodySlot
+    from game.item import ItemData, resolve_item_conflict
+    items = {
+        "r1": ItemData("r1", "R1", "", BodySlot.RING, []),
+        "r2": ItemData("r2", "R2", "", BodySlot.RING, []),
+        "r3": ItemData("r3", "R3", "", BodySlot.RING, []),
+        "h1": ItemData("h1", "H1", "", BodySlot.HEAD, []),
+        "h2": ItemData("h2", "H2", "", BodySlot.HEAD, []),
+    }
+    assert resolve_item_conflict(["r1"], "r2", items) is None
+    assert resolve_item_conflict(["r1", "r2"], "r3", items) == "r1"
+    assert resolve_item_conflict(["h1"], "h2", items) == "h1"
+    assert resolve_item_conflict([], "h1", items) is None
