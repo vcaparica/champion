@@ -1,0 +1,10 @@
+{
+  "id": "livewire_vest",
+  "name": "Livewire Vest",
+  "description": "Restless energy that keeps you standing long past your frame's limit. | Gain Health equal to twice your Speed.",
+  "slot": "body",
+  "passive_buffs": [
+    {"buff_type": "health", "value": 2, "scales_with": "speed"}
+  ],
+  "reactive": null
+}

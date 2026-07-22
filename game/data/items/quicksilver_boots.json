@@ -1,0 +1,11 @@
+{
+  "id": "quicksilver_boots",
+  "name": "Quicksilver Boots",
+  "description": "Boots that reward those already fleet of foot. | If your Speed is 5 or higher: +2 Power and +1 damage reduction.",
+  "slot": "feet",
+  "passive_buffs": [
+    {"buff_type": "power", "value": 2, "min_speed": 5},
+    {"buff_type": "damage_reduction", "value": 1, "min_speed": 5}
+  ],
+  "reactive": null
+}

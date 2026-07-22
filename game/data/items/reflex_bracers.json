@@ -1,0 +1,10 @@
+{
+  "id": "reflex_bracers",
+  "name": "Reflex Bracers",
+  "description": "Bracers that flick aside blows at the edge of thought. | Damage reduction equal to half your Speed.",
+  "slot": "arms",
+  "passive_buffs": [
+    {"buff_type": "damage_reduction", "value": 1, "scales_with": "speed_half"}
+  ],
+  "reactive": null
+}

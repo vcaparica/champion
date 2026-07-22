@@ -1,0 +1,10 @@
+{
+  "id": "swiftedge_ring",
+  "name": "Swiftedge Ring",
+  "description": "A ring that sharpens every blow to the rhythm of your speed. | Power increased by half your Speed.",
+  "slot": "ring2",
+  "passive_buffs": [
+    {"buff_type": "power", "value": 1, "scales_with": "speed_half"}
+  ],
+  "reactive": null
+}

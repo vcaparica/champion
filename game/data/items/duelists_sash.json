@@ -1,0 +1,10 @@
+{
+  "id": "duelists_sash",
+  "name": "Duelist's Sash",
+  "description": "The quicker duelist lands the telling blow. | Deal +1 damage for each point your Speed exceeds the opponent's.",
+  "slot": "waist",
+  "passive_buffs": [
+    {"buff_type": "speed_diff_damage", "value": 1}
+  ],
+  "reactive": null
+}
