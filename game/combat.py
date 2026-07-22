@@ -48,11 +48,17 @@ class ExchangeResult:
     flavor_text: str = ""
 
 
+def item_speed_penalty(num_items: int) -> int:
+    """Speed lost to carrying items: the first item is free, each additional one costs 1."""
+    return max(0, num_items - 1)
+
+
 def get_effective_speed(instance: FighterInstance) -> int:
-    """Get speed after buffs and debuffs."""
+    """Get speed after item load, buffs, and debuffs."""
     speed = instance.fighter_data.base_speed + instance.speed_modifier
+    speed -= item_speed_penalty(len(instance.selected_items))
     if DebuffType.SLOWED in instance.active_debuffs:
-        speed = max(1, speed - 1)
+        speed -= 1
     return max(1, speed)
 
 

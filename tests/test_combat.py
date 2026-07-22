@@ -161,8 +161,8 @@ def test_apply_buffs_modifies_stats():
     instance = apply_buffs(instance, items)
     assert instance.current_health == 58  # 5*10 + 8
     assert instance.fighter_data.base_power == 5
-    # effective speed check
-    assert get_effective_speed(instance) == 4
+    # effective speed check: 2 items -> -1 penalty, base 4 -> 3
+    assert get_effective_speed(instance) == 3
 
 
 def test_heal_on_hit():
