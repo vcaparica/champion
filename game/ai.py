@@ -54,9 +54,16 @@ def choose_ai_techniques(
     techniques: dict[str, TechniqueData]
 ) -> list[str]:
     """Pick techniques from the fighter's available list.
-    Number equals the fighter's base intellect."""
+    Number equals the fighter's base intellect.
+    Slow fighters skip Speed-reliant techniques when enough alternatives exist."""
     num_slots = fighter.fighter_data.base_intellect
     available = [tid for tid in fighter.fighter_data.technique_ids if tid in techniques]
+
+    if fighter.fighter_data.base_speed < 5:
+        filtered = [tid for tid in available if tid not in SPEED_RELIANT_TECHNIQUES]
+        if len(filtered) >= num_slots:
+            available = filtered
+
     if num_slots >= len(available):
         return list(available)
     if len(available) >= num_slots:
@@ -73,55 +80,88 @@ def choose_ai_techniques(
     return result
 
 
-def choose_ai_items(
-    fighter: FighterInstance,
-    items: dict
-) -> list[str]:
-    """Pick 2 items from the fighter's panoply.
+SPEED_RELIANT_TECHNIQUES = {
+    "tempo_strike", "blitz", "momentum_edge",
+    "riposte_in_a_blink", "slipstream",
+}
 
-    Strategy: prefer items with health and power buffs.
-    Falls back to all available items if the fighter has no panoply entries.
-    """
-    all_item_ids = []
-    for slot, item_ids in fighter.fighter_data.panoply.items():
-        all_item_ids.extend(item_ids)
 
-    # If panoply is empty, the AI gets no items
-    if not all_item_ids:
+def _score_item(item, base_speed):
+    """Rough value of an item for a fighter of the given base Speed.
+
+    Speed-scaling and Speed-difference effects are worth much more to a fast
+    fighter and near nothing to a slow one, so a slow AI will not pick them."""
+    fast = base_speed >= 5
+    score = 0
+    for buff in item.passive_buffs:
+        if isinstance(buff, dict):
+            btype = buff.get("buff_type", "")
+            bval = buff.get("value", 0)
+            scales = buff.get("scales_with")
+            min_speed = buff.get("min_speed")
+        else:
+            btype = buff.buff_type.value if hasattr(buff.buff_type, "value") else str(buff.buff_type)
+            bval = buff.value
+            scales = buff.scales_with
+            min_speed = buff.min_speed
+
+        if min_speed is not None and base_speed < min_speed:
+            continue  # inert for this fighter
+
+        if "speed_diff" in btype:
+            score += (base_speed - 3) * bval if fast else 0
+            continue
+
+        magnitude = bval
+        if scales == "speed":
+            magnitude = bval * base_speed
+        elif scales == "speed_half":
+            magnitude = bval * (base_speed // 2)
+        elif scales in ("intellect", "power"):
+            magnitude = bval * 4
+
+        if "health" in btype:
+            score += magnitude * 2
+        elif "power" in btype:
+            score += magnitude * 3
+        elif "damage_reduction" in btype:
+            score += magnitude
+        elif "speed" in btype:
+            score += magnitude
+        elif "intellect" in btype:
+            score += magnitude * 2
+    return score
+
+
+def choose_ai_items(fighter, items) -> list[str]:
+    """Pick a Speed-appropriate number of items, one per slot.
+
+    Fast fighters (base_speed >= 5) trade some Speed for extra gear but keep a
+    reserve; slower fighters stay lean. Never exceeds base_speed items."""
+    base_speed = fighter.fighter_data.base_speed
+    panoply = fighter.fighter_data.panoply
+
+    best_per_slot = []
+    for slot, item_ids in panoply.items():
+        best_id = None
+        best_score = None
+        for iid in item_ids:
+            if iid not in items:
+                continue
+            score = _score_item(items[iid], base_speed)
+            if best_score is None or score > best_score:
+                best_id, best_score = iid, score
+        if best_id is not None:
+            best_per_slot.append((best_id, best_score))
+
+    if not best_per_slot:
         return []
 
-    valid_items = [iid for iid in all_item_ids if iid in items]
+    best_per_slot.sort(key=lambda x: x[1], reverse=True)
 
-    if len(valid_items) <= 2:
-        return valid_items
-
-    # Score items: power > health > damage_reduction > speed
-    scored = []
-    for iid in valid_items:
-        item = items[iid]
-        score = 0
-        for buff in item.passive_buffs:
-            # Handle both dict and object formats
-            if isinstance(buff, dict):
-                btype = buff.get("buff_type", "")
-                bval = buff.get("value", 0)
-            else:
-                btype = buff.buff_type.value if hasattr(buff.buff_type, 'value') else str(buff.buff_type)
-                bval = buff.value
-            if "health" in btype:
-                score += bval * 2
-            elif "power" in btype:
-                score += bval * 3
-            elif "damage_reduction" in btype:
-                score += bval
-            elif "speed" in btype:
-                score += bval
-            elif "intellect" in btype:
-                score += bval * 2
-        scored.append((iid, score))
-
-    scored.sort(key=lambda x: x[1], reverse=True)
-    return [s[0] for s in scored[:2]]
+    target = base_speed - 2 if base_speed >= 5 else 2
+    target = max(1, min(base_speed, target, len(best_per_slot)))
+    return [iid for iid, _ in best_per_slot[:target]]
 
 
 def choose_ai_fighter(fighters: dict) -> str:
