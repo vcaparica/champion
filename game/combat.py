@@ -222,59 +222,97 @@ def resolve_exchange(
     if defender_technique and defender_technique.effects.intellect_to_speed:
         d_speed = get_effective_intellect(defender)
 
+    # Speed-advantage flags (equal speed still counts as "advantage").
+    a_speed_adv = a_speed >= d_speed
+    d_speed_adv = d_speed >= a_speed
+
     a_vulnerable = DebuffType.VULNERABLE in attacker.active_debuffs
     d_vulnerable = DebuffType.VULNERABLE in defender.active_debuffs
 
-    a_damage = compute_damage(a_power, attacker.current_advantage, d_vulnerable, defender.damage_reduction)
-    d_damage = compute_damage(d_power, defender.current_advantage, a_vulnerable, attacker.damage_reduction)
+    # Damage base: a technique may substitute Speed for Power.
+    a_base = a_speed if (attacker_technique and attacker_technique.effects.speed_instead_of_power) else a_power
+    d_base = d_speed if (defender_technique and defender_technique.effects.speed_instead_of_power) else d_power
+    a_damage = compute_damage(a_base, attacker.current_advantage, d_vulnerable, defender.damage_reduction)
+    d_damage = compute_damage(d_base, defender.current_advantage, a_vulnerable, attacker.damage_reduction)
 
-    # Apply technique damage modifier
+    # Attacker technique effects
     if attacker_technique:
-        a_damage += attacker_technique.effects.damage_modifier
+        eff = attacker_technique.effects
         attacker.predictability += attacker_technique.predictability_increase
-        if attacker_technique.effects.gain_advantage:
+        # require_speed_advantage gates this technique's bonus damage/debuff/advantage
+        speed_gate_ok = (not eff.require_speed_advantage) or a_speed_adv
+        if speed_gate_ok:
+            a_damage += eff.damage_modifier
+            if eff.gain_advantage:
+                try:
+                    result.attacker_advantage_change = Advantage(eff.gain_advantage)
+                except ValueError:
+                    pass
+            if eff.apply_debuff:
+                try:
+                    result.debuffs_applied.append(DebuffType(eff.apply_debuff))
+                except ValueError:
+                    pass
+        if eff.reposition_to:
             try:
-                result.attacker_advantage_change = Advantage(attacker_technique.effects.gain_advantage)
+                result.range_change = Range(eff.reposition_to)
             except ValueError:
                 pass
-        if attacker_technique.effects.apply_debuff:
-            try:
-                result.debuffs_applied.append(DebuffType(attacker_technique.effects.apply_debuff))
-            except ValueError:
-                pass
-        if attacker_technique.effects.reposition_to:
-            try:
-                result.range_change = Range(attacker_technique.effects.reposition_to)
-            except ValueError:
-                pass
-        if attacker_technique.effects.heal_on_hit:
-            # Healing applied after interaction matrix determines outcome
-            pass
+        # Speed-scaling offense
+        if eff.speed_damage_scale:
+            a_damage += a_speed * eff.speed_damage_scale
+        if eff.speed_diff_scale:
+            a_damage += max(0, a_speed - d_speed) * eff.speed_diff_scale
+        # Intellect-scaling offense (unchanged behavior)
+        if eff.intellect_damage_scale:
+            a_damage += get_effective_intellect(attacker) * eff.intellect_damage_scale
+        if eff.opponent_intellect_scale:
+            a_damage += max(0, 7 - get_effective_intellect(defender)) * eff.opponent_intellect_scale
+        if eff.require_intellect_advantage and get_effective_intellect(attacker) < get_effective_intellect(defender):
+            a_damage -= eff.damage_modifier
+        # heal_on_hit is applied after the interaction matrix
 
+    # Defender technique effects
     if defender_technique:
-        d_damage += defender_technique.effects.damage_modifier
+        eff = defender_technique.effects
         defender.predictability += defender_technique.predictability_increase
-        if defender_technique.effects.gain_advantage:
-            try:
-                result.defender_advantage_change = Advantage(defender_technique.effects.gain_advantage)
-            except ValueError:
-                pass
+        speed_gate_ok = (not eff.require_speed_advantage) or d_speed_adv
+        if speed_gate_ok:
+            d_damage += eff.damage_modifier
+            if eff.gain_advantage:
+                try:
+                    result.defender_advantage_change = Advantage(eff.gain_advantage)
+                except ValueError:
+                    pass
+        # Speed-scaling offense
+        if eff.speed_damage_scale:
+            d_damage += d_speed * eff.speed_damage_scale
+        if eff.speed_diff_scale:
+            d_damage += max(0, d_speed - a_speed) * eff.speed_diff_scale
 
-    # Apply intellect-scaling damage for attacker
-    if attacker_technique:
-        if attacker_technique.effects.intellect_damage_scale:
-            a_damage += get_effective_intellect(attacker) * attacker_technique.effects.intellect_damage_scale
-        if attacker_technique.effects.opponent_intellect_scale:
-            a_damage += max(0, 7 - get_effective_intellect(defender)) * attacker_technique.effects.opponent_intellect_scale
-        if attacker_technique.effects.require_intellect_advantage:
-            if get_effective_intellect(attacker) < get_effective_intellect(defender):
-                a_damage -= attacker_technique.effects.damage_modifier
+    # Speed-based damage reduction (defensive technique): reduces the holder's incoming damage.
+    if attacker_technique and attacker_technique.effects.speed_damage_reduction:
+        dr_amount = -(-(a_speed * attacker_technique.effects.speed_damage_reduction) // 2)
+        d_damage = max(1, d_damage - dr_amount)
+    if defender_technique and defender_technique.effects.speed_damage_reduction:
+        dr_amount = -(-(d_speed * defender_technique.effects.speed_damage_reduction) // 2)
+        a_damage = max(1, a_damage - dr_amount)
 
     # Apply intellect-based damage reduction for defender
     if defender_technique and defender_technique.effects.intellect_damage_reduction:
         # Ceil division: -(-(n) // d) rounds n/d up
         dr_amount = -(-(get_effective_intellect(defender) * defender_technique.effects.intellect_damage_reduction) // 2)
         a_damage = max(1, a_damage - dr_amount)
+
+    # Speed-difference item effects (offense and defense)
+    if attacker.speed_diff_damage_bonus:
+        a_damage += max(0, a_speed - d_speed) * attacker.speed_diff_damage_bonus
+    if defender.speed_diff_damage_bonus:
+        d_damage += max(0, d_speed - a_speed) * defender.speed_diff_damage_bonus
+    if defender.speed_diff_damage_reduction:
+        a_damage = max(1, a_damage - max(0, d_speed - a_speed) * defender.speed_diff_damage_reduction)
+    if attacker.speed_diff_damage_reduction:
+        d_damage = max(1, d_damage - max(0, a_speed - d_speed) * attacker.speed_diff_damage_reduction)
 
     # Interaction matrix
     pair = (attacker_action, defender_action)
