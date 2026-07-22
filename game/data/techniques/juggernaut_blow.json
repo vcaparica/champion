@@ -1,0 +1,8 @@
+{
+  "id": "juggernaut_blow",
+  "name": "Juggernaut Blow",
+  "description": "Your sheer mass becomes a weapon few can withstand. | Bonus damage equal to your Health; +2 predictability.",
+  "base_action": "strike",
+  "effects": {"health_damage_scale": 1},
+  "predictability_increase": 2
+}

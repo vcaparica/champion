@@ -1,0 +1,8 @@
+{
+  "id": "rending_flurry",
+  "name": "Rending Flurry",
+  "description": "A whirling cascade of cuts that drives the foe onto the back foot. | +3 damage; gains offensive advantage; +2 predictability.",
+  "base_action": "strike",
+  "effects": {"damage_modifier": 3, "gain_advantage": "offensive"},
+  "predictability_increase": 2
+}

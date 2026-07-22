@@ -1,0 +1,8 @@
+{
+  "id": "executioners_gambit",
+  "name": "Executioner's Gambit",
+  "description": "A cold, surgical blow that saps the enemy's strength. | +3 damage; applies weakened; +2 predictability.",
+  "base_action": "strike",
+  "effects": {"damage_modifier": 3, "apply_debuff": "weakened"},
+  "predictability_increase": 2
+}

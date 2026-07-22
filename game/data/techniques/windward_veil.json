@@ -1,0 +1,8 @@
+{
+  "id": "windward_veil",
+  "name": "Windward Veil",
+  "description": "Ride the wind just beyond reach and let the blow pass through empty air. | Damage reduction equal to half your Speed; moves to far range; +2 predictability.",
+  "base_action": "avoid",
+  "effects": {"speed_damage_reduction": 1, "reposition_to": "far"},
+  "predictability_increase": 2
+}

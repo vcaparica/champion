@@ -1,0 +1,8 @@
+{
+  "id": "plunging_talon",
+  "name": "Plunging Talon",
+  "description": "A diving strike that bites deeper the more you outpace your prey. | +2 damage plus bonus for each point your Speed exceeds the foe's; +2 predictability.",
+  "base_action": "strike",
+  "effects": {"damage_modifier": 2, "speed_diff_scale": 1},
+  "predictability_increase": 2
+}

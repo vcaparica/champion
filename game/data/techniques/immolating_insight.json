@@ -1,0 +1,8 @@
+{
+  "id": "immolating_insight",
+  "name": "Immolating Insight",
+  "description": "Flame guided by a brilliant mind finds the flaw in any guard. | Damage scales with your Intellect; applies weakened; +3 predictability.",
+  "base_action": "strike",
+  "effects": {"intellect_damage_scale": 1, "apply_debuff": "weakened"},
+  "predictability_increase": 3
+}

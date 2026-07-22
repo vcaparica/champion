@@ -1,0 +1,8 @@
+{
+  "id": "retribution_guard",
+  "name": "Retribution Guard",
+  "description": "Absorb the blow, then return it magnified by sheer endurance. | +1 damage plus bonus equal to your Health; +2 predictability.",
+  "base_action": "counter",
+  "effects": {"health_damage_scale": 1, "damage_modifier": 1},
+  "predictability_increase": 2
+}

@@ -1,0 +1,8 @@
+{
+  "id": "avalanche",
+  "name": "Avalanche",
+  "description": "An unstoppable downhill rush that buries everything in its path. | +3 damage; moves to close range; gains offensive advantage; +2 predictability.",
+  "base_action": "charge",
+  "effects": {"damage_modifier": 3, "gain_advantage": "offensive", "reposition_to": "close"},
+  "predictability_increase": 2
+}

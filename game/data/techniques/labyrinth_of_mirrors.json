@@ -1,0 +1,8 @@
+{
+  "id": "labyrinth_of_mirrors",
+  "name": "Labyrinth of Mirrors",
+  "description": "A blur of mirror-images; the true blade lands where only a sharp mind would look. | Damage scales with your Intellect; applies predictable; +2 predictability.",
+  "base_action": "strike",
+  "effects": {"intellect_damage_scale": 1, "apply_debuff": "predictable"},
+  "predictability_increase": 2
+}
