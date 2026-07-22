@@ -32,6 +32,8 @@ class TechniqueEffect:
     speed_diff_scale: int = 0
     speed_damage_reduction: int = 0
     require_speed_advantage: bool = False
+    health_damage_scale: int = 0
+    health_damage_reduction: int = 0
 
 
 @dataclass
@@ -88,6 +90,8 @@ def _dict_to_technique(data: dict) -> TechniqueData:
         speed_diff_scale=effects_raw.get("speed_diff_scale", 0),
         speed_damage_reduction=effects_raw.get("speed_damage_reduction", 0),
         require_speed_advantage=effects_raw.get("require_speed_advantage", False),
+        health_damage_scale=effects_raw.get("health_damage_scale", 0),
+        health_damage_reduction=effects_raw.get("health_damage_reduction", 0),
     )
     return TechniqueData(
         id=data["id"],

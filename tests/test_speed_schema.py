@@ -43,3 +43,13 @@ def test_fighter_instance_speed_diff_fields_default_zero():
     inst = FighterInstance(fighter_data=data)
     assert inst.speed_diff_damage_bonus == 0
     assert inst.speed_diff_damage_reduction == 0
+
+
+def test_technique_health_fields_parse_and_default():
+    from game.technique import _dict_to_technique
+    t = _dict_to_technique({
+        "id": "x", "name": "X", "description": "", "base_action": "strike",
+        "effects": {"health_damage_scale": 1},
+    })
+    assert t.effects.health_damage_scale == 1
+    assert t.effects.health_damage_reduction == 0
