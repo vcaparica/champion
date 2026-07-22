@@ -134,7 +134,7 @@ def _score_item(item, base_speed):
 
 
 def choose_ai_items(fighter, items) -> list[str]:
-    """Pick a Speed-appropriate number of items, one per slot.
+    """Pick a Speed-appropriate number of items, one per slot (two for ring slots).
 
     Fast fighters (base_speed >= 5) trade some Speed for extra gear but keep a
     reserve; slower fighters stay lean. Never exceeds base_speed items."""
