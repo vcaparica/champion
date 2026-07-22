@@ -21,13 +21,12 @@ FIGHTER_JSON = {
         "head": ["iron_helm", "crown_of_resolve"],
         "eyes": ["tactical_monocle"],
         "neck": ["guardian_amulet", "pendant_of_fortitude"],
-        "torso": ["reinforced_vest"],
-        "body": ["iron_plate", "field_armor"],
+        "clothing": ["reinforced_vest"],
+        "armor": ["iron_plate", "field_armor"],
         "shoulders": ["pauldrons_of_the_bulwark", "mantle_of_endurance"],
         "arms": ["vambraces_of_deflection"],
         "hands": ["gauntlets_of_might", "grippers_of_steadiness"],
-        "ring1": ["ring_of_vitality"],
-        "ring2": ["band_of_iron_will"],
+        "ring": ["ring_of_vitality", "band_of_iron_will"],
         "waist": ["girdle_of_stone"],
         "feet": ["greaves_of_the_ram", "sabatons_of_patience"]
     }

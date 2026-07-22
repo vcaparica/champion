@@ -143,7 +143,7 @@ def test_apply_buffs_modifies_stats():
     items = {
         "health_ring": ItemData(
             id="health_ring", name="Health Ring", description="",
-            slot=BodySlot.RING1,
+            slot=BodySlot.RING,
             passive_buffs=[{"buff_type": "health", "value": 8}]
         ),
         "power_gloves": ItemData(
@@ -373,7 +373,7 @@ def test_apply_buffs_with_scales_with():
     items = {
         "smart_ring": ItemData(
             id="smart_ring", name="Smart Ring", description="",
-            slot=BodySlot.RING1,
+            slot=BodySlot.RING,
             passive_buffs=[ItemBuff(BuffType.POWER, 1, scales_with="intellect")]
         )
     }

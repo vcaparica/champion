@@ -17,14 +17,14 @@ def item(iid, slot, buffs):
 
 
 def test_speed_half_scaling():
-    ring = item("ring", BodySlot.RING2, [ItemBuff(BuffType.POWER, 1, scales_with="speed_half")])
+    ring = item("ring", BodySlot.RING, [ItemBuff(BuffType.POWER, 1, scales_with="speed_half")])
     inst = mk(6, ["ring"])  # 1 item, no penalty, speed 6 -> half = 3
     apply_buffs(inst, {"ring": ring})
     assert inst.power_modifier == 3
 
 
 def test_full_speed_scaling_health():
-    vest = item("vest", BodySlot.BODY, [ItemBuff(BuffType.HEALTH, 2, scales_with="speed")])
+    vest = item("vest", BodySlot.ARMOR, [ItemBuff(BuffType.HEALTH, 2, scales_with="speed")])
     inst = mk(7, ["vest"])  # speed 7 -> +14 HP
     start = inst.current_health
     apply_buffs(inst, {"vest": vest})
@@ -47,7 +47,7 @@ def test_min_speed_gate_blocks_when_slow():
 
 def test_speed_diff_buff_types_set_instance_fields():
     sash = item("sash", BodySlot.WAIST, [ItemBuff(BuffType.SPEED_DIFF_DAMAGE, 1)])
-    aegis = item("aegis", BodySlot.TORSO, [ItemBuff(BuffType.SPEED_DIFF_REDUCTION, 1)])
+    aegis = item("aegis", BodySlot.CLOTHING, [ItemBuff(BuffType.SPEED_DIFF_REDUCTION, 1)])
     inst = mk(5, ["sash", "aegis"])
     apply_buffs(inst, {"sash": sash, "aegis": aegis})
     assert inst.speed_diff_damage_bonus == 1
@@ -57,7 +57,7 @@ def test_speed_diff_buff_types_set_instance_fields():
 def test_gate_uses_settled_speed_order_independent():
     # base 6, +1 flat speed, 2 items (-1 penalty) => effective 6; min_speed 6 passes in any order.
     boots = item("fb", BodySlot.FEET, [ItemBuff(BuffType.SPEED, 1)])
-    gated = item("g", BodySlot.RING2, [ItemBuff(BuffType.POWER, 2, min_speed=6)])
+    gated = item("g", BodySlot.RING, [ItemBuff(BuffType.POWER, 2, min_speed=6)])
     items = {"fb": boots, "g": gated}
     for order in (["fb", "g"], ["g", "fb"]):
         inst = mk(6, order)

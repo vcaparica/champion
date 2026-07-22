@@ -37,18 +37,14 @@ class BodySlot(Enum):
     HEAD = "head"
     EYES = "eyes"
     NECK = "neck"
-    TORSO = "torso"
-    BODY = "body"
     SHOULDERS = "shoulders"
     ARMS = "arms"
-    HANDS = "hands"
-    RING1 = "ring1"
-    RING2 = "ring2"
-    WAIST = "waist"
-    FEET = "feet"
     CLOTHING = "clothing"
     ARMOR = "armor"
+    HANDS = "hands"
     RING = "ring"
+    WAIST = "waist"
+    FEET = "feet"
 
 
 class MatchPhase(Enum):
