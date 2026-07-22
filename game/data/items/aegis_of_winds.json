@@ -2,7 +2,7 @@
   "id": "aegis_of_winds",
   "name": "Aegis of Winds",
   "description": "A shroud of wind that turns aside what slower eyes never see. | Reduce incoming damage by the amount your Speed exceeds the opponent's.",
-  "slot": "torso",
+  "slot": "clothing",
   "passive_buffs": [
     {"buff_type": "speed_diff_reduction", "value": 1}
   ],

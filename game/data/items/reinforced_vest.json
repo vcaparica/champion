@@ -2,7 +2,7 @@
   "id": "reinforced_vest",
   "name": "Reinforced Vest",
   "description": "A vest with reinforced padding worn under armor. | +2 damage reduction.",
-  "slot": "torso",
+  "slot": "clothing",
   "passive_buffs": [
     {
       "buff_type": "damage_reduction",

@@ -2,7 +2,7 @@
   "id": "ring_of_cunning",
   "name": "Ring of Cunning",
   "description": "A serpentine ring that amplifies clever strikes. Intellect sharpens every blow. | Power scales with Intellect.",
-  "slot": "ring1",
+  "slot": "ring",
   "passive_buffs": [
     {"buff_type": "power", "value": 1, "scales_with": "intellect"}
   ],

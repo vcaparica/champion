@@ -2,7 +2,7 @@
   "id": "brute_plate",
   "name": "Brute Plate",
   "description": "Thick, heavy armor that sacrifices everything for raw protection. | +25 HP; +5 damage reduction; -2 speed.",
-  "slot": "body",
+  "slot": "armor",
   "passive_buffs": [
     {
       "buff_type": "health",

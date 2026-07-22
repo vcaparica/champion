@@ -2,7 +2,7 @@
   "id": "field_armor",
   "name": "Field Armor",
   "description": "Lighter armor designed for mobility on the battlefield. | +10 HP; +2 damage reduction.",
-  "slot": "body",
+  "slot": "armor",
   "passive_buffs": [
     {
       "buff_type": "health",

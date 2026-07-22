@@ -2,7 +2,7 @@
   "id": "iron_plate",
   "name": "Iron Plate",
   "description": "Full plate armor offering maximum protection at the cost of mobility. | +20 HP; +4 damage reduction; -1 speed.",
-  "slot": "body",
+  "slot": "armor",
   "passive_buffs": [
     {
       "buff_type": "health",

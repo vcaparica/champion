@@ -2,7 +2,7 @@
   "id": "robes_of_the_phoenix",
   "name": "Robes of the Phoenix",
   "description": "Robes woven from phoenix feathers. Grants a chance to rise again. | +10 HP; When at low health: heal 15 HP.",
-  "slot": "body",
+  "slot": "clothing",
   "passive_buffs": [
     {
       "buff_type": "health",

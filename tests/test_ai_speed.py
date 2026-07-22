@@ -12,12 +12,16 @@ TECHS = load_all_techniques(os.path.join("game", "data", "techniques"))
 
 
 def test_ai_items_within_cap_and_one_per_slot():
+    from collections import Counter
+    from game.enums import BodySlot
     for f in FIGHTERS.values():
         inst = FighterInstance(fighter_data=f)
         chosen = choose_ai_items(inst, ITEMS)
         assert 1 <= len(chosen) <= f.base_speed, f.id
-        slots = [ITEMS[i].slot for i in chosen]
-        assert len(slots) == len(set(slots)), f"{f.id} equipped two items in one slot"
+        counts = Counter(ITEMS[i].slot for i in chosen)
+        for slot, count in counts.items():
+            limit = 2 if slot == BodySlot.RING else 1
+            assert count <= limit, f"{f.id} equipped {count} items in slot {slot}"
 
 
 def test_ai_fast_fighter_takes_more_items_than_slow():
