@@ -1,0 +1,8 @@
+{
+  "id": "tempo_strike",
+  "name": "Tempo Strike",
+  "description": "You strike on pure velocity, faster than muscle can answer. | Damage equals your Speed instead of your Power; +2 predictability.",
+  "base_action": "strike",
+  "effects": {"speed_instead_of_power": true},
+  "predictability_increase": 2
+}

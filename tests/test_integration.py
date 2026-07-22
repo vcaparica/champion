@@ -15,7 +15,7 @@ def test_load_all_game_data():
     items = load_all_items("game/data/items")
 
     assert len(fighters) == 4
-    assert len(techniques) == 35  # was 29, +6 new
+    assert len(techniques) == 41  # 35 + 6 Speed techniques
     assert len(items) >= 41
 
     for f in fighters.values():

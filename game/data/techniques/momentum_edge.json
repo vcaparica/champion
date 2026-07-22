@@ -1,0 +1,8 @@
+{
+  "id": "momentum_edge",
+  "name": "Momentum Edge",
+  "description": "Every step quicker than your foe becomes cutting force. | Bonus damage equal to how much your Speed exceeds the opponent's; +1 predictability.",
+  "base_action": "feint",
+  "effects": {"speed_diff_scale": 1},
+  "predictability_increase": 1
+}

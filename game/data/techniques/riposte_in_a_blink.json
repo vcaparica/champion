@@ -1,0 +1,8 @@
+{
+  "id": "riposte_in_a_blink",
+  "name": "Riposte in a Blink",
+  "description": "Answer the attack before it finishes, if you are the quicker hand. | +3 counter damage, but only if your Speed matches or exceeds the opponent's; +2 predictability.",
+  "base_action": "counter",
+  "effects": {"damage_modifier": 3, "require_speed_advantage": true},
+  "predictability_increase": 2
+}

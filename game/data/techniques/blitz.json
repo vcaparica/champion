@@ -1,0 +1,8 @@
+{
+  "id": "blitz",
+  "name": "Blitz",
+  "description": "A headlong rush that turns raw momentum into impact. | Charge damage increased by your Speed; +2 predictability.",
+  "base_action": "charge",
+  "effects": {"speed_damage_scale": 1},
+  "predictability_increase": 2
+}

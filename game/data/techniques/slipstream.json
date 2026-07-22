@@ -1,0 +1,8 @@
+{
+  "id": "slipstream",
+  "name": "Slipstream",
+  "description": "Blur past the attack and leave your foe stumbling in your wake. | Reposition to far; if your Speed matches or exceeds the opponent's, gain offensive advantage and inflict Slowed; +1 predictability.",
+  "base_action": "avoid",
+  "effects": {"reposition_to": "far", "gain_advantage": "offensive", "apply_debuff": "slowed", "require_speed_advantage": true},
+  "predictability_increase": 1
+}
