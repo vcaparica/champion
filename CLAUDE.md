@@ -23,7 +23,7 @@ uvicorn server.main:app --host 0.0.0.0 --port 8000
 
 ### Tests
 ```bash
-pytest tests/ -v    # 52 tests across 8 test files
+pytest tests/ -v    # 136 tests across 17 test files
 ```
 
 ### Dependencies
@@ -48,13 +48,13 @@ pytest tests/ -v    # 52 tests across 8 test files
 
 ### Game logic layer (`game/`)
 
-- **game/enums.py** — Shared enumerations: `ActionType` (strike, block, feint, counter, charge, avoid), `Range` (close, medium, far), `Advantage` (neutral, offensive, defensive), `BodySlot` (12 slots), `MatchPhase`, `BuffType`, `DebuffType`
+- **game/enums.py** — Shared enumerations: `ActionType` (strike, block, feint, counter, charge, avoid), `Range` (close, medium, far), `Advantage` (neutral, offensive, defensive), `BodySlot` (11 slots), `MatchPhase`, `BuffType`, `DebuffType`
 - **game/fighter.py** — `FighterData` dataclass, `load_fighter()`, `load_all_fighters()` JSON loader
 - **game/technique.py** — `TechniqueData`, `TechniqueEffect` dataclasses, JSON loader. Techniques modify base actions with damage modifiers, debuffs, healing, repositioning, advantage changes, etc.
 - **game/item.py** — `ItemData`, `ItemBuff`, `ItemReactive` dataclasses, JSON loader. Items occupy body slots providing passive buffs and reactive triggers.
 - **game/combat.py** — Core combat engine. `FighterInstance` (runtime fighter state), `ExchangeResult` (outcome of one action pair), `resolve_exchange()` (36-pair interaction matrix), `apply_buffs()`, `get_effective_speed()`, `get_effective_power()`, `compute_damage()`
 - **game/match.py** — `MatchState` dataclass tracking phase, rounds, action declarations, victory conditions. Functions: `advance_phase()`, `declare_actions()`, `all_actions_declared()`, `check_round_end()`, `check_match_end()`, `reset_for_new_round()`
-- **game/ai.py** — AI opponent: `choose_ai_actions()` (3 per volley with predictability-based counter-picking), `choose_ai_techniques()` (3 of 8), `choose_ai_items()` (2 with scoring heuristic), `choose_ai_fighter()`
+- **game/ai.py** — AI opponent: `choose_ai_actions()` (3 per volley with predictability-based counter-picking), `choose_ai_techniques()` (base_intellect-based from 7-technique pool), `choose_ai_items()` (scoring heuristic, capped at base_speed), `choose_ai_fighter()`
 - **game/network.py** — `GameClient` class: WebSocket client with async event loop in background thread. `connect()`, `send()`, `receive()`, `has_messages()`, `close()`
 
 ### Client (app.py)
@@ -77,9 +77,9 @@ Deployed at `https://cegoemtiroteio.com.br/champion/` on Ubuntu 24 VPS with ngin
 
 ### Data files (`game/data/`)
 
-- **4 fighters:** Thorn (knight, 50 HP), Ember (fire mage, 40 HP), Zephyr (wind dancer, 37 HP), Brutus (brute, 60 HP)
-- **29 techniques:** 8 per fighter, 2 exclusive each. Descriptions include mechanical effects after `|` separator
-- **34 items:** across 12 body slots. Descriptions include passive buffs and reactive triggers after `|` separator
+- **12 fighters:** each a combination of two internal archetypes (Strong/Agile/Smart/Sturdy → Power/Speed/Intellect/Health); attribute spread 6/5/3-3-or-4-2 summing to 17. Archetypes are internal only and never surfaced in-game.
+- **53 techniques:** 41 shared plus 12 unique exclusives (one per fighter). Each fighter's pool is 6 shared + 1 exclusive = 7. Descriptions include mechanical effects after `|` separator.
+- **47 items:** across 11 body slots. Descriptions include passive buffs and reactive triggers after `|` separator.
 
 ## Combat System
 
@@ -93,7 +93,7 @@ Deployed at `https://cegoemtiroteio.com.br/champion/` on Ubuntu 24 VPS with ngin
 
 **Positioning:** Verbal only — close/medium/far range, neutral/offensive/defensive advantage. No grid.
 
-**Match flow:** Fighter select → pick 3 of 8 techniques → pick 2 items → best of 3 rounds → winner
+**Match flow:** Fighter select → pick base_intellect techniques (2–6) from a pool of 7 → equip up to base_speed items from a 7-slot panoply → best of 3 rounds → winner
 
 ## Key Conventions
 
@@ -106,3 +106,4 @@ Deployed at `https://cegoemtiroteio.com.br/champion/` on Ubuntu 24 VPS with ngin
 - **Gamepad constants:** Xbox-style mapping on `GameControls` (e.g., `GAMEPAD_A = 0`).
 - **Windows DLLs** (OpenAL64.dll, SAAPI64.dll, nvdaControllerClient64.dll) for audio and screen reader.
 - **2v2 forward compatibility:** `team_a`/`team_b` are lists, every action has `target_id`, turn order uses speed sorting.
+- **Slot taxonomy:** HEAD, EYES, NECK, SHOULDERS, ARMS, CLOTHING, ARMOR, HANDS (enum-only, unused), RING, WAIST, FEET — 11 body slots. Each fighter's panoply covers 7 slots, with RING holding up to 2 items for hand-agnostic equipping.

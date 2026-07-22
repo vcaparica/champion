@@ -16,8 +16,8 @@ Each round proceeds through phases in this order:
 
 1. **Lobby** — waiting for opponent
 2. **Fighter Select** — each player picks a fighter
-3. **Technique Select** — each player picks 3 of their 8 available techniques
-4. **Item Select** — each player picks 2 items from their fighter's panoply
+3. **Technique Select** — each player picks base_intellect techniques from their pool of 7 (6 shared + 1 exclusive)
+4. **Item Select** — each player equips up to base_speed items from their fighter's panoply
 5. **Combat** — volleys of 3 declared actions, repeated until one fighter reaches 0 HP
 6. **Round End** — winner declared, scores updated
 7. **Match End** — overall winner declared
@@ -28,24 +28,31 @@ Between rounds, all state resets: health restores to base, range returns to medi
 
 ## Fighters
 
-Each fighter has three core stats and a personal arsenal of techniques and items:
+Each fighter has four core attributes and a personal arsenal of techniques and items:
 
-- **Base Health (HP):** How much damage the fighter can take before being defeated. Ranges from 37 to 60 across the four fighters.
-- **Base Speed:** Determines who acts first in each exchange. The faster fighter is the attacker and the slower is the defender. Ranges from 3 to 10.
-- **Base Power:** The base damage dealt on a successful hit, before modifiers. Ranges from 6 to 10.
+- **Base Health (HP):** How much damage the fighter can take before being defeated. HP = base_health × 10, ranging from 30 to 60 across the twelve fighters.
+- **Base Speed:** Determines who acts first in each exchange. The faster fighter is the attacker and the slower is the defender. Ranges from 2 to 6.
+- **Base Power:** The base damage dealt on a successful hit, before modifiers. Ranges from 3 to 6.
+- **Base Intellect:** Determines how many techniques the fighter can bring into a match. Ranges from 2 to 6.
 
 Every fighter also has:
-- **8 technique IDs** — the fighter's personal move pool (2 are exclusive to that fighter)
-- **Panoply** — equipment slots (head, eyes, neck, torso, body, shoulders, arms, hands, ring1, ring2, waist, feet) with 1 to 4 item choices per slot
+- **7 technique IDs** — the fighter's personal move pool (1 is exclusive to that fighter)
+- **Panoply** — equipment slots (head, eyes, neck, shoulders, arms, clothing, armor, hands, ring, waist, feet) with 7 items total; ring slots are hand-agnostic
 
 ### Playable Fighters
 
-| Fighter | Health | Speed | Power | Style |
-|---|---|---|---|---|
-| Thorn | 50 | 5 | 8 | Defensive knight; blocks and counters with shield techniques |
-| Ember | 40 | 8 | 9 | Fire mage; high speed and power, lower durability |
-| Zephyr | 37 | 10 | 6 | Wind dancer; extreme speed and evasion, lowest power and health |
-| Brutus | 60 | 3 | 10 | Towering brute; highest health and power, slowest speed |
+- **Razor, the Whirling Edge** — duelist; 4 health, 5 speed, 6 power, 2 intellect
+- **Talon, the Cruel Tactician** — tactician; 4 health, 2 speed, 6 power, 5 intellect
+- **Boulder, the Relentless Aggressor** — aggressor; 5 health, 4 speed, 6 power, 2 intellect
+- **Falcon, the Plunging Strike** — precision striker; 4 health, 6 speed, 5 power, 2 intellect
+- **Whisper, the Vanishing Step** — elusive phantom; 3 health, 6 speed, 3 power, 5 intellect
+- **Cloud, the Drifting Bulwark** — drifting bulwark; 5 health, 6 speed, 3 power, 3 intellect
+- **Ember, the Fiery Mistress** — fire mage; 3 health, 3 speed, 5 power, 6 intellect
+- **Mirage, the Bewildering Phantom** — bewildering phantom; 3 health, 5 speed, 3 power, 6 intellect
+- **Cipher, the Inscrutable** — inscrutable strategist; 5 health, 2 speed, 4 power, 6 intellect
+- **Anvil, the Unbroken** — unbroken bulwark; 6 health, 3 speed, 5 power, 3 intellect
+- **Ward, the Sheltering Gale** — protective guardian; 6 health, 5 speed, 3 power, 3 intellect
+- **Aegis, the Enduring Mind** — stoic protector; 6 health, 3 speed, 3 power, 5 intellect
 
 ---
 
@@ -235,26 +242,26 @@ Predictability is a persistent stat that carries across volleys within the same 
 
 ### Technique Selection
 
-Each fighter has access to 8 techniques, of which 2 are **exclusive** (unique to that fighter). Before combat, the player picks exactly 3 techniques to bring into the match. During combat, any of those 3 can be paired with any declared action in any volley — but each technique use increases predictability.
+Each fighter has access to 7 techniques: 6 **shared** techniques (available to multiple fighters) plus 1 **exclusive** (unique to that fighter). Before combat, the player picks base_intellect techniques (2 to 6) to bring into the match, matching the fighter's attribute. During combat, any of those techniques can be paired with any declared action in any volley — but each technique use increases predictability.
 
 ### Example Techniques
 
-- **Flame Strike** (Ember exclusive, Strike base): +5 damage, +2 predictability. A devastating overhead strike wreathed in flame.
-- **Iron Wall** (Thorn exclusive, Block base): +3 damage, gains defensive advantage, +2 predictability. An unbreakable defensive stance that hurts attackers who strike into it.
-- **Wind Step** (Zephyr exclusive, Avoid base): Moves to far range, gains offensive advantage, +1 predictability. Repositions while setting up the next attack.
-- **Bone Crusher** (Brutus exclusive, Strike base): +5 damage, applies vulnerable, +2 predictability. A crippling blow that leaves the target exposed.
-- **Phoenix Rebirth** (Ember exclusive, Block base): Heals 15 HP on hit, +3 predictability. Turns defense into a massive self-heal.
-- **Last Stand** (Thorn exclusive, Counter base): +4 damage, heals 10 HP on hit, +3 predictability. When desperation meets opportunity.
-- **Crushing Grip** (Counter base): +2 damage, steals opponent's item, +3 predictability.
-- **Blazing Counter** (Counter base): +4 damage, applies vulnerable, +2 predictability.
-- **Shield Bash** (Strike base): +2 damage, pushes to far range, +1 predictability.
-- **Heat Wave** (Strike base): +3 damage, bypasses range, +2 predictability.
+- **Immolating Insight** (Ember exclusive, Strike base): Damage scales with Intellect; applies weakened; +3 predictability. Flame guided by a brilliant mind finds the flaw in any guard.
+- **Rending Flurry** (Razor exclusive, Strike base): +3 damage; gains offensive advantage; +2 predictability. A whirling cascade of cuts that drives the foe onto the back foot.
+- **Aegis Wall** (Aegis exclusive, Block base): Damage reduction from Health; gains defensive advantage; +2 predictability. An indomitable guard that shrugs off the heaviest blows.
+- **Avalanche** (Boulder exclusive, Charge base): +3 damage; moves to close range; gains offensive advantage; +2 predictability. An unstoppable downhill rush that buries everything in its path.
+- **Vanishing Cut** (Whisper exclusive, Strike base): Bonus damage from Speed; applies slowed; +2 predictability. A cut from nowhere that leaves the foe clutching at afterimages.
+- **Wind Step** (Avoid base): Moves to far range; gains offensive advantage; +1 predictability. Moves with the speed of wind, impossible to track.
+- **Shield Bash** (Strike base): +1 damage; pushes to far range; +1 predictability. Uses the shield as a weapon to push the opponent back.
+- **Blazing Counter** (Counter base): +2 damage; applies vulnerable; +2 predictability. A counter-attack that leaves searing burns on the opponent.
+- **Heat Wave** (Strike base): +1 damage; ignores range; +2 predictability. Releases a wave of searing heat that strikes at any distance.
+- **Blitz** (Charge base): Charge damage increased by Speed; +2 predictability. A headlong rush that turns raw momentum into impact.
 
 ---
 
 ## Items
 
-Before combat, each player selects **2 items** from their fighter's panoply (equipment slots). Items occupy specific body slots and provide two kinds of benefits:
+Before combat, each player equips up to **base_speed items** from their fighter's panoply (equipment slots). Items occupy specific body slots and provide two kinds of benefits:
 
 ### Passive Buffs
 
@@ -275,12 +282,12 @@ Items can have one reactive effect that activates automatically under specific c
 
 ### Example Items
 
-- **Iron Helm** (head): +10 HP, +2 damage reduction.
-- **Gauntlets of Might** (hands): +3 power.
-- **Robes of the Phoenix** (body): +10 HP; reactive: when at low health, heal 15 HP.
-- **Boots of the Wind** (feet): +2 speed.
-- **Girdle of Stone** (waist): +20 HP.
-- **Band of Iron Will** (ring2): +1 damage reduction, resist_debuff.
+- **Iron Helm** (head): +8 HP, +1 damage reduction.
+- **Gauntlets of Might** (hands): +2 power.
+- **Robes of the Phoenix** (clothing): +8 HP; reactive: when at low health, heal 12 HP.
+- **Boots of the Wind** (feet): +1 speed.
+- **Girdle of Stone** (waist): +2 damage reduction.
+- **Band of Iron Will** (ring): +2 debuff resistance.
 
 ### Item Selection Strategy
 
@@ -347,15 +354,15 @@ The AI (`game/ai.py`) makes decisions for offline play across all phases:
 Randomly picks from the available roster.
 
 ### Technique Selection
-Randomly samples 3 of the fighter's 8 available techniques.
+Randomly samples base_intellect techniques from the fighter's 7-technique pool. Slow fighters (speed < 5) filter out Speed-reliant techniques when enough alternatives exist.
 
 ### Item Selection
-Scores all available items from the fighter's panoply using a weighted heuristic: power (3x value), health (2x value), damage reduction (1x value), speed (1x value). Picks the top 2.
+Scores all available items from the fighter's panoply using a weighted heuristic: power (3x value), health (2x value), damage reduction (1x value), speed (1x value). Picks a speed-appropriate number, capped at base_speed (minimum 1).
 
 ### Action Declaration (per volley)
 For each of the 3 actions in a volley:
 1. Randomly picks one of the 6 base action types.
-2. With a 40% chance, attaches one of its 3 selected techniques (randomly chosen).
+2. With a 40% chance, attaches one of its selected techniques (randomly chosen from the pool of base_intellect techniques).
 3. Targets the opponent.
 
 The AI currently does not use opponent predictability for counter-picking in its current implementation, though the function signature accepts it for future enhancement.
@@ -367,8 +374,8 @@ The AI currently does not use opponent predictability for counter-picking in its
 ### Pre-Combat (once per match)
 
 1. Both players select a fighter.
-2. Both players select 3 of 8 techniques.
-3. Both players select 2 items from their fighter's panoply.
+2. Both players select base_intellect techniques from their fighter's 7-technique pool.
+3. Both players equip up to base_speed items from their fighter's panoply.
 4. Item passive buffs are applied (health, power, speed, damage reduction).
 
 ### Per Round
