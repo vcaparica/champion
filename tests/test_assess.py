@@ -22,7 +22,7 @@ def test_assess_fields_default_empty():
     assert r.assess_reveals == []
 
 
-from game.enums import ActionType
+from game.enums import ActionType, BodySlot
 from game.technique import TechniqueData, TechniqueEffect
 from game.assess import advance_assess, format_reveals_for
 
@@ -111,3 +111,158 @@ def test_assess_vs_assess_both_reveal():
     result = resolve_exchange(a, b, ActionType.ASSESS, ActionType.ASSESS)
     targets = {r["target"] for r in result.assess_reveals}
     assert targets == {"attacker", "defender"}
+
+
+from game.assess import apply_assess_technique, _buffs
+
+
+def _assess_technique(effects):
+    return TechniqueData(
+        id="at", name="Assess Tech", description="d",
+        base_action=ActionType.ASSESS, effects=effects,
+    )
+
+
+def test_assess_technique_sets_counter_bonus_and_damage_half():
+    assessor = make_test_fighter("Seer", speed=6)
+    opponent = make_test_fighter("Foe")
+    eff = TechniqueEffect(assess_next_counter_bonus=3, assess_next_damage_half=True)
+    r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r, "attacker", _assess_technique(eff), {}, {})
+    b = _buffs(assessor)
+    assert b["counter_bonus"] == 3
+    assert b["damage_half"] is True
+
+
+def test_assess_technique_speed_buff_adds_to_modifier():
+    assessor = make_test_fighter("Seer", speed=6)
+    before = assessor.speed_modifier
+    eff = TechniqueEffect(assess_speed_buff=2, assess_speed_buff_volleys=3)
+    r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, make_test_fighter("Foe"), r, "attacker", _assess_technique(eff), {}, {})
+    assert assessor.speed_modifier == before + 2
+    assert _buffs(assessor)["speed_buff"]["volleys"] == 3
+
+
+def test_assess_technique_reveals_unused_technique():
+    assessor = make_test_fighter("Seer", speed=6)
+    opponent = make_test_fighter("Foe")
+    opponent.selected_techniques = ["t1", "t2"]
+    opponent.techniques_used = {"t1"}  # t1 already used; t2 is the unused one
+    techniques = {"t1": _technique("t1", ActionType.STRIKE),
+                  "t2": _technique("t2", ActionType.FEINT)}
+    eff = TechniqueEffect(assess_reveal_unused_technique=True)
+    r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r, "attacker", _assess_technique(eff), techniques, {})
+    assert r.assess_reveals[-1]["kind"] == "unused_technique"
+    assert "T2" in r.assess_reveals[-1]["text"]
+
+
+def test_assess_technique_reveals_item():
+    from game.item import ItemData, ItemBuff
+    assessor = make_test_fighter("Seer", speed=6)
+    opponent = make_test_fighter("Foe")
+    opponent.selected_items = ["ring0"]
+    items = {"ring0": ItemData(id="ring0", name="Test Ring", description="A ring.",
+                               slot=BodySlot.RING, passive_buffs=[])}
+    eff = TechniqueEffect(assess_reveal_item=True)
+    r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r, "attacker", _assess_technique(eff), {}, items)
+    assert r.assess_reveals[-1]["kind"] == "item"
+    assert "Test Ring" in r.assess_reveals[-1]["text"]
+
+
+def test_assess_technique_speed_buff_reapplication_does_not_stack():
+    """Re-applying the speed buff must remove the old contribution first,
+    not add on top of it, or speed_modifier drifts upward on repeated use."""
+    assessor = make_test_fighter("Seer", speed=6)
+    before = assessor.speed_modifier
+    eff = TechniqueEffect(assess_speed_buff=2, assess_speed_buff_volleys=3)
+    r1 = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, make_test_fighter("Foe"), r1, "attacker", _assess_technique(eff), {}, {})
+    r2 = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, make_test_fighter("Foe"), r2, "attacker", _assess_technique(eff), {}, {})
+    assert assessor.speed_modifier == before + 2
+    assert _buffs(assessor)["speed_buff"]["volleys"] == 3
+
+
+def test_assess_technique_reveals_unused_technique_with_empty_techniques_used():
+    """techniques_used is only populated by Task 10; an empty set must still work."""
+    assessor = make_test_fighter("Seer", speed=6)
+    opponent = make_test_fighter("Foe")
+    opponent.selected_techniques = ["t1", "t2"]
+    techniques = {"t1": _technique("t1", ActionType.STRIKE),
+                  "t2": _technique("t2", ActionType.FEINT)}
+    eff = TechniqueEffect(assess_reveal_unused_technique=True)
+    r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r, "attacker", _assess_technique(eff), techniques, {})
+    assert r.assess_reveals[-1]["kind"] == "unused_technique"
+    assert "T1" in r.assess_reveals[-1]["text"]
+
+
+def test_reveal_unused_technique_noop_when_registry_empty():
+    assessor = make_test_fighter("Seer", speed=6)
+    opponent = make_test_fighter("Foe")
+    opponent.selected_techniques = ["t1"]
+    eff = TechniqueEffect(assess_reveal_unused_technique=True)
+    r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r, "attacker", _assess_technique(eff), {}, {})
+    assert r.assess_reveals == []
+
+
+def test_reveal_unused_technique_noop_when_id_unknown():
+    assessor = make_test_fighter("Seer", speed=6)
+    opponent = make_test_fighter("Foe")
+    opponent.selected_techniques = ["ghost"]
+    other = {"other": _technique("other", ActionType.STRIKE)}
+    eff = TechniqueEffect(assess_reveal_unused_technique=True)
+    r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r, "attacker", _assess_technique(eff), other, {})
+    assert r.assess_reveals == []
+
+
+def test_assess_technique_reveals_item_dedupes_across_calls():
+    """Repeated item reveals disclose a new item each time, not the same one."""
+    from game.item import ItemData
+    assessor = make_test_fighter("Seer", speed=6)
+    opponent = make_test_fighter("Foe")
+    opponent.selected_items = ["ring0", "ring1"]
+    items = {
+        "ring0": ItemData(id="ring0", name="Test Ring", description="A ring.",
+                          slot=BodySlot.RING, passive_buffs=[]),
+        "ring1": ItemData(id="ring1", name="Second Ring", description="Another ring.",
+                          slot=BodySlot.RING, passive_buffs=[]),
+    }
+    eff = TechniqueEffect(assess_reveal_item=True)
+    r1 = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r1, "attacker", _assess_technique(eff), {}, items)
+    r2 = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r2, "attacker", _assess_technique(eff), {}, items)
+    assert r1.assess_reveals[-1]["text"] != r2.assess_reveals[-1]["text"]
+    # Both items now revealed; a third call has nothing new to disclose.
+    r3 = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r3, "attacker", _assess_technique(eff), {}, items)
+    assert r3.assess_reveals == []
+
+
+def test_reveal_item_noop_when_registry_empty():
+    assessor = make_test_fighter("Seer", speed=6)
+    opponent = make_test_fighter("Foe")
+    opponent.selected_items = ["ring0"]
+    eff = TechniqueEffect(assess_reveal_item=True)
+    r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r, "attacker", _assess_technique(eff), {}, {})
+    assert r.assess_reveals == []
+
+
+def test_reveal_item_noop_when_id_unknown():
+    from game.item import ItemData
+    assessor = make_test_fighter("Seer", speed=6)
+    opponent = make_test_fighter("Foe")
+    opponent.selected_items = ["ghost_ring"]
+    items = {"ring0": ItemData(id="ring0", name="Test Ring", description="A ring.",
+                               slot=BodySlot.RING, passive_buffs=[])}
+    eff = TechniqueEffect(assess_reveal_item=True)
+    r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r, "attacker", _assess_technique(eff), {}, items)
+    assert r.assess_reveals == []
