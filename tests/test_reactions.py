@@ -374,3 +374,24 @@ def test_defense_success_fires_reflect_for_all_six_cells(role, negater_action, o
         result = resolve_exchange(negater, offender, negater_action, offender_action)
         assert result.damage_to_defender == 3   # reflect only; the matrix dealt 0
         assert result.damage_to_attacker == 0
+
+
+def test_clear_volley_state_ticks_speed_buff():
+    from game.combat import FighterInstance
+    from game.fighter import FighterData
+    from game.reactions import clear_volley_state
+    from game.assess import apply_speed_buff, _buffs
+
+    data = FighterData(id="x", name="X", description="", base_health=5, base_speed=4,
+                      base_power=4, base_intellect=0, technique_ids=[],
+                      exclusive_technique_ids=[], panoply={})
+    me = FighterInstance(fighter_data=data)
+    apply_speed_buff(me, 2, 3)
+    assert me.speed_modifier == 2
+    clear_volley_state(me)
+    assert _buffs(me)["speed_buff"]["volleys"] == 2
+    assert me.speed_modifier == 2
+    clear_volley_state(me)
+    clear_volley_state(me)  # volleys -> 0, buff removed
+    assert "speed_buff" not in _buffs(me)
+    assert me.speed_modifier == 0
