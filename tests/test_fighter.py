@@ -131,3 +131,40 @@ def test_load_fighter_intellect_defaults_to_zero():
         assert fighter.base_intellect == 0
     finally:
         os.unlink(temp_path)
+
+
+def test_fighter_feat_id_loads():
+    import json, os, tempfile
+    from game.fighter import load_fighter
+    data = {
+        "id": "tester", "name": "Tester", "description": "d",
+        "base_health": 5, "base_speed": 4, "base_power": 5, "base_intellect": 3,
+        "technique_ids": [], "exclusive_technique_ids": [], "panoply": {},
+        "feat_id": "iron_composure",
+    }
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(data, f)
+        path = f.name
+    try:
+        fighter = load_fighter(path)
+        assert fighter.feat_id == "iron_composure"
+    finally:
+        os.unlink(path)
+
+
+def test_fighter_feat_id_defaults_empty():
+    import json, os, tempfile
+    from game.fighter import load_fighter
+    data = {
+        "id": "tester", "name": "Tester", "description": "d",
+        "base_health": 5, "base_speed": 4, "base_power": 5, "base_intellect": 3,
+        "technique_ids": [], "exclusive_technique_ids": [], "panoply": {},
+    }
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(data, f)
+        path = f.name
+    try:
+        fighter = load_fighter(path)
+        assert fighter.feat_id == ""
+    finally:
+        os.unlink(path)

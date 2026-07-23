@@ -3,6 +3,7 @@
   "name": "Falcon, the Plunging Strike",
   "description": "Falcon, the Plunging Strike. A blindingly fast raptor of a fighter who drops on prey from unexpected angles and is gone before the answer comes.",
   "base_health": 4, "base_speed": 6, "base_power": 5, "base_intellect": 2,
+  "feat_id": "falcons_stoop",
   "technique_ids": ["gale_slash", "cyclone_strike", "tempest_fury", "vital_strike", "ember_storm", "shield_bash", "plunging_talon"],
   "exclusive_technique_ids": ["plunging_talon"],
   "panoply": {"eyes": ["goggles_of_the_hawk"], "shoulders": ["cape_of_the_zephyr"], "arms": ["bracers_of_the_storm"], "clothing": ["aegis_of_winds"], "ring": ["swiftedge_ring", "band_of_iron_will"], "feet": ["greaves_of_the_ram"]}

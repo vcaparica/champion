@@ -1,7 +1,7 @@
 {
   "id": "pauldrons_of_the_bulwark",
   "name": "Pauldrons of the Bulwark",
-  "description": "Massive pauldrons that absorb heavy impacts. | +3 damage reduction; When struck: deal 2 damage back.",
+  "description": "Massive pauldrons that absorb heavy impacts. | +2 damage reduction; When struck: deal 1 damage back.",
   "slot": "shoulders",
   "passive_buffs": [
     {

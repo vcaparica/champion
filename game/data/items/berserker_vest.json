@@ -1,7 +1,7 @@
 {
   "id": "berserker_vest",
   "name": "Berserker Vest",
-  "description": "A vest that tightens as the wearer takes damage, fueling rage. | +2 power; When struck: +2 power.",
+  "description": "A vest that tightens as the wearer takes damage, fueling rage. | +1 power; When struck: +1 power.",
   "slot": "clothing",
   "passive_buffs": [
     {

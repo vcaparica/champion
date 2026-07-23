@@ -23,7 +23,7 @@ uvicorn server.main:app --host 0.0.0.0 --port 8000
 
 ### Tests
 ```bash
-pytest tests/ -v    # 136 tests across 17 test files
+pytest tests/ -v    # 188 tests across 20 test files
 ```
 
 ### Dependencies
@@ -53,6 +53,8 @@ pytest tests/ -v    # 136 tests across 17 test files
 - **game/technique.py** — `TechniqueData`, `TechniqueEffect` dataclasses, JSON loader. Techniques modify base actions with damage modifiers, debuffs, healing, repositioning, advantage changes, etc.
 - **game/item.py** — `ItemData`, `ItemBuff`, `ItemReactive` dataclasses, JSON loader. Items occupy body slots providing passive buffs and reactive triggers.
 - **game/combat.py** — Core combat engine. `FighterInstance` (runtime fighter state), `ExchangeResult` (outcome of one action pair), `resolve_exchange()` (36-pair interaction matrix), `apply_buffs()`, `get_effective_speed()`, `get_effective_power()`, `compute_damage()`
+- **game/reactions.py** — Reactive engine: `Trigger` enum, `ReactionContext`, `fire()` dispatcher, `attach_reactions()`, item-reactive adapter, and volley helpers (`tick_burn`, `commit_damage`, `fire_low_health`, `clear_volley_state`). Powers fighter Feats and activates item reactives.
+- **game/feat.py** — `Feat`, `Reaction` dataclasses and JSON loader. One innate Feat per fighter.
 - **game/match.py** — `MatchState` dataclass tracking phase, rounds, action declarations, victory conditions. Functions: `advance_phase()`, `declare_actions()`, `all_actions_declared()`, `check_round_end()`, `check_match_end()`, `reset_for_new_round()`
 - **game/ai.py** — AI opponent: `choose_ai_actions()` (3 per volley with predictability-based counter-picking), `choose_ai_techniques()` (base_intellect-based from 7-technique pool), `choose_ai_items()` (scoring heuristic, capped at base_speed), `choose_ai_fighter()`
 - **game/network.py** — `GameClient` class: WebSocket client with async event loop in background thread. `connect()`, `send()`, `receive()`, `has_messages()`, `close()`
@@ -80,6 +82,7 @@ Deployed at `https://cegoemtiroteio.com.br/champion/` on Ubuntu 24 VPS with ngin
 - **12 fighters:** each a combination of two internal archetypes (Strong/Agile/Smart/Sturdy → Power/Speed/Intellect/Health); attribute spread 6/5/3-3-or-4-2 summing to 17. Archetypes are internal only and never surfaced in-game.
 - **53 techniques:** 41 shared plus 12 unique exclusives (one per fighter). Each fighter's pool is 6 shared + 1 exclusive = 7. Descriptions include mechanical effects after `|` separator.
 - **47 items:** across 11 body slots. Descriptions include passive buffs and reactive triggers after `|` separator.
+- **12 feats:** one innate passive per fighter, in `game/data/feats/`, referenced by each fighter's `feat_id`.
 
 ## Combat System
 
@@ -93,7 +96,7 @@ Deployed at `https://cegoemtiroteio.com.br/champion/` on Ubuntu 24 VPS with ngin
 
 **Positioning:** Verbal only — close/medium/far range, neutral/offensive/defensive advantage. No grid.
 
-**Match flow:** Fighter select → pick base_intellect techniques (2–6) from a pool of 7 → equip up to base_speed items from a 7-slot panoply → best of 3 rounds → winner
+**Match flow:** Fighter select (each fighter's Feat is innate — no selection step) → pick base_intellect techniques (2–6) from a pool of 7 → equip up to base_speed items from a 7-slot panoply → best of 3 rounds → winner
 
 ## Key Conventions
 

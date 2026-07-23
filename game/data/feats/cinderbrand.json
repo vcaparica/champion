@@ -1,0 +1,8 @@
+{
+  "id": "cinderbrand",
+  "name": "Cinderbrand",
+  "description": "Her flame does not stop at the skin; it stays and feeds. | Each hit you land ignites the foe, up to 3 stacks. A burning foe takes damage equal to its stacks at the start of each exchange, ignoring damage reduction.",
+  "reactions": [
+    {"trigger": "deal_damage", "effect": "apply_burn", "value": 1, "max_stacks": 3}
+  ]
+}

@@ -14,6 +14,7 @@ from controls import GameControls
 from menu import Menu, MenuItem
 from game.fighter import load_all_fighters
 from game.technique import load_all_techniques
+from game.feat import load_all_feats
 from game.item import load_all_items, resolve_item_conflict
 from game.enums import ActionType, MatchPhase
 
@@ -54,6 +55,7 @@ class App:
         self.fighters = load_all_fighters("game/data/fighters")
         self.techniques = load_all_techniques("game/data/techniques")
         self.items = load_all_items("game/data/items")
+        self.feats = load_all_feats("game/data/feats")
 
         # Remember last action position for quicker selection
         self._last_action_index = 0
@@ -160,12 +162,14 @@ class App:
 
         # Build local fighter instance for combat tracking
         from game.combat import FighterInstance, apply_buffs
+        from game.reactions import attach_reactions
         player_instance = FighterInstance(
             fighter_data=fighter,
             selected_techniques=player_techs,
             selected_items=player_items
         )
         player_instance = apply_buffs(player_instance, self.items)
+        attach_reactions(player_instance, self.feats, self.items)
 
         speak("Combat begins! Declare your actions carefully.", True)
 
@@ -280,12 +284,14 @@ class App:
             return
 
         from game.combat import apply_buffs
+        from game.reactions import attach_reactions
         player_instance = FighterInstance(
             fighter_data=fighter,
             selected_techniques=player_techs,
             selected_items=player_items
         )
         player_instance = apply_buffs(player_instance, self.items)
+        attach_reactions(player_instance, self.feats, self.items)
 
         ai_instance = FighterInstance(
             fighter_data=ai_fighter_data,
@@ -295,6 +301,7 @@ class App:
             )
         )
         ai_instance = apply_buffs(ai_instance, self.items)
+        attach_reactions(ai_instance, self.feats, self.items)
 
         # Build match state
         match = MatchState(team_a=[player_instance], team_b=[ai_instance])
@@ -415,6 +422,7 @@ class App:
             sfx_move=self.SFX_MENU_MOVE,
             sfx_select=self.SFX_MENU_SELECT,
             sfx_cancel=self.SFX_MENU_EXIT,
+            feats=self.feats,
         )
         fighter = screen.run()
 
@@ -590,8 +598,21 @@ class App:
         # AI declares 3 actions
         ai_actions = choose_ai_actions(ai, player, player.predictability, self.techniques)
 
-        # Resolve each exchange
+        from game.reactions import tick_burn, commit_damage, fire_low_health, clear_volley_state
+
+        # New volley: reset per-volley once-gates for both fighters
+        clear_volley_state(player)
+        clear_volley_state(ai)
+
         for i in range(3):
+            # Burn ticks at the start of the exchange (bypasses damage reduction)
+            for burner in (player, ai):
+                burned = tick_burn(burner)
+                if burned:
+                    speak(f"{burner.fighter_data.name} takes {burned} burn damage.", False)
+            if player.current_health <= 0 or ai.current_health <= 0:
+                break
+
             p_act = player_actions[i]
             try:
                 p_action_type = ActionType(p_act["action"])
@@ -618,12 +639,18 @@ class App:
                 defender_name = ai.fighter_data.name
                 attacker_action = p_action_type.value
                 defender_action = ai_action_type.value
-                a_health = max(0, player.current_health - result.damage_to_attacker)
-                d_health = max(0, ai.current_health - result.damage_to_defender)
-                player.current_health = a_health
-                ai.current_health = d_health
+                _, p_cheat = commit_damage(player, ai, result.damage_to_attacker)
+                _, a_cheat = commit_damage(ai, player, result.damage_to_defender)
+                if p_cheat:
+                    speak(f"{player.fighter_data.name} refuses to fall!", False)
+                if a_cheat:
+                    speak(f"{ai.fighter_data.name} refuses to fall!", False)
                 player.damage_taken_this_round += result.damage_to_attacker
                 ai.damage_taken_this_round += result.damage_to_defender
+                fire_low_health(player, ai)
+                fire_low_health(ai, player)
+                a_health = player.current_health
+                d_health = ai.current_health
             else:
                 result = resolve_exchange(
                     ai, player, ai_action_type, p_action_type,
@@ -633,12 +660,18 @@ class App:
                 defender_name = player.fighter_data.name
                 attacker_action = ai_action_type.value
                 defender_action = p_action_type.value
-                a_health = max(0, ai.current_health - result.damage_to_attacker)
-                d_health = max(0, player.current_health - result.damage_to_defender)
-                ai.current_health = a_health
-                player.current_health = d_health
+                _, a_cheat = commit_damage(ai, player, result.damage_to_attacker)
+                _, p_cheat = commit_damage(player, ai, result.damage_to_defender)
+                if a_cheat:
+                    speak(f"{ai.fighter_data.name} refuses to fall!", False)
+                if p_cheat:
+                    speak(f"{player.fighter_data.name} refuses to fall!", False)
                 ai.damage_taken_this_round += result.damage_to_attacker
                 player.damage_taken_this_round += result.damage_to_defender
+                fire_low_health(player, ai)
+                fire_low_health(ai, player)
+                a_health = ai.current_health
+                d_health = player.current_health
 
             exchange_text = self._announce_exchange(
                 i, result, attacker_name, defender_name, a_health, d_health,

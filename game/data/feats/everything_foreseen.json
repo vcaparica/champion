@@ -1,0 +1,9 @@
+{
+  "id": "everything_foreseen",
+  "name": "Everything Foreseen",
+  "description": "The flourish was in the book he finished reading yesterday. | When you are hit by a technique, reduce that damage by half your Intellect and gain defensive advantage.",
+  "reactions": [
+    {"trigger": "take_damage", "condition": "by_technique", "effect": "reduce_incoming", "scales_with": "half_intellect"},
+    {"trigger": "take_damage", "condition": "by_technique", "effect": "gain_advantage", "advantage": "defensive"}
+  ]
+}

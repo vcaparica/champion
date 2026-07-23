@@ -399,3 +399,19 @@ def test_intellect_to_speed():
     # Both avoid -> both whiff with range change to far
     assert result.outcome == "whiff"
     assert result.range_change == Range.FAR
+
+
+def test_fighter_instance_reaction_fields_default():
+    from game.combat import FighterInstance
+    from game.fighter import FighterData
+    fd = FighterData("t", "T", "d", 5, 4, 5, [], [], {})
+    inst = FighterInstance(fighter_data=fd)
+    assert inst.feat is None
+    assert inst.reactions == []
+    assert inst.reaction_state == {}
+    # Independent instances must not share the mutable defaults
+    other = FighterInstance(fighter_data=fd)
+    inst.reactions.append("x")
+    inst.reaction_state["k"] = 1
+    assert other.reactions == []
+    assert other.reaction_state == {}

@@ -1,0 +1,8 @@
+{
+  "id": "warding_gale",
+  "name": "Warding Gale",
+  "description": "Every blow turned aside answers with a lash of wind. | When an attack is blocked, missed, or avoided against you, a gust deals 3 damage to the attacker.",
+  "reactions": [
+    {"trigger": "defense_success", "effect": "reflect", "value": 3}
+  ]
+}

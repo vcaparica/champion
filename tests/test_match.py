@@ -204,3 +204,17 @@ def test_check_round_end_health_zero_still_wins():
     match.team_b[0].current_health = 0
     # Health-based win takes priority
     assert check_round_end(match, max_volleys=17) == "a"
+
+
+def test_reset_clears_reaction_state():
+    from game.match import MatchState, reset_for_new_round
+    from game.combat import FighterInstance
+    from game.fighter import FighterData
+    fd = FighterData("t", "T", "d", 5, 4, 5, [], [], {})
+    a = FighterInstance(fighter_data=fd)
+    b = FighterInstance(fighter_data=fd)
+    a.reaction_state["burn_stacks"] = 3
+    a.reaction_state["once_round"] = {0}
+    match = MatchState(team_a=[a], team_b=[b])
+    reset_for_new_round(match)
+    assert a.reaction_state == {}

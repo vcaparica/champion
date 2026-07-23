@@ -1,7 +1,7 @@
 {
   "id": "mantle_of_endurance",
   "name": "Mantle of Endurance",
-  "description": "A mantle enchanted to help the wearer endure punishment. | +10 HP; When at low health: heal 8 HP.",
+  "description": "A mantle enchanted to help the wearer endure punishment. | +8 HP; When at low health: heal 6 HP.",
   "slot": "shoulders",
   "passive_buffs": [
     {

@@ -140,8 +140,8 @@ class TestFighterSelectScreenRun:
             frame_count[0] += 1
 
         def key_side_effect(k):
-            # First 4 frames: press DOWN to reach SELECT section (section 4)
-            if frame_count[0] < 4:
+            # First 5 frames: press DOWN to reach SELECT section (section 5)
+            if frame_count[0] < 5:
                 return k == pygame.K_DOWN
             # Then press ENTER to select
             return k == pygame.K_RETURN
@@ -223,3 +223,44 @@ class TestFighterSelectScreenRun:
         # Should have exited via Escape, not selection
         assert result is None
         assert screen.quit_requested is False
+
+
+class TestFighterSelectFeatSection:
+    def test_section_count_is_six(self):
+        assert FighterSelectScreen.SECTION_COUNT == 6
+        assert FighterSelectScreen.SECTION_FEAT == 2
+
+    def test_speak_feat_includes_name(self):
+        from unittest.mock import patch
+        from game.feat import Feat
+        f1 = _make_fighter("aegis", "Aegis")
+        f1.feat_id = "iron_composure"
+        feats = {"iron_composure": Feat("iron_composure", "Iron Composure",
+                                        "Calm hardens. | Each hit struck, +1 DR.")}
+        screen = FighterSelectScreen(_make_fighters_dict(f1), {}, {}, None, None, feats=feats)
+        with patch("game.fighter_select.speak") as mock_speak:
+            screen._section_index = FighterSelectScreen.SECTION_FEAT
+            screen._announce_section()
+            spoken = " ".join(str(c.args[0]) for c in mock_speak.call_args_list)
+        assert "Iron Composure" in spoken
+
+    def test_speak_feat_handles_missing(self):
+        from unittest.mock import patch
+        f1 = _make_fighter("nofeat", "NoFeat")
+        screen = FighterSelectScreen(_make_fighters_dict(f1), {}, {}, None, None)
+        with patch("game.fighter_select.speak") as mock_speak:
+            screen._section_index = FighterSelectScreen.SECTION_FEAT
+            screen._announce_section()
+            spoken = " ".join(str(c.args[0]) for c in mock_speak.call_args_list)
+        assert "No feat" in spoken
+
+    def test_stats_include_intellect(self):
+        from unittest.mock import patch
+        f1 = _make_fighter("aegis", "Aegis")
+        f1.base_intellect = 5
+        screen = FighterSelectScreen(_make_fighters_dict(f1), {}, {}, None, None)
+        with patch("game.fighter_select.speak") as mock_speak:
+            screen._section_index = FighterSelectScreen.SECTION_STATS
+            screen._announce_section()
+            spoken = " ".join(str(c.args[0]) for c in mock_speak.call_args_list)
+        assert "Intellect 5" in spoken

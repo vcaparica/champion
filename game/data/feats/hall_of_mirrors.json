@@ -1,0 +1,9 @@
+{
+  "id": "hall_of_mirrors",
+  "name": "Hall of Mirrors",
+  "description": "Cut the phantom and the true form laughs from your blind side. | Once per round, the first blow to land on you is negated. Each hit you land leaves the foe dazed.",
+  "reactions": [
+    {"trigger": "take_damage", "effect": "negate_incoming", "once_per": "round"},
+    {"trigger": "deal_damage", "effect": "apply_debuff", "debuff": "dazed"}
+  ]
+}

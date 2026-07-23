@@ -1,7 +1,7 @@
 {
   "id": "crown_of_resolve",
   "name": "Crown of Resolve",
-  "description": "A crown that bolsters the wearer's willpower and endurance. | +15 HP; When at low health: heal 10 HP.",
+  "description": "A crown that bolsters the wearer's willpower and endurance. | +12 HP; When at low health: heal 8 HP.",
   "slot": "head",
   "passive_buffs": [
     {
