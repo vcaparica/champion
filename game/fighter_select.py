@@ -19,10 +19,11 @@ class FighterSelectScreen:
     # Info section indices
     SECTION_NAME_DESC = 0
     SECTION_STATS = 1
-    SECTION_TECHNIQUES = 2
-    SECTION_EQUIPMENT = 3
-    SECTION_SELECT = 4
-    SECTION_COUNT = 5
+    SECTION_FEAT = 2
+    SECTION_TECHNIQUES = 3
+    SECTION_EQUIPMENT = 4
+    SECTION_SELECT = 5
+    SECTION_COUNT = 6
 
     # Gamepad button indices (Xbox-style)
     _GP_A = 0
@@ -114,6 +115,9 @@ class FighterSelectScreen:
         elif self._section_index == self.SECTION_STATS:
             self._speak_stats(fighter)
 
+        elif self._section_index == self.SECTION_FEAT:
+            self._speak_feat(fighter)
+
         elif self._section_index == self.SECTION_TECHNIQUES:
             self._speak_techniques(fighter)
 
@@ -133,9 +137,18 @@ class FighterSelectScreen:
         speak(
             f"Health {fighter.base_health * 10}. "
             f"Speed {fighter.base_speed}. "
-            f"Power {fighter.base_power}.",
+            f"Power {fighter.base_power}. "
+            f"Intellect {fighter.base_intellect}.",
             True
         )
+
+    def _speak_feat(self, fighter: FighterData) -> None:
+        """Speak the fighter's Feat name and description."""
+        feat = self._feats.get(getattr(fighter, "feat_id", ""))
+        if feat is None:
+            speak("Feat. No feat.", True)
+        else:
+            speak(f"Feat. {feat.name}: {feat.description}", True)
 
     def _speak_techniques(self, fighter: FighterData) -> None:
         """Speak all available techniques for the current fighter."""
@@ -351,7 +364,7 @@ class FighterSelectScreen:
         """Speak available controls."""
         help_text = (
             "Left and right arrows to switch fighters. "
-            "Up and down arrows to browse information. "
+            "Up and down arrows to browse information: stats, feat, techniques, and equipment. "
             "Enter to select the current fighter. "
             "Escape to go back. "
             "Space to repeat current information. "
