@@ -6,13 +6,14 @@ Run with: uvicorn server.main:app --host 0.0.0.0 --port 8000
 """
 import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from server.game_data import GameData
 from server.session import SessionManager
 from server.match_manager import MatchManager
 from server.client_handler import handle_message
 
 app = FastAPI(title="Champion Game Server")
 session_manager = SessionManager()
-match_manager = MatchManager()
+match_manager = MatchManager(GameData.load())
 
 
 @app.get("/health")

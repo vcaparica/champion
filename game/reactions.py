@@ -35,6 +35,7 @@ class ReactionContext:
     speed_advantage: bool = False
     action: Optional[str] = None
     notes: list = field(default_factory=list)
+    events: list = field(default_factory=list)
 
 
 def _ceil_div(n: int, d: int) -> int:
@@ -120,6 +121,7 @@ def _apply_effect(reaction, idx, ctx) -> None:
         ctx.outgoing_damage += amount
     elif eff == "reflect":
         ctx.outgoing_damage += amount
+        ctx.events.append({"kind": "reflect", "amount": amount})
         _note(ctx, f"{me.fighter_data.name} strikes back for {amount}!")
     elif eff == "damage_reduction_lasting":
         applied = st["stacks"].get(idx, 0)
@@ -133,6 +135,7 @@ def _apply_effect(reaction, idx, ctx) -> None:
             st["stacks"][idx] = applied + 1
     elif eff == "heal":
         me.current_health += amount
+        ctx.events.append({"kind": "heal", "amount": amount})
         _note(ctx, f"{me.fighter_data.name} recovers {amount} HP.")
     elif eff == "cheat_death":
         me.current_health = 1
@@ -151,12 +154,15 @@ def _apply_effect(reaction, idx, ctx) -> None:
             db = DebuffType(reaction.debuff)
             if db not in opp.active_debuffs:
                 opp.active_debuffs.append(db)
+                ctx.events.append({"kind": "debuff", "debuff": db})
         except (ValueError, TypeError):
             pass
     elif eff == "apply_burn":
         ost = _state(opp)
         cap = reaction.max_stacks if reaction.max_stacks is not None else 99
-        ost["burn_stacks"] = min(cap, ost["burn_stacks"] + max(1, amount))
+        before = ost["burn_stacks"]
+        ost["burn_stacks"] = min(cap, before + max(1, amount))
+        ctx.events.append({"kind": "burn", "amount": ost["burn_stacks"] - before})
         _note(ctx, f"{opp.fighter_data.name} catches fire.")
     elif eff == "reposition":
         try:
@@ -208,6 +214,7 @@ def _adapt_item_reactive(reactive):
         return None
     trigger, condition = tmap
     reaction = Reaction(trigger=trigger, effect=emap, value=reactive.value, condition=condition)
+    reaction.max_stacks = reactive.max_stacks
     if emap == "gain_advantage":
         reaction.advantage = "offensive"
     if emap == "reposition":
@@ -234,22 +241,32 @@ def attach_reactions(instance, feats, items):
     return instance
 
 
-def tick_burn(instance) -> int:
+def tick_burn(instance, opponent) -> tuple[int, bool]:
     """Apply burn damage (bypassing damage reduction) at exchange start.
 
-    Returns the actual health lost (clamped at the fighter's remaining health),
-    so the spoken "takes N burn damage" line is accurate."""
+    Burn is routed through commit_damage, so it is real damage in every other
+    respect: a lethal tick triggers WOULD_FALL (cheat-death holds the fighter
+    at 1 HP), and callers fire LOW_HEALTH afterwards so burn can drop a
+    fighter into low-health range.
+
+    Returns (health_lost, cheated). `health_lost` is the actual health lost
+    (not the raw stack count), so the spoken "takes N burn damage" line is
+    accurate; `cheated` is True when cheat-death fired."""
     st = _state(instance)
     stacks = st.get("burn_stacks", 0)
     if stacks <= 0:
-        return 0
-    lost = min(stacks, instance.current_health)
-    instance.current_health = max(0, instance.current_health - lost)
-    return lost
+        return 0, False
+    before = instance.current_health
+    _, cheated = commit_damage(instance, opponent, stacks)
+    return before - instance.current_health, cheated
 
 
 def commit_damage(me, opponent, amount) -> int:
     """Apply `amount` damage to `me`, honoring a once-per-round cheat-death.
+
+    This is the single funnel for all health loss, including burn ticks (see
+    tick_burn): anything that should be able to save a fighter from falling
+    lives behind WOULD_FALL here.
 
     Returns (new_health, cheated). `cheated` is True when a WOULD_FALL reaction
     fired (cheat-death), so the caller can announce the near-death save."""
@@ -266,7 +283,7 @@ def fire_low_health(instance, opponent, threshold_ratio: float = 0.25) -> None:
     st = _state(instance)
     if st.get("low_health_fired"):
         return
-    max_hp = instance.fighter_data.base_health * 10
+    max_hp = instance.round_start_health or instance.fighter_data.base_health * 10
     if 0 < instance.current_health <= max_hp * threshold_ratio:
         ctx = ReactionContext(me=instance, opponent=opponent)
         if fire(Trigger.LOW_HEALTH, ctx):
@@ -295,7 +312,7 @@ _DEFENSE_SUCCESS_ATTACKER = {
 def _fire_deal_take(dealer, receiver, damage, by_technique):
     """Fire DEAL_DAMAGE on dealer then TAKE_DAMAGE on receiver for one damage figure.
 
-    Returns (final_damage, notes)."""
+    Returns (final_damage, deal_ctx, take_ctx)."""
     deal_ctx = ReactionContext(
         me=dealer, opponent=receiver, outgoing_damage=damage,
         speed_advantage=(get_effective_speed(dealer) >= get_effective_speed(receiver)),
@@ -306,20 +323,36 @@ def _fire_deal_take(dealer, receiver, damage, by_technique):
         by_technique=by_technique,
     )
     fire(Trigger.TAKE_DAMAGE, take_ctx)
-    return max(0, take_ctx.incoming_damage), deal_ctx.notes + take_ctx.notes
+    return max(0, take_ctx.incoming_damage), deal_ctx, take_ctx
+
+
+def _absorb_ctx(ctx, result, notes):
+    """Fold a fired context's narration and structured events into the result."""
+    notes.extend(ctx.notes)
+    for event in ctx.events:
+        if event["kind"] == "reflect":
+            result.reflected_damage += event["amount"]
+        elif event["kind"] == "heal":
+            result.healed_amount += event["amount"]
+        elif event["kind"] == "burn":
+            result.burn_applied += event["amount"]
+        elif event["kind"] == "debuff":
+            result.reaction_debuffs.append(event["debuff"])
 
 
 def apply_exchange_reactions(attacker, defender, result, a_tech=None, d_tech=None) -> None:
     """Run the reaction phase over an already-resolved exchange, mutating result and instances."""
     notes = []
     if result.damage_to_defender > 0:
-        result.damage_to_defender, n = _fire_deal_take(
+        result.damage_to_defender, deal_ctx, take_ctx = _fire_deal_take(
             attacker, defender, result.damage_to_defender, a_tech is not None)
-        notes.extend(n)
+        _absorb_ctx(deal_ctx, result, notes)
+        _absorb_ctx(take_ctx, result, notes)
     if result.damage_to_attacker > 0:
-        result.damage_to_attacker, n = _fire_deal_take(
+        result.damage_to_attacker, deal_ctx, take_ctx = _fire_deal_take(
             defender, attacker, result.damage_to_attacker, d_tech is not None)
-        notes.extend(n)
+        _absorb_ctx(deal_ctx, result, notes)
+        _absorb_ctx(take_ctx, result, notes)
 
     # These cells are always zero-damage to the defender in the interaction matrix
     # (a pure negation), which is what makes keying on the action pair safe.
@@ -328,12 +361,13 @@ def apply_exchange_reactions(attacker, defender, result, a_tech=None, d_tech=Non
         ctx = ReactionContext(me=defender, opponent=attacker, action=result.defender_action.value)
         fire(Trigger.DEFENSE_SUCCESS, ctx)
         result.damage_to_attacker += ctx.outgoing_damage
-        notes.extend(ctx.notes)
+        _absorb_ctx(ctx, result, notes)
     elif pair in _DEFENSE_SUCCESS_ATTACKER:
         ctx = ReactionContext(me=attacker, opponent=defender, action=result.attacker_action.value)
         fire(Trigger.DEFENSE_SUCCESS, ctx)
         result.damage_to_defender += ctx.outgoing_damage
-        notes.extend(ctx.notes)
+        _absorb_ctx(ctx, result, notes)
 
     if notes:
+        result.reaction_notes.extend(notes)
         result.flavor_text += " " + " ".join(notes)

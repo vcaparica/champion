@@ -222,7 +222,7 @@ list. The trigger and effect strings map as follows:
 9. Item effect `gain_advantage` maps to `gain_advantage` (offensive by default).
 10. Item effect `reposition` maps to `reposition` (to far by default).
 
-This makes the ten reactive items function for the first time. Wiring the adapter is in scope
+This makes the nine reactive items function for the first time. Wiring the adapter is in scope
 because it is the same code path; retuning individual item reactives for balance is a
 non-goal.
 
@@ -383,7 +383,7 @@ requirement, and Intellect becomes visible for the first time.
    for each of the twelve Feats, asserting the concrete outcome (for example Talon adds the
    opponent's predictability to damage; Ember's burn ticks the expected amount; Anvil survives
    a lethal blow once and falls the second time).
-4. `tests/test_item.py` or a new `tests/test_item_reactive.py`: the adapter fires the ten
+4. `tests/test_item.py` or a new `tests/test_item_reactive.py`: the adapter fires the nine
    reactive items (for example Robes of the Phoenix heals when low health; a when-struck power
    item raises power).
 5. Run the full suite; the existing 136 tests must stay green. `resolve_exchange` calls with
@@ -407,7 +407,7 @@ requirement, and Intellect becomes visible for the first time.
    the matchup is fair.
 6. Cheat death interacts with mid-volley knockout checks; verify a fighter saved at 1 HP
    continues the round rather than being counted as defeated.
-7. Enabling item reactives changes real matches for the ten reactive items. Because
+7. Enabling item reactives changes real matches for the nine reactive items. Because
    `attach_reactions` is the only thing that populates `reactions`, unit tests that build
    instances directly are unaffected; but audit any integration test that runs a full local
    match with reactive-item loadouts and update expected values if a reactive now fires.

@@ -25,6 +25,7 @@ class ItemReactive:
     trigger: str
     effect: str
     value: int
+    max_stacks: Optional[int] = None
 
 
 @dataclass
@@ -88,7 +89,8 @@ def _dict_to_item(data: dict) -> ItemData:
     reactive = None
     if data.get("reactive"):
         r = data["reactive"]
-        reactive = ItemReactive(trigger=r["trigger"], effect=r["effect"], value=r.get("value", 0))
+        reactive = ItemReactive(trigger=r["trigger"], effect=r["effect"],
+                                value=r.get("value", 0), max_stacks=r.get("max_stacks"))
 
     return ItemData(
         id=data["id"],

@@ -169,6 +169,25 @@ def test_adapter_returns_none_for_unknown():
     assert _adapt_item_reactive(ItemReactive("when_struck", "unknown_effect", 1)) is None
 
 
+def test_adapter_passes_max_stacks_through():
+    from game.item import ItemReactive
+    from game.reactions import _adapt_item_reactive
+    r = _adapt_item_reactive(ItemReactive("when_struck", "power_boost", 1, max_stacks=3))
+    assert r.max_stacks == 3
+    r2 = _adapt_item_reactive(ItemReactive("when_struck", "power_boost", 1))
+    assert r2.max_stacks is None
+
+
+def test_berserker_vest_power_stacks_cap_at_three():
+    from game.item import ItemReactive
+    from game.reactions import _adapt_item_reactive
+    me = _inst()
+    me.reactions = [_adapt_item_reactive(ItemReactive("when_struck", "power_boost", 1, max_stacks=3))]
+    for _ in range(5):
+        fire(Trigger.TAKE_DAMAGE, ReactionContext(me=me, opponent=_inst(), incoming_damage=4))
+    assert me.power_modifier == 3
+
+
 def test_attach_reactions_combines_feat_and_items():
     from game.feat import Feat, Reaction
     from game.item import ItemData, ItemReactive
@@ -204,7 +223,7 @@ def test_tick_burn_applies_stack_damage():
     me = _inst()
     me.current_health = 30
     me.reaction_state["burn_stacks"] = 2
-    assert tick_burn(me) == 2
+    assert tick_burn(me, _inst()) == (2, False)
     assert me.current_health == 28
 
 
@@ -212,7 +231,7 @@ def test_tick_burn_no_stacks_noop():
     from game.reactions import tick_burn
     me = _inst()
     me.current_health = 30
-    assert tick_burn(me) == 0
+    assert tick_burn(me, _inst()) == (0, False)
     assert me.current_health == 30
 
 
@@ -239,8 +258,28 @@ def test_tick_burn_returns_clamped_damage_for_announcement():
     me = _inst()
     me.current_health = 1
     me.reaction_state["burn_stacks"] = 3
-    assert tick_burn(me) == 1  # actual health lost, not the raw stack count
+    assert tick_burn(me, _inst()) == (1, False)  # actual health lost, not the raw stack count
     assert me.current_health == 0
+
+
+def test_tick_burn_triggers_cheat_death():
+    from game.reactions import tick_burn
+    me = _inst([Reaction("would_fall", "cheat_death", once_per="round", rider_power=2)])
+    me.current_health = 3
+    me.reaction_state["burn_stacks"] = 5
+    assert tick_burn(me, _inst()) == (2, True)  # held at 1 HP, lost 2 of 3
+    assert me.current_health == 1
+    assert me.power_modifier == 2
+
+
+def test_burn_can_drop_fighter_into_low_health():
+    from game.reactions import tick_burn, fire_low_health
+    me = _inst([Reaction("low_health", "heal", value=12)], health=4)  # pool 40, threshold 10
+    me.current_health = 11
+    me.reaction_state["burn_stacks"] = 3
+    tick_burn(me, _inst())  # drops to 8, at/below threshold
+    fire_low_health(me, _inst())
+    assert me.current_health == 20
 
 
 def test_fire_low_health_heals_once_per_round():
@@ -272,3 +311,66 @@ def test_clear_volley_state_resets_once_volley_only():
     clear_volley_state(me)
     assert _state(me)["once_volley"] == set()
     assert _state(me)["once_round"] == {1}
+
+
+def test_fire_low_health_uses_buffed_pool():
+    from game.item import ItemData, ItemBuff
+    from game.combat import apply_buffs
+    from game.reactions import fire_low_health
+    from game.enums import BuffType
+    me = _inst([Reaction("low_health", "heal", value=12)], health=4)  # base pool 40
+    me.selected_items = ["vitality"]
+    items = {"vitality": ItemData("vitality", "Vitality", "d", None,
+                                  [ItemBuff(BuffType.HEALTH, 20)])}
+    apply_buffs(me, items)  # buffed pool 60, threshold 15 instead of 10
+    assert me.current_health == 60
+    me.current_health = 12  # above 25% of 40 (=10), below 25% of 60 (=15)
+    fire_low_health(me, _inst())
+    assert me.current_health == 24  # healed: threshold read the buffed pool
+
+
+def test_round_start_health_reset_stamps_base_pool():
+    from game.match import MatchState, reset_for_new_round
+    me = _inst(health=4)
+    me.round_start_health = 999
+    match = MatchState(team_a=[me], team_b=[_inst()])
+    reset_for_new_round(match)
+    assert me.round_start_health == 40
+
+
+import pytest
+from game.combat import resolve_exchange
+from game.enums import ActionType
+
+
+# All six matrix cells where an offensive action (strike/charge) is fully negated by
+# block/avoid, keyed by (negater_role, negater_action, offender_action).
+# "defender" cells: resolve_exchange(offender, negater, ...) with the negater defending.
+# "attacker" cells: resolve_exchange(negater, offender, ...) with the negater attacking
+# (the attacker-mirror path keyed by _DEFENSE_SUCCESS_ATTACKER).
+_DEFENSE_SUCCESS_CASES = [
+    ("defender", ActionType.BLOCK, ActionType.STRIKE),
+    ("defender", ActionType.AVOID, ActionType.STRIKE),
+    ("defender", ActionType.AVOID, ActionType.CHARGE),
+    ("attacker", ActionType.BLOCK, ActionType.STRIKE),
+    ("attacker", ActionType.AVOID, ActionType.STRIKE),
+    ("attacker", ActionType.AVOID, ActionType.CHARGE),
+]
+
+
+@pytest.mark.parametrize("role,negater_action,offender_action", _DEFENSE_SUCCESS_CASES)
+def test_defense_success_fires_reflect_for_all_six_cells(role, negater_action, offender_action):
+    react = [Reaction("defense_success", "reflect", value=3)]
+    negater = _inst(react, power=3)
+    offender = _inst(power=6)
+    if role == "defender":
+        # Negater defends: offender's attack is negated; reflect hits the offender.
+        result = resolve_exchange(offender, negater, offender_action, negater_action)
+        assert result.damage_to_attacker == 3   # reflect only; the matrix dealt 0
+        assert result.damage_to_defender == 0
+    else:
+        # Negater attacks (block/avoid): offender's attack is negated; the mirror
+        # path adds the reflect to the offender (the exchange's defender).
+        result = resolve_exchange(negater, offender, negater_action, offender_action)
+        assert result.damage_to_defender == 3   # reflect only; the matrix dealt 0
+        assert result.damage_to_attacker == 0

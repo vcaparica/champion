@@ -145,6 +145,7 @@ def reset_for_new_round(match: MatchState) -> MatchState:
         fighter.damage_reduction = 0
         fighter.damage_taken_this_round = 0
         fighter.reaction_state = {}
+        fighter.round_start_health = fighter.current_health
     match.phase = MatchPhase.COMBAT
     match.current_volley = 0
     return match

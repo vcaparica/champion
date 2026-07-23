@@ -23,7 +23,7 @@ uvicorn server.main:app --host 0.0.0.0 --port 8000
 
 ### Tests
 ```bash
-pytest tests/ -v    # 188 tests across 20 test files
+pytest tests/ -v    # 213 tests across 21 test files
 ```
 
 ### Dependencies
@@ -71,11 +71,12 @@ pytest tests/ -v    # 188 tests across 20 test files
 
 Deployed at `https://cegoemtiroteio.com.br/champion/` on Ubuntu 24 VPS with nginx reverse proxy + uvicorn systemd service.
 
-- **server/main.py** — FastAPI app with `/health` endpoint and `/ws` WebSocket endpoint
+- **server/main.py** — FastAPI app with `/health` endpoint and `/ws` WebSocket endpoint; loads `GameData` at startup
+- **server/game_data.py** — `GameData` registry: loads fighters, techniques, items, and feats once for server-side combat
 - **server/session.py** — `PlayerSession` dataclass, `SessionManager` class
-- **server/match_manager.py** — `MatchManager`: lobby queue, player pairing, match lifecycle, `ServerMatch` dataclass
-- **server/combat_resolver.py** — `resolve_volley_server()`: authoritative combat resolution for online matches
-- **server/client_handler.py** — `handle_message()`: dispatches incoming WebSocket messages to handlers
+- **server/match_manager.py** — `MatchManager`: lobby queue, player pairing, match lifecycle, `ServerMatch` dataclass. Builds the `MatchState` (buffs + reactions) once both players finish item selection; resets rounds when both players ready up
+- **server/combat_resolver.py** — `resolve_volley_server(match, techniques)`: authoritative combat resolution with full local-play parity (validated techniques, item buffs, Feats, item reactives, burn ticks, cheat-death, low-health)
+- **server/client_handler.py** — `handle_message()`: dispatches incoming WebSocket messages to handlers; pushes `match_found` (with team) and `volley_result` to both players
 
 ### Data files (`game/data/`)
 
@@ -113,4 +114,4 @@ Deployed at `https://cegoemtiroteio.com.br/champion/` on Ubuntu 24 VPS with ngin
 
 ## Deferred Follow-Ups
 
-Known, deliberate follow-up work (server parity for Feats/reactives, burn vs cheat-death contract, Berserker Vest stacking, low-health threshold, test gaps) is tracked in `docs/FOLLOWUPS.md`. Look there when asked to continue or harden the Feats/reactive-engine work.
+The seven follow-ups from the Feats/reactive-engine review (server parity, burn contract, Berserker Vest cap, low-health threshold, defense-success test coverage, structured `ExchangeResult` fields, doc nit) are all resolved — see `docs/FOLLOWUPS.md` for the resolution record and any newly deferred work.

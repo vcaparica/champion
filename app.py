@@ -131,6 +131,7 @@ class App:
             return
 
         match_id = msg.get("match_id", "unknown")
+        self._online_team = msg.get("team", "a")
         speak(f"Opponent found! Match {match_id[:4]}. Preparing for battle.", True)
 
         # Fighter selection
@@ -207,6 +208,10 @@ class App:
 
             exchanges = msg.get("exchanges", [])
             for i, ex in enumerate(exchanges):
+                for burn_name, burn_amount in ex.get("burn_ticks", []):
+                    speak(f"{burn_name} takes {burn_amount} burn damage.", False)
+                for cheat_name in ex.get("cheat_deaths", []):
+                    speak(f"{cheat_name} refuses to fall!", False)
                 flavor = ex.get("flavor_text", "")
                 attacker = ex.get("attacker_name", "Unknown")
                 defender = ex.get("defender_name", "Unknown")
@@ -223,14 +228,14 @@ class App:
                 time_up = msg.get("time_up", False)
                 if time_up:
                     speak("Time up!", True)
-                if round_winner == "a":
+                if round_winner == self._online_team:
                     rounds_won_player += 1
                     speak(f"You win round {round_num + 1}!", True)
-                elif round_winner == "b":
+                elif round_winner == "draw":
+                    speak(f"Round {round_num + 1} is a draw!", True)
+                else:
                     rounds_won_opponent += 1
                     speak(f"Opponent wins round {round_num + 1}!", True)
-                else:
-                    speak(f"Round {round_num + 1} is a draw!", True)
                 round_num += 1
 
                 # Pause for player to process
@@ -240,8 +245,10 @@ class App:
 
                 if msg.get("match_end"):
                     match_winner = msg.get("match_winner", "draw")
-                    if match_winner == "a":
+                    if match_winner == self._online_team:
                         speak("Victory! You win the match!", True)
+                    elif match_winner == "draw":
+                        speak("The match is a draw!", True)
                     else:
                         speak("Defeat! Your opponent wins the match!", True)
                     break
@@ -605,11 +612,16 @@ class App:
         clear_volley_state(ai)
 
         for i in range(3):
-            # Burn ticks at the start of the exchange (bypasses damage reduction)
-            for burner in (player, ai):
-                burned = tick_burn(burner)
+            # Burn ticks at the start of the exchange (bypasses damage reduction;
+            # routed through commit_damage, so cheat-death and low-health apply)
+            for burner, other in ((player, ai), (ai, player)):
+                burned, cheat = tick_burn(burner, other)
                 if burned:
                     speak(f"{burner.fighter_data.name} takes {burned} burn damage.", False)
+                if cheat:
+                    speak(f"{burner.fighter_data.name} refuses to fall!", False)
+            fire_low_health(player, ai)
+            fire_low_health(ai, player)
             if player.current_health <= 0 or ai.current_health <= 0:
                 break
 
