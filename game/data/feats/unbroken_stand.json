@@ -1,0 +1,8 @@
+{
+  "id": "unbroken_stand",
+  "name": "Unbroken Stand",
+  "description": "The Unbroken does not fall while a shred of will remains. | The first time each round a blow would fell you, survive at 1 HP and gain +2 power for the rest of the round.",
+  "reactions": [
+    {"trigger": "would_fall", "effect": "cheat_death", "once_per": "round", "rider_power": 2}
+  ]
+}

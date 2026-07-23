@@ -3,6 +3,7 @@
   "name": "Ember, the Fiery Mistress",
   "description": "Ember, the Fiery Mistress. A brilliant sorceress who bends living flame to a razor-keen mind, burning through any guard she has already read.",
   "base_health": 3, "base_speed": 3, "base_power": 5, "base_intellect": 6,
+  "feat_id": "cinderbrand",
   "technique_ids": ["mind_over_matter", "confounding_blow", "exploit_weakness", "flame_strike", "heat_wave", "phoenix_rebirth", "immolating_insight"],
   "exclusive_technique_ids": ["immolating_insight"],
   "panoply": {"head": ["crown_of_whispers"], "neck": ["giants_tooth_necklace"], "arms": ["bracers_of_the_storm"], "clothing": ["robes_of_the_phoenix"], "ring": ["ring_of_cunning", "seal_of_the_savant"], "feet": ["greaves_of_the_ram"]}

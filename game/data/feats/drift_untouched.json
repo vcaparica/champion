@@ -1,0 +1,8 @@
+{
+  "id": "drift_untouched",
+  "name": "Drift Untouched",
+  "description": "The first blow always finds where the cloud used to be. | Once per volley, the first blow to reach you is reduced by half your Speed.",
+  "reactions": [
+    {"trigger": "take_damage", "effect": "reduce_incoming", "scales_with": "half_speed", "once_per": "volley"}
+  ]
+}

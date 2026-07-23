@@ -1,0 +1,8 @@
+{
+  "id": "falcons_stoop",
+  "name": "Falcon's Stoop",
+  "description": "The dive from above strikes before the prey knows to look up. | The first hit you land each volley plunges for bonus damage equal to half your Speed.",
+  "reactions": [
+    {"trigger": "deal_damage", "effect": "bonus_outgoing", "scales_with": "half_speed", "once_per": "volley"}
+  ]
+}

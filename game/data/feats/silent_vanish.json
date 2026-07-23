@@ -1,0 +1,9 @@
+{
+  "id": "silent_vanish",
+  "name": "Silent Vanish",
+  "description": "Strike from the blind spot, then be somewhere else entirely. | Each hit you land lowers your predictability by 2 and grants you offensive advantage.",
+  "reactions": [
+    {"trigger": "deal_damage", "effect": "reduce_predictability", "value": 2},
+    {"trigger": "deal_damage", "effect": "gain_advantage", "advantage": "offensive"}
+  ]
+}

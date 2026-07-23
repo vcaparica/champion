@@ -1,0 +1,8 @@
+{
+  "id": "bladestorm",
+  "name": "Bladestorm",
+  "description": "When the edge is quicker than the eye, one cut becomes two. | When you land a hit while at least as fast as your foe, deal bonus damage equal to half your Speed.",
+  "reactions": [
+    {"trigger": "deal_damage", "effect": "bonus_outgoing", "scales_with": "half_speed", "condition": "speed_advantage"}
+  ]
+}

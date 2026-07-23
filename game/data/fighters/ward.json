@@ -3,6 +3,7 @@
   "name": "Ward, the Sheltering Gale",
   "description": "Ward, the Sheltering Gale. A guardian wreathed in wind, as hard to strike as he is hard to break.",
   "base_health": 6, "base_speed": 5, "base_power": 3, "base_intellect": 3,
+  "feat_id": "warding_gale",
   "technique_ids": ["shield_bash", "rallying_call", "eye_of_the_storm", "quickened_guard", "slipstream", "iron_discipline", "retribution_guard"],
   "exclusive_technique_ids": ["retribution_guard"],
   "panoply": {"head": ["iron_helm"], "shoulders": ["cape_of_the_zephyr"], "waist": ["girdle_of_stone"], "clothing": ["aegis_of_winds"], "ring": ["ring_of_vitality", "swiftedge_ring"], "feet": ["greaves_of_the_ram"]}

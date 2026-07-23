@@ -1,0 +1,8 @@
+{
+  "id": "relentless_momentum",
+  "name": "Relentless Momentum",
+  "description": "Once the boulder rolls, it only gathers force. | Each hit you land grants +1 power for the rest of the round, up to +3.",
+  "reactions": [
+    {"trigger": "deal_damage", "effect": "power_lasting", "value": 1, "max_stacks": 3}
+  ]
+}

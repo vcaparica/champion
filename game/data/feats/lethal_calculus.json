@@ -1,0 +1,8 @@
+{
+  "id": "lethal_calculus",
+  "name": "Lethal Calculus",
+  "description": "Every habit you show is a ledger he settles in blood. | Your hits deal bonus damage equal to the opponent's current predictability, up to +4.",
+  "reactions": [
+    {"trigger": "deal_damage", "effect": "bonus_outgoing", "scales_with": "opponent_predictability", "cap": 4}
+  ]
+}

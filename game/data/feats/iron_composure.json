@@ -1,0 +1,8 @@
+{
+  "id": "iron_composure",
+  "name": "Iron Composure",
+  "description": "A sentinel's calm hardens with every blow he weathers. | Each time you are struck, gain +1 damage reduction for the rest of the round, up to +3.",
+  "reactions": [
+    {"trigger": "take_damage", "effect": "damage_reduction_lasting", "value": 1, "max_stacks": 3}
+  ]
+}
