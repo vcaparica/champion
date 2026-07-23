@@ -544,6 +544,53 @@ def resolve_exchange(
         result.flavor_text = "Both fighters reposition, circling each other."
         result.range_change = Range.FAR
 
+    # --- Assess interactions (13 cells) ---
+    # Assessor is the attacker (faster): success, opponent gets nothing.
+    elif pair == (ActionType.ASSESS, ActionType.STRIKE):
+        result.outcome = "assessed"
+        result.flavor_text = "The assessing fighter slips the strike and reads their foe."
+    elif pair == (ActionType.ASSESS, ActionType.CHARGE):
+        result.outcome = "assessed"
+        result.flavor_text = "The assessing fighter sidesteps the charge, studying every move."
+    elif pair == (ActionType.ASSESS, ActionType.FEINT):
+        result.outcome = "assessed"
+        result.flavor_text = "The assessing fighter sees through the feint and takes its measure."
+    elif pair == (ActionType.ASSESS, ActionType.BLOCK):
+        result.outcome = "assessed"
+        result.flavor_text = "The guard has nothing to stop; the assessing fighter reads calmly."
+    elif pair == (ActionType.ASSESS, ActionType.AVOID):
+        result.outcome = "assessed"
+        result.flavor_text = "The dodge commits to nothing; the assessing fighter reads unhindered."
+    elif pair == (ActionType.ASSESS, ActionType.COUNTER):
+        result.outcome = "assessed"
+        result.flavor_text = "The counter finds only air; the assessing fighter reads on."
+    elif pair == (ActionType.ASSESS, ActionType.ASSESS):
+        result.outcome = "assessed"
+        result.flavor_text = "Both fighters study one another. Both learn something."
+    # Assessor is the defender (slower) vs a committed attack: fail, take damage.
+    elif pair == (ActionType.STRIKE, ActionType.ASSESS):
+        result.outcome = "hit"
+        result.damage_to_defender = a_damage
+        result.flavor_text = "Caught mid-assessment, the strike lands clean."
+    elif pair == (ActionType.CHARGE, ActionType.ASSESS):
+        result.outcome = "hit"
+        result.damage_to_defender = a_damage
+        result.flavor_text = "The charge bowls over the fighter caught assessing."
+    elif pair == (ActionType.FEINT, ActionType.ASSESS):
+        result.outcome = "hit"
+        result.damage_to_defender = a_damage * 2
+        result.flavor_text = "The feint punishes the hesitation for double damage!"
+    # Assessor is the defender (slower) vs a passive action: still succeeds.
+    elif pair == (ActionType.BLOCK, ActionType.ASSESS):
+        result.outcome = "assessed"
+        result.flavor_text = "The block stops nothing; the assessing fighter reads calmly."
+    elif pair == (ActionType.AVOID, ActionType.ASSESS):
+        result.outcome = "assessed"
+        result.flavor_text = "The dodge is wasted; the assessing fighter reads on."
+    elif pair == (ActionType.COUNTER, ActionType.ASSESS):
+        result.outcome = "assessed"
+        result.flavor_text = "The counter commits to nothing; the assessing fighter reads."
+
     else:
         result.outcome = "whiff"
         result.flavor_text = "The actions cancel each other out."

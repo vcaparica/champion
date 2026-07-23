@@ -422,3 +422,57 @@ def test_assess_action_type_exists():
     from game.enums import ActionType
     assert ActionType.ASSESS.value == "assess"
     assert len(list(ActionType)) == 7
+
+
+@pytest.mark.parametrize("a_act,d_act,expected", [
+    (ActionType.ASSESS, ActionType.STRIKE, "assessed"),
+    (ActionType.ASSESS, ActionType.CHARGE, "assessed"),
+    (ActionType.ASSESS, ActionType.FEINT, "assessed"),
+    (ActionType.ASSESS, ActionType.BLOCK, "assessed"),
+    (ActionType.ASSESS, ActionType.AVOID, "assessed"),
+    (ActionType.ASSESS, ActionType.COUNTER, "assessed"),
+    (ActionType.ASSESS, ActionType.ASSESS, "assessed"),
+    (ActionType.BLOCK, ActionType.ASSESS, "assessed"),
+    (ActionType.AVOID, ActionType.ASSESS, "assessed"),
+    (ActionType.COUNTER, ActionType.ASSESS, "assessed"),
+    (ActionType.STRIKE, ActionType.ASSESS, "hit"),
+    (ActionType.CHARGE, ActionType.ASSESS, "hit"),
+    (ActionType.FEINT, ActionType.ASSESS, "hit"),
+])
+def test_assess_matrix_outcomes(a_act, d_act, expected):
+    attacker = make_test_fighter("Attacker", power=5, speed=6)
+    defender = make_test_fighter("Defender", power=5, speed=3)
+    result = resolve_exchange(attacker, defender, a_act, d_act)
+    assert result.outcome == expected
+
+
+def test_assess_failing_cells_deal_damage():
+    """Strike/Charge vs Assess deal damage to the assessing defender."""
+    for atk in (ActionType.STRIKE, ActionType.CHARGE):
+        attacker = make_test_fighter("A", power=5, speed=6)
+        defender = make_test_fighter("D", speed=3)
+        result = resolve_exchange(attacker, defender, atk, ActionType.ASSESS)
+        assert result.damage_to_defender > 0
+        assert result.damage_to_attacker == 0
+
+
+def test_assess_succeeding_cells_deal_no_damage():
+    """Succeeding Assess cells deal no damage to either side."""
+    attacker = make_test_fighter("A", power=5, speed=6)
+    defender = make_test_fighter("D", power=5, speed=3)
+    result = resolve_exchange(attacker, defender, ActionType.ASSESS, ActionType.STRIKE)
+    assert result.damage_to_defender == 0
+    assert result.damage_to_attacker == 0
+
+
+def test_feint_vs_assess_doubles_damage():
+    """Feint vs Assess deals double the feint's resolved damage."""
+    base = resolve_exchange(
+        make_test_fighter("A", power=5), make_test_fighter("D"),
+        ActionType.FEINT, ActionType.BLOCK,
+    )
+    doubled = resolve_exchange(
+        make_test_fighter("A", power=5), make_test_fighter("D"),
+        ActionType.FEINT, ActionType.ASSESS,
+    )
+    assert doubled.damage_to_defender == base.damage_to_defender * 2
