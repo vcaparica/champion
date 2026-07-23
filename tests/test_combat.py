@@ -415,3 +415,10 @@ def test_fighter_instance_reaction_fields_default():
     inst.reaction_state["k"] = 1
     assert other.reactions == []
     assert other.reaction_state == {}
+
+
+def test_assess_action_type_exists():
+    """ASSESS is the 7th combat action."""
+    from game.enums import ActionType
+    assert ActionType.ASSESS.value == "assess"
+    assert len(list(ActionType)) == 7
