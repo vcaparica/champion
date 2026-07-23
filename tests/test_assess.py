@@ -268,7 +268,7 @@ def test_reveal_item_noop_when_id_unknown():
     assert r.assess_reveals == []
 
 
-from game.assess import set_pending_counter_bonus, set_pending_damage_half, consume_pending_buffs
+from game.assess import set_pending_counter_bonus, set_pending_damage_half
 
 
 def test_counter_bonus_consumed_on_next_successful_counter():
@@ -296,6 +296,22 @@ def test_damage_half_halves_next_incoming_damage():
                               ActionType.STRIKE, ActionType.FEINT)
     assert halved.damage_to_defender == base.damage_to_defender // 2
     assert "damage_half" not in holder2.reaction_state.get("assess_buffs", {})
+
+
+def test_damage_half_floors_at_zero_when_damage_is_one():
+    """Regression for the spec's named edge case: incoming damage of exactly 1
+    halves to 0 (never negative). Previously verified only with a throwaway
+    script and never committed."""
+    plain = make_test_fighter("Plain", speed=3)
+    base = resolve_exchange(make_test_fighter("A", power=1, speed=6), plain,
+                            ActionType.STRIKE, ActionType.FEINT)
+    assert base.damage_to_defender == 1  # sanity: exactly 1 damage before any halving
+
+    holder = make_test_fighter("Holder", speed=3)
+    set_pending_damage_half(holder)
+    result = resolve_exchange(make_test_fighter("A", power=1, speed=6), holder,
+                              ActionType.STRIKE, ActionType.FEINT)
+    assert result.damage_to_defender == 0
 
 
 def test_reveal_unused_technique_noop_when_registry_is_none():
