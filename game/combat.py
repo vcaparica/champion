@@ -9,6 +9,7 @@ from typing import Optional
 from game.enums import ActionType, Range, Advantage, DebuffType, BuffType
 from game.fighter import FighterData
 from game.technique import TechniqueData
+from game.feat import Feat
 
 
 @dataclass
@@ -29,6 +30,9 @@ class FighterInstance:
     damage_taken_this_round: int = 0
     speed_diff_damage_bonus: int = 0
     speed_diff_damage_reduction: int = 0
+    feat: Optional[Feat] = None
+    reactions: list = field(default_factory=list)
+    reaction_state: dict = field(default_factory=dict)
 
     def __post_init__(self):
         if self.current_health == 0:
