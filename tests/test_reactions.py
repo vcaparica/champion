@@ -140,3 +140,60 @@ def test_action_avoid_condition():
     is_avoid = ReactionContext(me=me, opponent=_inst(), action="avoid")
     assert fire(Trigger.DEFENSE_SUCCESS, is_avoid) is True
     assert is_avoid.outgoing_damage == 3
+
+
+def test_adapter_maps_item_triggers_and_effects():
+    from game.item import ItemReactive
+    from game.reactions import _adapt_item_reactive
+    r = _adapt_item_reactive(ItemReactive("when_struck", "power_boost", 1))
+    assert r.trigger == "take_damage"
+    assert r.effect == "power_lasting"
+    assert r.value == 1
+    r2 = _adapt_item_reactive(ItemReactive("when_hit_by_technique", "damage_reduction", 5))
+    assert r2.trigger == "take_damage"
+    assert r2.condition == "by_technique"
+    assert r2.effect == "reduce_incoming"
+    r3 = _adapt_item_reactive(ItemReactive("when_avoid_success", "gain_advantage", 0))
+    assert r3.trigger == "defense_success"
+    assert r3.condition == "action_avoid"
+    assert r3.advantage == "offensive"
+    r4 = _adapt_item_reactive(ItemReactive("when_low_health", "heal", 12))
+    assert r4.trigger == "low_health"
+    assert r4.effect == "heal"
+
+
+def test_adapter_returns_none_for_unknown():
+    from game.item import ItemReactive
+    from game.reactions import _adapt_item_reactive
+    assert _adapt_item_reactive(ItemReactive("unknown_trigger", "heal", 1)) is None
+    assert _adapt_item_reactive(ItemReactive("when_struck", "unknown_effect", 1)) is None
+
+
+def test_attach_reactions_combines_feat_and_items():
+    from game.feat import Feat, Reaction
+    from game.item import ItemData, ItemReactive
+    from game.fighter import FighterData
+    from game.combat import FighterInstance
+    from game.reactions import attach_reactions
+    feats = {"iron_composure": Feat("iron_composure", "Iron Composure", "d",
+                                    [Reaction("take_damage", "damage_reduction_lasting", value=1, max_stacks=3)])}
+    items = {"berserker_vest": ItemData("berserker_vest", "Berserker Vest", "d",
+                                        None, [], ItemReactive("when_struck", "power_boost", 1))}
+    fd = FighterData("aegis", "Aegis", "d", 6, 3, 3, [], [], {}, base_intellect=5, feat_id="iron_composure")
+    inst = FighterInstance(fighter_data=fd, selected_items=["berserker_vest"])
+    attach_reactions(inst, feats, items)
+    assert inst.feat.id == "iron_composure"
+    assert len(inst.reactions) == 2
+    assert inst.reactions[0].effect == "damage_reduction_lasting"
+    assert inst.reactions[1].effect == "power_lasting"
+
+
+def test_attach_reactions_no_feat_id_ok():
+    from game.fighter import FighterData
+    from game.combat import FighterInstance
+    from game.reactions import attach_reactions
+    fd = FighterData("x", "X", "d", 5, 4, 5, [], [], {})
+    inst = FighterInstance(fighter_data=fd)
+    attach_reactions(inst, {}, {})
+    assert inst.feat is None
+    assert inst.reactions == []

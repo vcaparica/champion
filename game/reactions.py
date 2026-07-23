@@ -12,6 +12,7 @@ from typing import Optional
 
 from game.enums import Advantage, DebuffType, Range
 from game.combat import get_effective_speed, get_effective_intellect
+from game.feat import Reaction
 
 
 class Trigger(Enum):
@@ -169,3 +170,54 @@ def fire(trigger, ctx) -> bool:
             _mark_consumed(me, idx, reaction.once_per)
         applied_any = True
     return applied_any
+
+
+_ITEM_TRIGGER_MAP = {
+    "when_struck": ("take_damage", None),
+    "when_hit_by_technique": ("take_damage", "by_technique"),
+    "when_avoid_success": ("defense_success", "action_avoid"),
+    "when_low_health": ("low_health", None),
+}
+
+_ITEM_EFFECT_MAP = {
+    "heal": "heal",
+    "power_boost": "power_lasting",
+    "damage_reduction": "reduce_incoming",
+    "counter_damage": "reflect",
+    "gain_advantage": "gain_advantage",
+    "reposition": "reposition",
+}
+
+
+def _adapt_item_reactive(reactive):
+    """Map an ItemReactive onto a Reaction, or None if the trigger/effect is unknown."""
+    tmap = _ITEM_TRIGGER_MAP.get(reactive.trigger)
+    emap = _ITEM_EFFECT_MAP.get(reactive.effect)
+    if tmap is None or emap is None:
+        return None
+    trigger, condition = tmap
+    reaction = Reaction(trigger=trigger, effect=emap, value=reactive.value, condition=condition)
+    if emap == "gain_advantage":
+        reaction.advantage = "offensive"
+    if emap == "reposition":
+        reaction.range = "far"
+    return reaction
+
+
+def attach_reactions(instance, feats, items):
+    """Populate instance.feat and instance.reactions from the fighter's Feat and item reactives."""
+    reactions = []
+    feat = None
+    fid = getattr(instance.fighter_data, "feat_id", "")
+    if fid and fid in feats:
+        feat = feats[fid]
+        reactions.extend(feat.reactions)
+    for item_id in instance.selected_items:
+        item = items.get(item_id)
+        if item is not None and getattr(item, "reactive", None):
+            adapted = _adapt_item_reactive(item.reactive)
+            if adapted is not None:
+                reactions.append(adapted)
+    instance.feat = feat
+    instance.reactions = reactions
+    return instance
