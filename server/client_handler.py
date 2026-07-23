@@ -4,6 +4,15 @@ server/client_handler.py - WebSocket message dispatch
 Routes incoming messages to handlers based on message type.
 """
 
+
+async def _safe_send(session, payload: dict) -> None:
+    """Push a message to a player's socket, ignoring stale/disconnected sessions."""
+    try:
+        await session.websocket.send_json(payload)
+    except Exception:
+        pass
+
+
 async def handle_message(session, message: dict, match_manager, session_manager) -> dict:
     """Dispatch an incoming message and return a response."""
     msg_type = message.get("type", "")
@@ -34,11 +43,15 @@ async def _handle_join_queue(session, message: dict, match_manager, session_mana
     mode = message.get("mode", "1v1")
     match_id = match_manager.add_to_queue(session.player_id, mode)
     if match_id:
-        # TODO: Set session.current_match_id = match_id for BOTH players' sessions
-        # when the match is created. The match_manager returns match_id but does not
-        # have access to session_manager. The caller should look up both sessions
-        # (player_a and player_b) via session_manager and set their current_match_id.
-        return {"type": "match_found", "match_id": match_id}
+        # Link BOTH players' sessions to the match and notify the queued player;
+        # the pairing player gets match_found as this handler's response.
+        match = match_manager.get_match(match_id)
+        session.current_match_id = match_id
+        opponent = session_manager.get_session(match.player_a_id)
+        if opponent is not None:
+            opponent.current_match_id = match_id
+            await _safe_send(opponent, {"type": "match_found", "match_id": match_id, "team": "a"})
+        return {"type": "match_found", "match_id": match_id, "team": "b"}
     return {"type": "queue_joined", "mode": mode}
 
 
@@ -75,6 +88,15 @@ async def _handle_declare_actions(session, message: dict, match_manager, session
         return {"type": "error", "message": "Not in a match"}
     actions = message.get("actions", [])
     result = match_manager.resolve_volley(match_id, session.player_id, actions)
+    if result.get("type") == "volley_result":
+        # The resolver answered the second declaration; push the result to the
+        # player who declared first and is waiting on it.
+        match = match_manager.get_match(match_id)
+        opponent_id = (match.player_b_id if match.player_a_id == session.player_id
+                       else match.player_a_id)
+        opponent = session_manager.get_session(opponent_id)
+        if opponent is not None:
+            await _safe_send(opponent, result)
     return result
 
 
