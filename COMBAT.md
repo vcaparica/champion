@@ -275,10 +275,12 @@ Applied once at the start of each round via `apply_buffs()`. Buff types:
 
 ### Reactive Triggers
 
-Items can have one reactive effect that activates automatically under specific conditions:
+Items can have one reactive effect that activates automatically under specific conditions. Reactive triggers are active in local and AI play: they fire through the reaction engine (`game/reactions.py`) described under Feats below.
 
-- **when_low_health:** Triggers when the fighter's health drops to a low threshold. Effect is typically "heal" for a value (e.g., Robes of the Phoenix: heals 15 HP when at low health).
-- Other trigger types are defined in the data model for future expansion.
+- **when_low_health:** Triggers when the fighter's health drops to a low threshold. Effect is typically "heal" for a value (e.g., Robes of the Phoenix: heals 12 HP when at low health).
+- **when_struck:** Triggers whenever the fighter takes damage (e.g., Pauldrons of the Bulwark: 1 damage back to the attacker; Berserker Vest: +1 lasting power).
+- **when_hit_by_technique:** Triggers when the incoming damage comes from a technique (e.g., Guardian Amulet: reduces the hit by 3).
+- **when_avoid_success:** Triggers when an Avoid dodge succeeds (e.g., Sandals of Drifting: reposition to far range; Greaves of the Ram and Cape of the Zephyr: gain offensive advantage).
 
 ### Example Items
 
@@ -292,6 +294,42 @@ Items can have one reactive effect that activates automatically under specific c
 ### Item Selection Strategy
 
 The AI selects items using a scoring heuristic: power is weighted highest (3x), followed by health (2x), then damage reduction and speed (1x each).
+
+---
+
+## Feats
+
+Every fighter has one innate **Feat**: an always-active passive ability, distinct
+from techniques (declared actions) and items (chosen equipment). A Feat is unique
+to its fighter, themed to that fighter's two best attributes, and pitched a little
+above an average item. Feats cannot be selected, swapped, or unequipped.
+
+Feats are powered by a reaction engine (`game/reactions.py`). Each Feat owns one or
+more reactions: a trigger (round start, exchange start, deal damage, take damage,
+defense success, low health, would-fall), an optional condition (by-technique,
+speed-advantage, avoid-only), and an effect (reduce or negate incoming damage,
+bonus outgoing damage, lasting damage-reduction or power, heal, reflect, apply
+debuff, apply burn, cheat death, gain advantage, reduce predictability, reposition).
+Reactions are precomputed onto each FighterInstance at setup and dispatched during
+combat. Per-round and per-volley once-gates limit high-impact effects. Feats resolve
+in local and AI play; the online server does not yet run them.
+
+The same engine now also fires items' reactive blocks, which were previously inert.
+
+### The Twelve Feats
+
+- Iron Composure (Aegis): +1 damage reduction each time struck, up to +3.
+- Unbroken Stand (Anvil): once per round, survive a lethal blow at 1 HP, then +2 power.
+- Warding Gale (Ward): 3 damage back when an attack is blocked, missed, or avoided.
+- Relentless Momentum (Boulder): +1 power per hit landed, up to +3.
+- Bladestorm (Razor): on a hit while at least as fast, bonus damage equal to half Speed.
+- Lethal Calculus (Talon): bonus damage equal to the opponent's predictability, up to +4.
+- Drift Untouched (Cloud): once per volley, the first blow is reduced by half Speed.
+- Falcon's Stoop (Falcon): the first hit each volley deals bonus damage equal to half Speed.
+- Silent Vanish (Whisper): each hit lowers her predictability by 2 and grants offensive advantage.
+- Everything Foreseen (Cipher): a technique hit is reduced by half Intellect; gain defensive advantage.
+- Cinderbrand (Ember): hits ignite (up to 3 burn stacks) that tick each exchange, ignoring damage reduction.
+- Hall of Mirrors (Mirage): once per round the first blow is negated; her hits daze the foe.
 
 ---
 
