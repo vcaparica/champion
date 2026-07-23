@@ -642,6 +642,7 @@ class App:
             ai_technique = self.techniques.get(ai_tech_id) if ai_tech_id else None
 
             order = compare_speed_order(player, ai)
+            player_side = "attacker" if order <= 0 else "defender"
             if order <= 0:  # player goes first (or tie — player preference)
                 result = resolve_exchange(
                     player, ai, p_action_type, ai_action_type,
@@ -692,6 +693,12 @@ class App:
                 attacker_action=attacker_action, defender_action=defender_action
             )
             self._wait_for_continue(repeat_text=exchange_text)
+
+            from game.assess import format_reveals_for
+            for reveal_text in format_reveals_for(result.assess_reveals, player_side):
+                speak(reveal_text, True)
+                if not self._wait_for_continue(repeat_text=reveal_text):
+                    return
 
             if not self.running:
                 return

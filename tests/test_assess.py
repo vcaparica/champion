@@ -347,3 +347,13 @@ def test_technique_use_is_recorded():
     resolve_exchange(user, foe, ActionType.STRIKE, ActionType.BLOCK,
                      attacker_technique=tech)
     assert "power_strike" in user.techniques_used
+
+
+def test_assess_reveal_targets_faster_side_as_attacker():
+    # Faster assessor is the attacker; reveal target is "attacker".
+    fast = make_test_fighter("Fast", speed=6)
+    slow = make_test_fighter("Slow", speed=3)
+    r = resolve_exchange(fast, slow, ActionType.ASSESS, ActionType.STRIKE)
+    assert r.assess_reveals[0]["target"] == "attacker"
+    assert format_reveals_for(r.assess_reveals, "attacker") != []
+    assert format_reveals_for(r.assess_reveals, "defender") == []
