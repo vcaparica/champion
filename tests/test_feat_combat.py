@@ -114,3 +114,31 @@ def test_burn_application_narration_in_flavor_text():
     r = resolve_exchange(ember, foe, ActionType.STRIKE, ActionType.FEINT)
     assert "Foe catches fire." in r.flavor_text
     assert foe.reaction_state["burn_stacks"] == 1
+
+
+def test_exchange_result_structured_reflect_and_notes():
+    atk = _f(power=6)
+    ward = _f(power=3, reactions=[Reaction("defense_success", "reflect", value=3)])
+    r = resolve_exchange(atk, ward, ActionType.STRIKE, ActionType.BLOCK)
+    assert r.reflected_damage == 3
+    assert any("strikes back" in n for n in r.reaction_notes)
+    assert "strikes back" in r.flavor_text  # string narration preserved
+
+
+def test_exchange_result_structured_heal():
+    react = [Reaction("defense_success", "heal", value=5)]
+    ward = _f(power=3, reactions=react)
+    ward.current_health = 10
+    r = resolve_exchange(_f(power=6), ward, ActionType.STRIKE, ActionType.BLOCK)
+    assert r.healed_amount == 5
+    assert ward.current_health == 15
+
+
+def test_exchange_result_structured_burn_and_debuff():
+    ember = _f(power=6, reactions=[Reaction("deal_damage", "apply_burn", value=1, max_stacks=3)])
+    foe = _f()
+    r = resolve_exchange(ember, foe, ActionType.STRIKE, ActionType.FEINT)
+    assert r.burn_applied == 1
+    mirage = _f(power=6, reactions=[Reaction("deal_damage", "apply_debuff", debuff="dazed")])
+    r2 = resolve_exchange(mirage, foe, ActionType.STRIKE, ActionType.FEINT)
+    assert r2.reaction_debuffs == [DebuffType.DAZED]

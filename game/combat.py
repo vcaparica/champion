@@ -55,6 +55,13 @@ class ExchangeResult:
     defender_advantage_change: Optional[Advantage] = None
     debuffs_applied: list[DebuffType] = field(default_factory=list)
     flavor_text: str = ""
+    # Structured reaction outcomes (aggregate over both fighters' reactions this
+    # exchange). flavor_text still carries the narration for the speech path.
+    reflected_damage: int = 0
+    healed_amount: int = 0
+    burn_applied: int = 0
+    reaction_debuffs: list[DebuffType] = field(default_factory=list)
+    reaction_notes: list[str] = field(default_factory=list)
 
 
 def item_speed_penalty(num_items: int) -> int:
