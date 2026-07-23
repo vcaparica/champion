@@ -169,6 +169,25 @@ def test_adapter_returns_none_for_unknown():
     assert _adapt_item_reactive(ItemReactive("when_struck", "unknown_effect", 1)) is None
 
 
+def test_adapter_passes_max_stacks_through():
+    from game.item import ItemReactive
+    from game.reactions import _adapt_item_reactive
+    r = _adapt_item_reactive(ItemReactive("when_struck", "power_boost", 1, max_stacks=3))
+    assert r.max_stacks == 3
+    r2 = _adapt_item_reactive(ItemReactive("when_struck", "power_boost", 1))
+    assert r2.max_stacks is None
+
+
+def test_berserker_vest_power_stacks_cap_at_three():
+    from game.item import ItemReactive
+    from game.reactions import _adapt_item_reactive
+    me = _inst()
+    me.reactions = [_adapt_item_reactive(ItemReactive("when_struck", "power_boost", 1, max_stacks=3))]
+    for _ in range(5):
+        fire(Trigger.TAKE_DAMAGE, ReactionContext(me=me, opponent=_inst(), incoming_damage=4))
+    assert me.power_modifier == 3
+
+
 def test_attach_reactions_combines_feat_and_items():
     from game.feat import Feat, Reaction
     from game.item import ItemData, ItemReactive

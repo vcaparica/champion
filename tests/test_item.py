@@ -130,3 +130,12 @@ def test_resolve_item_conflict_rings_allow_two():
     assert resolve_item_conflict(["r1", "r2"], "r3", items) == "r1"
     assert resolve_item_conflict(["h1"], "h2", items) == "h1"
     assert resolve_item_conflict([], "h1", items) is None
+
+
+def test_berserker_vest_data_caps_stacks():
+    """The vest's when-struck power boost is capped at +3, like its Feat equivalents."""
+    items = load_all_items("game/data/items")
+    vest = items["berserker_vest"]
+    assert vest.reactive is not None
+    assert vest.reactive.max_stacks == 3
+    assert "up to +3" in vest.description

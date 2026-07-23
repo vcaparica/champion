@@ -208,6 +208,7 @@ def _adapt_item_reactive(reactive):
         return None
     trigger, condition = tmap
     reaction = Reaction(trigger=trigger, effect=emap, value=reactive.value, condition=condition)
+    reaction.max_stacks = reactive.max_stacks
     if emap == "gain_advantage":
         reaction.advantage = "offensive"
     if emap == "reposition":
