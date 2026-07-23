@@ -173,7 +173,25 @@ def apply_assess_technique(assessor, opponent, result, side, technique,
         _reveal_item(assessor, opponent, result, side, items)
 
 
-# Task 8 placeholder: real buff-consumption logic (counter bonus, damage
-# halving) lands in Task 8. This stub exists only so Task 7's tests pass.
-def consume_pending_buffs(attacker, defender, result):
-    return
+def consume_pending_buffs(attacker, defender, result) -> None:
+    """Apply pending Assess buffs carried over from a prior successful Assess."""
+    b = _buffs(attacker)
+    # Counter bonus: added to a counter this fighter just landed.
+    if result.outcome == "countered":
+        if result.attacker_action == ActionType.COUNTER and result.damage_to_defender > 0:
+            bonus = b.pop("counter_bonus", 0)
+            if bonus:
+                result.damage_to_defender += bonus
+        elif result.defender_action == ActionType.COUNTER and result.damage_to_attacker > 0:
+            bonus = _buffs(defender).pop("counter_bonus", 0)
+            if bonus:
+                result.damage_to_attacker += bonus
+    # Damage halving: halve incoming damage once.
+    if result.damage_to_attacker > 0 and b.get("damage_half"):
+        result.damage_to_attacker = max(0, result.damage_to_attacker // 2)
+        b.pop("damage_half", None)
+    if result.damage_to_defender > 0:
+        db = _buffs(defender)
+        if db.get("damage_half"):
+            result.damage_to_defender = max(0, result.damage_to_defender // 2)
+            db.pop("damage_half", None)

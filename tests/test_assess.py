@@ -266,3 +266,57 @@ def test_reveal_item_noop_when_id_unknown():
     r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
     apply_assess_technique(assessor, opponent, r, "attacker", _assess_technique(eff), {}, items)
     assert r.assess_reveals == []
+
+
+from game.assess import set_pending_counter_bonus, set_pending_damage_half, consume_pending_buffs
+
+
+def test_counter_bonus_consumed_on_next_successful_counter():
+    # Attacker will land a counter (COUNTER beats STRIKE).
+    base = resolve_exchange(make_test_fighter("C", power=5, speed=6),
+                            make_test_fighter("S", speed=3), ActionType.COUNTER, ActionType.STRIKE)
+    # now with the pending bonus in place:
+    counterer2 = make_test_fighter("Counterer", power=5, speed=6)
+    set_pending_counter_bonus(counterer2, 4)
+    r = resolve_exchange(counterer2, make_test_fighter("S", speed=3),
+                         ActionType.COUNTER, ActionType.STRIKE)
+    assert r.outcome == "countered"
+    assert r.damage_to_defender == base.damage_to_defender + 4
+    # bonus consumed
+    assert "counter_bonus" not in counterer2.reaction_state.get("assess_buffs", {})
+
+
+def test_damage_half_halves_next_incoming_damage():
+    # Defender has a pending damage_half; Strike vs Feint hits, so the halving is visible.
+    holder2 = make_test_fighter("Holder", speed=3)
+    set_pending_damage_half(holder2)
+    base = resolve_exchange(make_test_fighter("A", power=5, speed=6),
+                            make_test_fighter("D", speed=3), ActionType.STRIKE, ActionType.FEINT)
+    halved = resolve_exchange(make_test_fighter("A", power=5, speed=6), holder2,
+                              ActionType.STRIKE, ActionType.FEINT)
+    assert halved.damage_to_defender == base.damage_to_defender // 2
+    assert "damage_half" not in holder2.reaction_state.get("assess_buffs", {})
+
+
+def test_reveal_unused_technique_noop_when_registry_is_none():
+    """techniques=None is resolve_exchange's real default; {} would pass even
+    without the guard, since {}.get(x) is None. None is the load-bearing case."""
+    assessor = make_test_fighter("Seer", speed=6)
+    opponent = make_test_fighter("Foe")
+    opponent.selected_techniques = ["t1"]
+    eff = TechniqueEffect(assess_reveal_unused_technique=True)
+    r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r, "attacker", _assess_technique(eff), None, {})
+    assert r.assess_reveals == []
+
+
+def test_reveal_item_noop_when_registry_is_none():
+    """items=None is resolve_exchange's real default; {} would pass even
+    without the guard, since {}.get(x) is None. None is the load-bearing case."""
+    assessor = make_test_fighter("Seer", speed=6)
+    opponent = make_test_fighter("Foe")
+    opponent.selected_items = ["ring0"]
+    eff = TechniqueEffect(assess_reveal_item=True)
+    r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
+    apply_assess_technique(assessor, opponent, r, "attacker", _assess_technique(eff), {}, None)
+    assert r.assess_reveals == []
