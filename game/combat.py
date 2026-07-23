@@ -34,6 +34,8 @@ class FighterInstance:
     reactions: list = field(default_factory=list)
     reaction_state: dict = field(default_factory=dict)
     round_start_health: int = 0
+    techniques_used: set = field(default_factory=set)
+    assess_state: dict = field(default_factory=dict)
 
     def __post_init__(self):
         if self.current_health == 0:
@@ -62,6 +64,7 @@ class ExchangeResult:
     burn_applied: int = 0
     reaction_debuffs: list[DebuffType] = field(default_factory=list)
     reaction_notes: list[str] = field(default_factory=list)
+    assess_reveals: list = field(default_factory=list)
 
 
 def item_speed_penalty(num_items: int) -> int:
