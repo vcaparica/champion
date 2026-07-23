@@ -3,8 +3,8 @@
   "name": "Pierce the Trick",
   "description": "A gaze that strips away the bluff. | Reveals one technique the opponent has not yet used; +1 predictability.",
   "base_action": "assess",
-  "predictability_increase": 1,
   "effects": {
     "assess_reveal_unused_technique": true
-  }
+  },
+  "predictability_increase": 1
 }

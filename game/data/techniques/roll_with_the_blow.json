@@ -3,8 +3,8 @@
   "name": "Roll With the Blow",
   "description": "A read of the incoming blow, timed to ride its force. | Halves the next damage you take; +1 predictability.",
   "base_action": "assess",
-  "predictability_increase": 1,
   "effects": {
     "assess_next_damage_half": true
-  }
+  },
+  "predictability_increase": 1
 }
