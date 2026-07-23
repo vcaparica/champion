@@ -110,3 +110,7 @@ Deployed at `https://cegoemtiroteio.com.br/champion/` on Ubuntu 24 VPS with ngin
 - **Windows DLLs** (OpenAL64.dll, SAAPI64.dll, nvdaControllerClient64.dll) for audio and screen reader.
 - **2v2 forward compatibility:** `team_a`/`team_b` are lists, every action has `target_id`, turn order uses speed sorting.
 - **Slot taxonomy:** HEAD, EYES, NECK, SHOULDERS, ARMS, CLOTHING, ARMOR, HANDS (enum-only, unused), RING, WAIST, FEET — 11 body slots. Each fighter's panoply covers 7 slots, with RING holding up to 2 items for hand-agnostic equipping.
+
+## Deferred Follow-Ups
+
+Known, deliberate follow-up work (server parity for Feats/reactives, burn vs cheat-death contract, Berserker Vest stacking, low-health threshold, test gaps) is tracked in `docs/FOLLOWUPS.md`. Look there when asked to continue or harden the Feats/reactive-engine work.
