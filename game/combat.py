@@ -33,10 +33,13 @@ class FighterInstance:
     feat: Optional[Feat] = None
     reactions: list = field(default_factory=list)
     reaction_state: dict = field(default_factory=dict)
+    round_start_health: int = 0
 
     def __post_init__(self):
         if self.current_health == 0:
             self.current_health = self.fighter_data.base_health * 10
+        if self.round_start_health == 0:
+            self.round_start_health = self.current_health
 
 
 @dataclass
@@ -205,6 +208,8 @@ def apply_buffs(instance: FighterInstance, all_items: dict) -> FighterInstance:
         if min_speed is not None and get_effective_speed(instance) < min_speed:
             continue
         _apply_single_buff(instance, buff_type, _scaled_value(instance, value, scales_with))
+    # The buffed pool is the round's starting pool; low-health reactions threshold on it.
+    instance.round_start_health = instance.current_health
     return instance
 
 

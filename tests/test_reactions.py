@@ -272,3 +272,28 @@ def test_clear_volley_state_resets_once_volley_only():
     clear_volley_state(me)
     assert _state(me)["once_volley"] == set()
     assert _state(me)["once_round"] == {1}
+
+
+def test_fire_low_health_uses_buffed_pool():
+    from game.item import ItemData, ItemBuff
+    from game.combat import apply_buffs
+    from game.reactions import fire_low_health
+    from game.enums import BuffType
+    me = _inst([Reaction("low_health", "heal", value=12)], health=4)  # base pool 40
+    me.selected_items = ["vitality"]
+    items = {"vitality": ItemData("vitality", "Vitality", "d", None,
+                                  [ItemBuff(BuffType.HEALTH, 20)])}
+    apply_buffs(me, items)  # buffed pool 60, threshold 15 instead of 10
+    assert me.current_health == 60
+    me.current_health = 12  # above 25% of 40 (=10), below 25% of 60 (=15)
+    fire_low_health(me, _inst())
+    assert me.current_health == 24  # healed: threshold read the buffed pool
+
+
+def test_round_start_health_reset_stamps_base_pool():
+    from game.match import MatchState, reset_for_new_round
+    me = _inst(health=4)
+    me.round_start_health = 999
+    match = MatchState(team_a=[me], team_b=[_inst()])
+    reset_for_new_round(match)
+    assert me.round_start_health == 40

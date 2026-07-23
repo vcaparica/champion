@@ -266,7 +266,7 @@ def fire_low_health(instance, opponent, threshold_ratio: float = 0.25) -> None:
     st = _state(instance)
     if st.get("low_health_fired"):
         return
-    max_hp = instance.fighter_data.base_health * 10
+    max_hp = instance.round_start_health or instance.fighter_data.base_health * 10
     if 0 < instance.current_health <= max_hp * threshold_ratio:
         ctx = ReactionContext(me=instance, opponent=opponent)
         if fire(Trigger.LOW_HEALTH, ctx):
