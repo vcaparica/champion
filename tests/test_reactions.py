@@ -336,3 +336,41 @@ def test_round_start_health_reset_stamps_base_pool():
     match = MatchState(team_a=[me], team_b=[_inst()])
     reset_for_new_round(match)
     assert me.round_start_health == 40
+
+
+import pytest
+from game.combat import resolve_exchange
+from game.enums import ActionType
+
+
+# All six matrix cells where an offensive action (strike/charge) is fully negated by
+# block/avoid, keyed by (negater_role, negater_action, offender_action).
+# "defender" cells: resolve_exchange(offender, negater, ...) with the negater defending.
+# "attacker" cells: resolve_exchange(negater, offender, ...) with the negater attacking
+# (the attacker-mirror path keyed by _DEFENSE_SUCCESS_ATTACKER).
+_DEFENSE_SUCCESS_CASES = [
+    ("defender", ActionType.BLOCK, ActionType.STRIKE),
+    ("defender", ActionType.AVOID, ActionType.STRIKE),
+    ("defender", ActionType.AVOID, ActionType.CHARGE),
+    ("attacker", ActionType.BLOCK, ActionType.STRIKE),
+    ("attacker", ActionType.AVOID, ActionType.STRIKE),
+    ("attacker", ActionType.AVOID, ActionType.CHARGE),
+]
+
+
+@pytest.mark.parametrize("role,negater_action,offender_action", _DEFENSE_SUCCESS_CASES)
+def test_defense_success_fires_reflect_for_all_six_cells(role, negater_action, offender_action):
+    react = [Reaction("defense_success", "reflect", value=3)]
+    negater = _inst(react, power=3)
+    offender = _inst(power=6)
+    if role == "defender":
+        # Negater defends: offender's attack is negated; reflect hits the offender.
+        result = resolve_exchange(offender, negater, offender_action, negater_action)
+        assert result.damage_to_attacker == 3   # reflect only; the matrix dealt 0
+        assert result.damage_to_defender == 0
+    else:
+        # Negater attacks (block/avoid): offender's attack is negated; the mirror
+        # path adds the reflect to the offender (the exchange's defender).
+        result = resolve_exchange(negater, offender, negater_action, offender_action)
+        assert result.damage_to_defender == 3   # reflect only; the matrix dealt 0
+        assert result.damage_to_attacker == 0
