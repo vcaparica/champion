@@ -220,7 +220,7 @@ def test_commit_damage_normal():
     from game.reactions import commit_damage
     me = _inst()
     me.current_health = 30
-    assert commit_damage(me, _inst(), 10) == 20
+    assert commit_damage(me, _inst(), 10) == (20, False)
     assert me.current_health == 20
 
 
@@ -229,9 +229,18 @@ def test_commit_damage_cheat_death_then_lethal():
     from game.reactions import commit_damage
     me = _inst([Reaction("would_fall", "cheat_death", once_per="round", rider_power=2)])
     me.current_health = 8
-    assert commit_damage(me, _inst(), 50) == 1  # survives at 1
+    assert commit_damage(me, _inst(), 50) == (1, True)  # survives at 1, cheated
     assert me.power_modifier == 2
-    assert commit_damage(me, _inst(), 50) == 0  # second lethal falls
+    assert commit_damage(me, _inst(), 50) == (0, False)  # second lethal falls, no cheat
+
+
+def test_tick_burn_returns_clamped_damage_for_announcement():
+    from game.reactions import tick_burn
+    me = _inst()
+    me.current_health = 1
+    me.reaction_state["burn_stacks"] = 3
+    assert tick_burn(me) == 1  # actual health lost, not the raw stack count
+    assert me.current_health == 0
 
 
 def test_fire_low_health_heals_once_per_round():

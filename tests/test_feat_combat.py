@@ -84,3 +84,33 @@ def test_cipher_reduces_technique_hit_and_gains_defensive():
     r = resolve_exchange(foe, cipher, ActionType.STRIKE, ActionType.FEINT, attacker_technique=tech)
     assert r.damage_to_defender == max(0, 6 - 3)  # ceil(6/2)=3
     assert cipher.current_advantage == Advantage.DEFENSIVE
+
+
+def _named(name, **kw):
+    inst = _f(**kw)
+    inst.fighter_data.name = name
+    return inst
+
+
+def test_reflect_narration_in_flavor_text():
+    ward = _named("Ward", power=3, reactions=[Reaction("defense_success", "reflect", value=3)])
+    foe = _named("Foe", power=6)
+    r = resolve_exchange(foe, ward, ActionType.STRIKE, ActionType.BLOCK)
+    assert r.damage_to_attacker == 3
+    assert "Ward strikes back for 3!" in r.flavor_text
+
+
+def test_negate_narration_in_flavor_text():
+    mirage = _named("Mirage", power=3, reactions=[Reaction("take_damage", "negate_incoming", once_per="round")])
+    foe = _named("Foe", power=6)
+    r = resolve_exchange(foe, mirage, ActionType.STRIKE, ActionType.FEINT)
+    assert r.damage_to_defender == 0
+    assert "Mirage is untouched!" in r.flavor_text
+
+
+def test_burn_application_narration_in_flavor_text():
+    ember = _named("Ember", power=5, reactions=[Reaction("deal_damage", "apply_burn", value=1, max_stacks=3)])
+    foe = _named("Foe", power=6)
+    r = resolve_exchange(ember, foe, ActionType.STRIKE, ActionType.FEINT)
+    assert "Foe catches fire." in r.flavor_text
+    assert foe.reaction_state["burn_stacks"] == 1

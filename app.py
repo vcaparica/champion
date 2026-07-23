@@ -639,8 +639,12 @@ class App:
                 defender_name = ai.fighter_data.name
                 attacker_action = p_action_type.value
                 defender_action = ai_action_type.value
-                commit_damage(player, ai, result.damage_to_attacker)
-                commit_damage(ai, player, result.damage_to_defender)
+                _, p_cheat = commit_damage(player, ai, result.damage_to_attacker)
+                _, a_cheat = commit_damage(ai, player, result.damage_to_defender)
+                if p_cheat:
+                    speak(f"{player.fighter_data.name} refuses to fall!", False)
+                if a_cheat:
+                    speak(f"{ai.fighter_data.name} refuses to fall!", False)
                 player.damage_taken_this_round += result.damage_to_attacker
                 ai.damage_taken_this_round += result.damage_to_defender
                 fire_low_health(player, ai)
@@ -656,8 +660,12 @@ class App:
                 defender_name = player.fighter_data.name
                 attacker_action = ai_action_type.value
                 defender_action = p_action_type.value
-                commit_damage(ai, player, result.damage_to_attacker)
-                commit_damage(player, ai, result.damage_to_defender)
+                _, a_cheat = commit_damage(ai, player, result.damage_to_attacker)
+                _, p_cheat = commit_damage(player, ai, result.damage_to_defender)
+                if a_cheat:
+                    speak(f"{ai.fighter_data.name} refuses to fall!", False)
+                if p_cheat:
+                    speak(f"{player.fighter_data.name} refuses to fall!", False)
                 ai.damage_taken_this_round += result.damage_to_attacker
                 player.damage_taken_this_round += result.damage_to_defender
                 fire_low_health(player, ai)
