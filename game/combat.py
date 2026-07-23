@@ -538,6 +538,10 @@ def resolve_exchange(
         attacker.current_health += attacker_technique.effects.heal_on_hit
         result.flavor_text += f" {attacker.fighter_data.name} recovers stamina."
 
+    # Feat and item reactions (no-op when neither fighter has reactions attached)
+    from game.reactions import apply_exchange_reactions
+    apply_exchange_reactions(attacker, defender, result, attacker_technique, defender_technique)
+
     # Ensure non-negative damage
     result.damage_to_defender = max(0, result.damage_to_defender)
     result.damage_to_attacker = max(0, result.damage_to_attacker)

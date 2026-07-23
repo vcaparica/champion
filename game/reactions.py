@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
-from game.enums import Advantage, DebuffType, Range
+from game.enums import Advantage, DebuffType, Range, ActionType
 from game.combat import get_effective_speed, get_effective_intellect
 from game.feat import Reaction
 
@@ -257,3 +257,52 @@ def fire_low_health(instance, opponent, threshold_ratio: float = 0.25) -> None:
 def clear_volley_state(instance) -> None:
     """Reset per-volley once gates at the start of a volley."""
     _state(instance)["once_volley"] = set()
+
+
+# Matrix cells where an offensive action (strike/charge/feint) is fully stopped by a
+# defensive action (block/avoid). Keyed by (attacker_action, defender_action).
+_DEFENSE_SUCCESS_DEFENDER = {
+    (ActionType.STRIKE, ActionType.BLOCK),
+    (ActionType.STRIKE, ActionType.AVOID),
+    (ActionType.CHARGE, ActionType.AVOID),
+}
+_DEFENSE_SUCCESS_ATTACKER = {
+    (ActionType.BLOCK, ActionType.STRIKE),
+    (ActionType.AVOID, ActionType.STRIKE),
+    (ActionType.AVOID, ActionType.CHARGE),
+}
+
+
+def _fire_deal_take(dealer, receiver, damage, by_technique):
+    """Fire DEAL_DAMAGE on dealer then TAKE_DAMAGE on receiver for one damage figure. Returns final damage."""
+    deal_ctx = ReactionContext(
+        me=dealer, opponent=receiver, outgoing_damage=damage,
+        speed_advantage=(get_effective_speed(dealer) >= get_effective_speed(receiver)),
+    )
+    fire(Trigger.DEAL_DAMAGE, deal_ctx)
+    take_ctx = ReactionContext(
+        me=receiver, opponent=dealer, incoming_damage=deal_ctx.outgoing_damage,
+        by_technique=by_technique,
+    )
+    fire(Trigger.TAKE_DAMAGE, take_ctx)
+    return max(0, take_ctx.incoming_damage)
+
+
+def apply_exchange_reactions(attacker, defender, result, a_tech=None, d_tech=None) -> None:
+    """Run the reaction phase over an already-resolved exchange, mutating result and instances."""
+    if result.damage_to_defender > 0:
+        result.damage_to_defender = _fire_deal_take(
+            attacker, defender, result.damage_to_defender, a_tech is not None)
+    if result.damage_to_attacker > 0:
+        result.damage_to_attacker = _fire_deal_take(
+            defender, attacker, result.damage_to_attacker, d_tech is not None)
+
+    pair = (result.attacker_action, result.defender_action)
+    if pair in _DEFENSE_SUCCESS_DEFENDER:
+        ctx = ReactionContext(me=defender, opponent=attacker, action=result.defender_action.value)
+        fire(Trigger.DEFENSE_SUCCESS, ctx)
+        result.damage_to_attacker += ctx.outgoing_damage
+    elif pair in _DEFENSE_SUCCESS_ATTACKER:
+        ctx = ReactionContext(me=attacker, opponent=defender, action=result.attacker_action.value)
+        fire(Trigger.DEFENSE_SUCCESS, ctx)
+        result.damage_to_defender += ctx.outgoing_damage
