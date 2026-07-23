@@ -1,0 +1,11 @@
+{
+  "id": "predict_the_tempo",
+  "name": "Predict the Tempo",
+  "description": "A cold reading of the opponent's rhythm. | +1 Speed for 3 volleys; +1 predictability.",
+  "base_action": "assess",
+  "predictability_increase": 1,
+  "effects": {
+    "assess_speed_buff": 1,
+    "assess_speed_buff_volleys": 3
+  }
+}

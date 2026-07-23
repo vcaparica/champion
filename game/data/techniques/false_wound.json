@@ -1,0 +1,10 @@
+{
+  "id": "false_wound",
+  "name": "False Wound",
+  "description": "A feigned opening that invites the wrong answer. | Damage equal to your Health; +2 predictability.",
+  "base_action": "feint",
+  "predictability_increase": 2,
+  "effects": {
+    "health_damage_scale": 1
+  }
+}

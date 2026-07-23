@@ -1,0 +1,10 @@
+{
+  "id": "ironjaw_strike",
+  "name": "Ironjaw Strike",
+  "description": "A brutal strike fueled by raw vitality. | Damage equal to your Health; +2 predictability.",
+  "base_action": "strike",
+  "predictability_increase": 2,
+  "effects": {
+    "health_damage_scale": 1
+  }
+}

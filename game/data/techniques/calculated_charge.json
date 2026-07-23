@@ -1,0 +1,10 @@
+{
+  "id": "calculated_charge",
+  "name": "Calculated Charge",
+  "description": "A charge along the one line they left unguarded. | Damage equal to your Intellect; +2 predictability.",
+  "base_action": "charge",
+  "predictability_increase": 2,
+  "effects": {
+    "intellect_damage_scale": 1
+  }
+}
