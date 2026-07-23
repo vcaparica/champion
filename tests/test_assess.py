@@ -336,3 +336,14 @@ def test_reveal_item_noop_when_registry_is_none():
     r = ExchangeResult(attacker_action=ActionType.ASSESS, defender_action=ActionType.BLOCK, outcome="assessed")
     apply_assess_technique(assessor, opponent, r, "attacker", _assess_technique(eff), {}, None)
     assert r.assess_reveals == []
+
+
+def test_technique_use_is_recorded():
+    from game.technique import TechniqueData, TechniqueEffect
+    user = make_test_fighter("User", power=5, speed=6)
+    foe = make_test_fighter("Foe", speed=3)
+    tech = TechniqueData(id="power_strike", name="Power Strike", description="d",
+                         base_action=ActionType.STRIKE, effects=TechniqueEffect(damage_modifier=2))
+    resolve_exchange(user, foe, ActionType.STRIKE, ActionType.BLOCK,
+                     attacker_technique=tech)
+    assert "power_strike" in user.techniques_used

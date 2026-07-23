@@ -268,6 +268,7 @@ def resolve_exchange(
     if attacker_technique:
         eff = attacker_technique.effects
         attacker.predictability += attacker_technique.predictability_increase
+        attacker.techniques_used.add(attacker_technique.id)
         # require_speed_advantage gates this technique's bonus damage/debuff/advantage
         speed_gate_ok = (not eff.require_speed_advantage) or a_speed_adv
         if speed_gate_ok:
@@ -307,6 +308,7 @@ def resolve_exchange(
     if defender_technique:
         eff = defender_technique.effects
         defender.predictability += defender_technique.predictability_increase
+        defender.techniques_used.add(defender_technique.id)
         speed_gate_ok = (not eff.require_speed_advantage) or d_speed_adv
         if speed_gate_ok:
             d_damage += eff.damage_modifier
