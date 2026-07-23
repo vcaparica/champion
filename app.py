@@ -605,11 +605,16 @@ class App:
         clear_volley_state(ai)
 
         for i in range(3):
-            # Burn ticks at the start of the exchange (bypasses damage reduction)
-            for burner in (player, ai):
-                burned = tick_burn(burner)
+            # Burn ticks at the start of the exchange (bypasses damage reduction;
+            # routed through commit_damage, so cheat-death and low-health apply)
+            for burner, other in ((player, ai), (ai, player)):
+                burned, cheat = tick_burn(burner, other)
                 if burned:
                     speak(f"{burner.fighter_data.name} takes {burned} burn damage.", False)
+                if cheat:
+                    speak(f"{burner.fighter_data.name} refuses to fall!", False)
+            fire_low_health(player, ai)
+            fire_low_health(ai, player)
             if player.current_health <= 0 or ai.current_health <= 0:
                 break
 

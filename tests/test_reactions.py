@@ -204,7 +204,7 @@ def test_tick_burn_applies_stack_damage():
     me = _inst()
     me.current_health = 30
     me.reaction_state["burn_stacks"] = 2
-    assert tick_burn(me) == 2
+    assert tick_burn(me, _inst()) == (2, False)
     assert me.current_health == 28
 
 
@@ -212,7 +212,7 @@ def test_tick_burn_no_stacks_noop():
     from game.reactions import tick_burn
     me = _inst()
     me.current_health = 30
-    assert tick_burn(me) == 0
+    assert tick_burn(me, _inst()) == (0, False)
     assert me.current_health == 30
 
 
@@ -239,8 +239,28 @@ def test_tick_burn_returns_clamped_damage_for_announcement():
     me = _inst()
     me.current_health = 1
     me.reaction_state["burn_stacks"] = 3
-    assert tick_burn(me) == 1  # actual health lost, not the raw stack count
+    assert tick_burn(me, _inst()) == (1, False)  # actual health lost, not the raw stack count
     assert me.current_health == 0
+
+
+def test_tick_burn_triggers_cheat_death():
+    from game.reactions import tick_burn
+    me = _inst([Reaction("would_fall", "cheat_death", once_per="round", rider_power=2)])
+    me.current_health = 3
+    me.reaction_state["burn_stacks"] = 5
+    assert tick_burn(me, _inst()) == (2, True)  # held at 1 HP, lost 2 of 3
+    assert me.current_health == 1
+    assert me.power_modifier == 2
+
+
+def test_burn_can_drop_fighter_into_low_health():
+    from game.reactions import tick_burn, fire_low_health
+    me = _inst([Reaction("low_health", "heal", value=12)], health=4)  # pool 40, threshold 10
+    me.current_health = 11
+    me.reaction_state["burn_stacks"] = 3
+    tick_burn(me, _inst())  # drops to 8, at/below threshold
+    fire_low_health(me, _inst())
+    assert me.current_health == 20
 
 
 def test_fire_low_health_heals_once_per_round():

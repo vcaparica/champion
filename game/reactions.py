@@ -234,22 +234,32 @@ def attach_reactions(instance, feats, items):
     return instance
 
 
-def tick_burn(instance) -> int:
+def tick_burn(instance, opponent) -> tuple[int, bool]:
     """Apply burn damage (bypassing damage reduction) at exchange start.
 
-    Returns the actual health lost (clamped at the fighter's remaining health),
-    so the spoken "takes N burn damage" line is accurate."""
+    Burn is routed through commit_damage, so it is real damage in every other
+    respect: a lethal tick triggers WOULD_FALL (cheat-death holds the fighter
+    at 1 HP), and callers fire LOW_HEALTH afterwards so burn can drop a
+    fighter into low-health range.
+
+    Returns (health_lost, cheated). `health_lost` is the actual health lost
+    (not the raw stack count), so the spoken "takes N burn damage" line is
+    accurate; `cheated` is True when cheat-death fired."""
     st = _state(instance)
     stacks = st.get("burn_stacks", 0)
     if stacks <= 0:
-        return 0
-    lost = min(stacks, instance.current_health)
-    instance.current_health = max(0, instance.current_health - lost)
-    return lost
+        return 0, False
+    before = instance.current_health
+    _, cheated = commit_damage(instance, opponent, stacks)
+    return before - instance.current_health, cheated
 
 
 def commit_damage(me, opponent, amount) -> int:
     """Apply `amount` damage to `me`, honoring a once-per-round cheat-death.
+
+    This is the single funnel for all health loss, including burn ticks (see
+    tick_burn): anything that should be able to save a fighter from falling
+    lives behind WOULD_FALL here.
 
     Returns (new_health, cheated). `cheated` is True when a WOULD_FALL reaction
     fired (cheat-death), so the caller can announce the near-death save."""
