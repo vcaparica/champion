@@ -20,14 +20,17 @@ def _action_type(declared: dict) -> ActionType:
 
 
 def _technique_for(declared: dict, instance, techniques: dict):
-    """Resolve a declared technique, but only if the fighter actually selected it."""
+    """Resolve a declared technique, but only if the fighter selected it AND its
+    base_action matches the declared action."""
     tid = declared.get("technique_id")
     if tid and tid in instance.selected_techniques:
-        return techniques.get(tid)
+        tech = techniques.get(tid)
+        if tech is not None and tech.base_action.value == declared.get("action"):
+            return tech
     return None
 
 
-def resolve_volley_server(match, techniques: dict) -> dict:
+def resolve_volley_server(match, techniques: dict, items: dict = None) -> dict:
     """Resolve a full volley (3 exchanges) for a match.
 
     Returns a volley_result message dict with all exchange outcomes.
@@ -75,14 +78,14 @@ def resolve_volley_server(match, techniques: dict) -> dict:
             result = resolve_exchange(
                 attacker, defender, a_action_type, b_action_type,
                 attacker_technique=a_technique, defender_technique=b_technique,
-                techniques=techniques,
+                techniques=techniques, items=items,
             )
         else:
             attacker, defender = fighter_b, fighter_a
             result = resolve_exchange(
                 attacker, defender, b_action_type, a_action_type,
                 attacker_technique=b_technique, defender_technique=a_technique,
-                techniques=techniques,
+                techniques=techniques, items=items,
             )
 
         _, attacker_cheated = commit_damage(attacker, defender, result.damage_to_attacker)

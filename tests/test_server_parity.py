@@ -129,3 +129,24 @@ def test_round_reset_when_both_players_ready():
     assert inst.current_health == inst.round_start_health
     assert inst.reaction_state.get("burn_stacks", 0) == 0
     assert match.ready_for_round == set()
+
+
+def test_server_rejects_technique_whose_action_does_not_match():
+    """A technique_id whose base_action differs from the declared action is ignored."""
+    from server.combat_resolver import _technique_for
+    from game.combat import FighterInstance
+    from game.fighter import FighterData
+    from game.technique import TechniqueData, TechniqueEffect
+    from game.enums import ActionType
+
+    tech = TechniqueData(id="t", name="T", description="d",
+                         base_action=ActionType.STRIKE, effects=TechniqueEffect())
+    d = FighterData(id="x", name="X", description="", base_health=5, base_speed=4,
+                    base_power=4, base_intellect=0, technique_ids=[],
+                    exclusive_technique_ids=[], panoply={})
+    inst = FighterInstance(fighter_data=d)
+    inst.selected_techniques = ["t"]
+    # declared action is BLOCK, but the technique is a STRIKE -> must be ignored
+    assert _technique_for({"action": "block", "technique_id": "t"}, inst, {"t": tech}) is None
+    # matching action -> honored
+    assert _technique_for({"action": "strike", "technique_id": "t"}, inst, {"t": tech}) is tech
