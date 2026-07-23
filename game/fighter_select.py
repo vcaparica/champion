@@ -47,10 +47,12 @@ class FighterSelectScreen:
         sfx_move: Optional[str] = None,
         sfx_select: Optional[str] = None,
         sfx_cancel: Optional[str] = None,
+        feats: Optional[dict] = None,
     ) -> None:
         self._fighters = fighters
         self._techniques = techniques
         self._items = items
+        self._feats = feats or {}
         self._dj = dj
         self._controls = controls
         self._sfx_move = sfx_move
