@@ -221,3 +221,39 @@ def attach_reactions(instance, feats, items):
     instance.feat = feat
     instance.reactions = reactions
     return instance
+
+
+def tick_burn(instance) -> int:
+    """Apply burn damage (bypassing damage reduction) at exchange start. Returns stacks burned."""
+    st = _state(instance)
+    stacks = st.get("burn_stacks", 0)
+    if stacks > 0:
+        instance.current_health = max(0, instance.current_health - stacks)
+    return stacks
+
+
+def commit_damage(me, opponent, amount) -> int:
+    """Apply `amount` damage to `me`, honoring a once-per-round cheat-death. Returns new health."""
+    if amount > 0 and amount >= me.current_health:
+        ctx = ReactionContext(me=me, opponent=opponent)
+        if fire(Trigger.WOULD_FALL, ctx):
+            return me.current_health
+    me.current_health = max(0, me.current_health - amount)
+    return me.current_health
+
+
+def fire_low_health(instance, opponent, threshold_ratio: float = 0.25) -> None:
+    """Fire LOW_HEALTH reactions once per round when at/below the threshold."""
+    st = _state(instance)
+    if st.get("low_health_fired"):
+        return
+    max_hp = instance.fighter_data.base_health * 10
+    if 0 < instance.current_health <= max_hp * threshold_ratio:
+        ctx = ReactionContext(me=instance, opponent=opponent)
+        if fire(Trigger.LOW_HEALTH, ctx):
+            st["low_health_fired"] = True
+
+
+def clear_volley_state(instance) -> None:
+    """Reset per-volley once gates at the start of a volley."""
+    _state(instance)["once_volley"] = set()

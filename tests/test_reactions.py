@@ -197,3 +197,69 @@ def test_attach_reactions_no_feat_id_ok():
     attach_reactions(inst, {}, {})
     assert inst.feat is None
     assert inst.reactions == []
+
+
+def test_tick_burn_applies_stack_damage():
+    from game.reactions import tick_burn
+    me = _inst()
+    me.current_health = 30
+    me.reaction_state["burn_stacks"] = 2
+    assert tick_burn(me) == 2
+    assert me.current_health == 28
+
+
+def test_tick_burn_no_stacks_noop():
+    from game.reactions import tick_burn
+    me = _inst()
+    me.current_health = 30
+    assert tick_burn(me) == 0
+    assert me.current_health == 30
+
+
+def test_commit_damage_normal():
+    from game.reactions import commit_damage
+    me = _inst()
+    me.current_health = 30
+    assert commit_damage(me, _inst(), 10) == 20
+    assert me.current_health == 20
+
+
+def test_commit_damage_cheat_death_then_lethal():
+    from game.feat import Reaction
+    from game.reactions import commit_damage
+    me = _inst([Reaction("would_fall", "cheat_death", once_per="round", rider_power=2)])
+    me.current_health = 8
+    assert commit_damage(me, _inst(), 50) == 1  # survives at 1
+    assert me.power_modifier == 2
+    assert commit_damage(me, _inst(), 50) == 0  # second lethal falls
+
+
+def test_fire_low_health_heals_once_per_round():
+    from game.feat import Reaction
+    from game.reactions import fire_low_health
+    me = _inst([Reaction("low_health", "heal", value=12)], health=4)  # max pool 40
+    me.current_health = 8  # below 25% of 40 == 10
+    fire_low_health(me, _inst())
+    assert me.current_health == 20
+    fire_low_health(me, _inst())  # already fired this round
+    assert me.current_health == 20
+
+
+def test_fire_low_health_not_triggered_above_threshold():
+    from game.feat import Reaction
+    from game.reactions import fire_low_health
+    me = _inst([Reaction("low_health", "heal", value=12)], health=4)
+    me.current_health = 30
+    fire_low_health(me, _inst())
+    assert me.current_health == 30
+
+
+def test_clear_volley_state_resets_once_volley_only():
+    from game.reactions import clear_volley_state, _state
+    me = _inst()
+    st = _state(me)
+    st["once_volley"].add(0)
+    st["once_round"].add(1)
+    clear_volley_state(me)
+    assert _state(me)["once_volley"] == set()
+    assert _state(me)["once_round"] == {1}
