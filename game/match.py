@@ -145,6 +145,10 @@ def reset_for_new_round(match: MatchState) -> MatchState:
         fighter.damage_reduction = 0
         fighter.damage_taken_this_round = 0
         fighter.reaction_state = {}
+        # Assess reveal progress: reset the per-round success counter but keep
+        # match-long flags (attributes_revealed, items_revealed).
+        for opp_state in fighter.assess_state.values():
+            opp_state["successes_this_round"] = 0
         fighter.round_start_health = fighter.current_health
     match.phase = MatchPhase.COMBAT
     match.current_volley = 0
