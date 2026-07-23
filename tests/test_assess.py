@@ -82,3 +82,32 @@ def test_format_reveals_for_filters_by_side():
     ]
     assert format_reveals_for(reveals, "attacker") == ["a"]
     assert format_reveals_for(reveals, "defender") == ["b"]
+
+
+from game.combat import resolve_exchange
+
+
+def test_successful_assess_produces_attributes_reveal_for_assessor():
+    # assessor is faster (attacker), so (ASSESS, STRIKE) succeeds.
+    assessor = make_test_fighter("Seer", speed=6, power=3)
+    opponent = make_test_fighter("Foe", health=5, speed=3, power=4, intellect=2)
+    result = resolve_exchange(assessor, opponent, ActionType.ASSESS, ActionType.STRIKE)
+    assert result.outcome == "assessed"
+    assert any(r["target"] == "attacker" and r["kind"] == "attributes" for r in result.assess_reveals)
+
+
+def test_failed_assess_produces_no_reveal():
+    # assessor is slower (defender): (STRIKE, ASSESS) fails.
+    striker = make_test_fighter("Striker", speed=6, power=5)
+    assessor = make_test_fighter("Seer", speed=3)
+    result = resolve_exchange(striker, assessor, ActionType.STRIKE, ActionType.ASSESS)
+    assert result.outcome == "hit"
+    assert result.assess_reveals == []
+
+
+def test_assess_vs_assess_both_reveal():
+    a = make_test_fighter("A", speed=6)
+    b = make_test_fighter("B", speed=3)
+    result = resolve_exchange(a, b, ActionType.ASSESS, ActionType.ASSESS)
+    targets = {r["target"] for r in result.assess_reveals}
+    assert targets == {"attacker", "defender"}

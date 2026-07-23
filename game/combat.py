@@ -229,7 +229,9 @@ def resolve_exchange(
     attacker_action: ActionType,
     defender_action: ActionType,
     attacker_technique: Optional[TechniqueData] = None,
-    defender_technique: Optional[TechniqueData] = None
+    defender_technique: Optional[TechniqueData] = None,
+    techniques: Optional[dict] = None,
+    items: Optional[dict] = None,
 ) -> ExchangeResult:
     """Resolve a single action exchange between two fighters."""
     result = ExchangeResult(
@@ -599,6 +601,12 @@ def resolve_exchange(
     if attacker_technique and attacker_technique.effects.heal_on_hit and result.outcome == "hit":
         attacker.current_health += attacker_technique.effects.heal_on_hit
         result.flavor_text += f" {attacker.fighter_data.name} recovers stamina."
+
+    # Assess reveals and technique effects (no-op for non-Assess exchanges).
+    from game.assess import process_assess_exchange
+    process_assess_exchange(
+        attacker, defender, result, attacker_technique, defender_technique, techniques, items
+    )
 
     # Feat and item reactions (no-op when neither fighter has reactions attached)
     from game.reactions import apply_exchange_reactions

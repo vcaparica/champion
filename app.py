@@ -645,7 +645,8 @@ class App:
             if order <= 0:  # player goes first (or tie — player preference)
                 result = resolve_exchange(
                     player, ai, p_action_type, ai_action_type,
-                    attacker_technique=p_technique, defender_technique=ai_technique
+                    attacker_technique=p_technique, defender_technique=ai_technique,
+                    techniques=self.techniques, items=self.items,
                 )
                 attacker_name = player.fighter_data.name
                 defender_name = ai.fighter_data.name
@@ -666,7 +667,8 @@ class App:
             else:
                 result = resolve_exchange(
                     ai, player, ai_action_type, p_action_type,
-                    attacker_technique=ai_technique, defender_technique=p_technique
+                    attacker_technique=ai_technique, defender_technique=p_technique,
+                    techniques=self.techniques, items=self.items,
                 )
                 attacker_name = ai.fighter_data.name
                 defender_name = player.fighter_data.name

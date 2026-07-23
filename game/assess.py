@@ -73,3 +73,13 @@ def advance_assess(assessor, opponent, result, side: str, techniques: dict) -> N
 def format_reveals_for(reveals: list, side: str) -> list:
     """Return the reveal speech texts addressed to `side` ('attacker' or 'defender')."""
     return [r["text"] for r in reveals if r.get("target") == side]
+
+
+def process_assess_exchange(attacker, defender, result, a_tech=None, d_tech=None,
+                            techniques=None, items=None) -> None:
+    """Run Assess processing for one exchange: consume pending buffs, then reveals/effects."""
+    if result.outcome == "assessed":
+        if result.attacker_action == ActionType.ASSESS:
+            advance_assess(attacker, defender, result, "attacker", techniques)
+        if result.defender_action == ActionType.ASSESS:
+            advance_assess(defender, attacker, result, "defender", techniques)

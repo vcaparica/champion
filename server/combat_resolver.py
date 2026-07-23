@@ -74,13 +74,15 @@ def resolve_volley_server(match, techniques: dict) -> dict:
             attacker, defender = fighter_a, fighter_b
             result = resolve_exchange(
                 attacker, defender, a_action_type, b_action_type,
-                attacker_technique=a_technique, defender_technique=b_technique
+                attacker_technique=a_technique, defender_technique=b_technique,
+                techniques=techniques,
             )
         else:
             attacker, defender = fighter_b, fighter_a
             result = resolve_exchange(
                 attacker, defender, b_action_type, a_action_type,
-                attacker_technique=b_technique, defender_technique=a_technique
+                attacker_technique=b_technique, defender_technique=a_technique,
+                techniques=techniques,
             )
 
         _, attacker_cheated = commit_damage(attacker, defender, result.damage_to_attacker)
