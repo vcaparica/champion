@@ -15,7 +15,7 @@ def test_load_all_game_data():
     items = load_all_items("game/data/items")
 
     assert len(fighters) == 12
-    assert len(techniques) == 53  # 41 existing + 12 exclusive techniques
+    assert len(techniques) == 62  # 41 shared + 12 exclusive + 9 Assess-migration additions
     assert len(items) >= 41
 
     for f in fighters.values():
