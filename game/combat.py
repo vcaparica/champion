@@ -619,3 +619,46 @@ def resolve_exchange(
     result.damage_to_attacker = max(0, result.damage_to_attacker)
 
     return result
+
+
+def resolve_declared_technique(
+    declared: dict,
+    instance: FighterInstance,
+    techniques: Optional[dict],
+) -> Optional[TechniqueData]:
+    """Resolve the technique a fighter declared for one action.
+
+    A declared ``technique_id`` is honored only when the fighter actually
+    selected it AND the technique's ``base_action`` matches the declared action.
+    This is the single guard shared by local play (``app.py`` ``_run_combat_volley``)
+    and the server (``server/combat_resolver.py``) so the two paths cannot drift.
+    Returns the ``TechniqueData`` when valid, otherwise ``None``.
+    """
+    tid = declared.get("technique_id")
+    if tid and tid in instance.selected_techniques:
+        tech = (techniques or {}).get(tid)
+        if tech is not None and tech.base_action.value == declared.get("action"):
+            return tech
+    return None
+
+
+def apply_exchange_side_effects(
+    attacker: FighterInstance,
+    defender: FighterInstance,
+    result: ExchangeResult,
+) -> None:
+    """Apply an exchange's positional/advantage/debuff side-effects to the fighters.
+
+    Shared by local play and the server so both apply repositioning, advantage
+    gains, and debuffs identically. Damage, healing, and reactions are committed
+    separately by the callers.
+    """
+    if result.range_change:
+        attacker.current_range = result.range_change
+    if result.attacker_advantage_change:
+        attacker.current_advantage = result.attacker_advantage_change
+    if result.defender_advantage_change:
+        defender.current_advantage = result.defender_advantage_change
+    for debuff in result.debuffs_applied:
+        if debuff not in defender.active_debuffs:
+            defender.active_debuffs.append(debuff)

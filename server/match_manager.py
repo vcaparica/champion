@@ -103,6 +103,16 @@ class MatchManager:
     def get_match(self, match_id: str) -> Optional[ServerMatch]:
         return self._matches.get(match_id)
 
+    def remove_match(self, match_id: str) -> None:
+        """Free a finished or abandoned match so ``_matches`` does not grow
+        without bound. Idempotent: removing an unknown match is a no-op."""
+        self._matches.pop(match_id, None)
+
+    def remove_from_queue(self, player_id: str) -> None:
+        """Drop a player from the matchmaking queue (e.g. on disconnect) so a
+        later joiner cannot be paired with a player who is no longer there."""
+        self._queue = [entry for entry in self._queue if entry[0] != player_id]
+
     def get_player_team(self, match: ServerMatch, player_id: str) -> str:
         if match.player_a_id == player_id:
             return "a"

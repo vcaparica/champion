@@ -101,8 +101,39 @@ async def _handle_declare_actions(session, message: dict, match_manager, session
         opponent = session_manager.get_session(opponent_id)
         if opponent is not None:
             await _safe_send(opponent, opponent_payload)
+        # Match over: free the server-side match and unlink both sessions so
+        # MatchManager._matches does not grow without bound.
+        if declarer_payload.get("match_end"):
+            match_manager.remove_match(match_id)
+            session.current_match_id = None
+            if opponent is not None:
+                opponent.current_match_id = None
         return declarer_payload
     return result
+
+
+async def handle_disconnect(session, match_manager, session_manager) -> None:
+    """Clean up after a player's socket drops.
+
+    Removes the player from the matchmaking queue, tears down any active match,
+    tells the opponent the match ended (so they are not left waiting), and
+    removes the session. Safe to call when the player is in no queue or match.
+    """
+    match_manager.remove_from_queue(session.player_id)
+    match_id = session.current_match_id
+    if match_id:
+        match = match_manager.get_match(match_id)
+        if match is not None:
+            opponent_id = (match.player_b_id if match.player_a_id == session.player_id
+                           else match.player_a_id)
+            opponent = session_manager.get_session(opponent_id)
+            if opponent is not None:
+                opponent.current_match_id = None
+                await _safe_send(opponent, {"type": "opponent_disconnected",
+                                            "match_id": match_id})
+            match_manager.remove_match(match_id)
+        session.current_match_id = None
+    session_manager.remove_session(session.player_id)
 
 
 async def _handle_ready_next_round(session, message: dict, match_manager, session_manager) -> dict:

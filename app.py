@@ -381,6 +381,11 @@ class App:
             if msg is not None:
                 if msg.get("type") == expected_type:
                     return msg
+                # Opponent dropped: the server won't send what we're waiting
+                # for, so surface it now instead of hanging until timeout.
+                elif msg.get("type") == "opponent_disconnected":
+                    speak("Your opponent has disconnected. Returning to main menu.", True)
+                    return None
                 # Log unexpected messages
                 elif msg.get("type") == "error":
                     speak(f"Server error: {msg.get('message', 'unknown')}", True)
@@ -601,7 +606,10 @@ class App:
 
     def _run_combat_volley(self, match) -> None:
         """Run one volley (3 actions) of combat for local play."""
-        from game.combat import resolve_exchange, get_effective_speed, compare_speed_order
+        from game.combat import (
+            resolve_exchange, compare_speed_order,
+            resolve_declared_technique, apply_exchange_side_effects,
+        )
         from game.ai import choose_ai_actions
 
         player = match.team_a[0]
@@ -645,11 +653,11 @@ class App:
             except ValueError:
                 ai_action_type = ActionType.STRIKE
 
-            # Look up technique data for both fighters
-            p_tech_id = p_act.get("technique_id")
-            ai_tech_id = ai_actions[i].get("technique_id")
-            p_technique = self.techniques.get(p_tech_id) if p_tech_id else None
-            ai_technique = self.techniques.get(ai_tech_id) if ai_tech_id else None
+            # Resolve techniques through the shared action-matched guard so
+            # local play honors the same rule as the server (a declared
+            # technique counts only if selected AND its base_action matches).
+            p_technique = resolve_declared_technique(p_act, player, self.techniques)
+            ai_technique = resolve_declared_technique(ai_actions[i], ai, self.techniques)
 
             order = compare_speed_order(player, ai)
             player_side = "attacker" if order <= 0 else "defender"
@@ -673,6 +681,9 @@ class App:
                 ai.damage_taken_this_round += result.damage_to_defender
                 fire_low_health(player, ai)
                 fire_low_health(ai, player)
+                # Player is attacker this exchange: apply repositioning,
+                # advantage, and debuff side-effects (parity with the server).
+                apply_exchange_side_effects(player, ai, result)
                 a_health = player.current_health
                 d_health = ai.current_health
             else:
@@ -695,6 +706,9 @@ class App:
                 player.damage_taken_this_round += result.damage_to_defender
                 fire_low_health(player, ai)
                 fire_low_health(ai, player)
+                # AI is attacker this exchange: apply repositioning, advantage,
+                # and debuff side-effects (parity with the server).
+                apply_exchange_side_effects(ai, player, result)
                 a_health = ai.current_health
                 d_health = player.current_health
 

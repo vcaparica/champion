@@ -5,7 +5,10 @@ Authoritatively resolves combat exchanges on the server, with full parity to
 local play: real techniques, passive item buffs, Feats, item reactives, burn
 ticks, cheat-death, and low-health reactions.
 """
-from game.combat import resolve_exchange, compare_speed_order
+from game.combat import (
+    resolve_exchange, compare_speed_order, resolve_declared_technique,
+    apply_exchange_side_effects,
+)
 from game.enums import ActionType
 from game.reactions import tick_burn, commit_damage, fire_low_health, clear_volley_state
 
@@ -20,14 +23,13 @@ def _action_type(declared: dict) -> ActionType:
 
 
 def _technique_for(declared: dict, instance, techniques: dict):
-    """Resolve a declared technique, but only if the fighter selected it AND its
-    base_action matches the declared action."""
-    tid = declared.get("technique_id")
-    if tid and tid in instance.selected_techniques:
-        tech = techniques.get(tid)
-        if tech is not None and tech.base_action.value == declared.get("action"):
-            return tech
-    return None
+    """Resolve a declared technique via the shared action-matched guard.
+
+    Thin wrapper over ``game.combat.resolve_declared_technique`` (the single
+    source of truth shared with local play). Kept for the server's call sites
+    and existing tests.
+    """
+    return resolve_declared_technique(declared, instance, techniques)
 
 
 def resolve_volley_server(match, techniques: dict, items: dict = None) -> dict:
@@ -108,15 +110,7 @@ def resolve_volley_server(match, techniques: dict, items: dict = None) -> dict:
         fire_low_health(attacker, defender)
         fire_low_health(defender, attacker)
 
-        if result.range_change:
-            attacker.current_range = result.range_change
-        if result.attacker_advantage_change:
-            attacker.current_advantage = result.attacker_advantage_change
-        if result.defender_advantage_change:
-            defender.current_advantage = result.defender_advantage_change
-        for debuff in result.debuffs_applied:
-            if debuff not in defender.active_debuffs:
-                defender.active_debuffs.append(debuff)
+        apply_exchange_side_effects(attacker, defender, result)
 
         exchanges.append({
             "exchange_num": i + 1,

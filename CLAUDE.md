@@ -23,7 +23,7 @@ uvicorn server.main:app --host 0.0.0.0 --port 8000
 
 ### Tests
 ```bash
-pytest tests/ -v    # 213 tests across 21 test files
+pytest tests/ -v    # 296 tests across 25 test files
 ```
 
 ### Dependencies
@@ -114,4 +114,4 @@ Deployed at `https://cegoemtiroteio.com.br/champion/` on Ubuntu 24 VPS with ngin
 
 ## Deferred Follow-Ups
 
-The seven follow-ups from the Feats/reactive-engine review (server parity, burn contract, Berserker Vest cap, low-health threshold, defense-success test coverage, structured `ExchangeResult` fields, doc nit) are all resolved — see `docs/FOLLOWUPS.md` for the resolution record and any newly deferred work.
+The seven follow-ups from the Feats/reactive-engine review (server parity, burn contract, Berserker Vest cap, low-health threshold, defense-success test coverage, structured `ExchangeResult` fields, doc nit) are all resolved, as are the three later local/online parity + match-lifecycle items (server match cleanup & disconnect notification, local side-effect application, shared action-matched technique guard). See `docs/FOLLOWUPS.md` for the resolution records and any newly deferred work.

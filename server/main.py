@@ -9,7 +9,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from server.game_data import GameData
 from server.session import SessionManager
 from server.match_manager import MatchManager
-from server.client_handler import handle_message
+from server.client_handler import handle_message, handle_disconnect
 
 app = FastAPI(title="Champion Game Server")
 session_manager = SessionManager()
@@ -38,9 +38,9 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.send_json(response)
 
     except WebSocketDisconnect:
-        session_manager.remove_session(session.player_id)
+        await handle_disconnect(session, match_manager, session_manager)
     except Exception:
-        session_manager.remove_session(session.player_id)
+        await handle_disconnect(session, match_manager, session_manager)
 
 
 if __name__ == "__main__":

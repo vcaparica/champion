@@ -5,7 +5,7 @@ development. It is the place future sessions should look when asked to continue 
 harden a feature. Each entry notes the source review/spec and whether it is a bug,
 a balance item, a test gap, or a doc nit.
 
-Last updated: 2026-07-24 (Assess feature branch, feature/assess-action).
+Last updated: 2026-07-24 (local/online parity + server match lifecycle pass).
 
 ---
 
@@ -44,46 +44,45 @@ All seven follow-ups from that review are **resolved** on branch
 
 ---
 
-## Newly discovered (deferred)
+## Resolved on 2026-07-24 (local/online parity + server match lifecycle)
 
-1. **Server never removes completed matches** — `MatchManager._matches` grows
-   without bound; there is no cleanup on match end or player disconnect (and a
-   disconnecting player's opponent is not notified). Pre-existing, out of scope for
-   the parity pass. Type: robustness / resource hygiene.
-   Source: follow-ups hardening implementation, 2026-07-23.
+The three items previously deferred here are all **resolved**. New coverage:
+`tests/test_exchange_parity.py` (12 tests) and `tests/test_match_lifecycle.py`
+(6 tests); the pre-existing server-parity and combat suites still pass unchanged.
 
-2. **Local play does not apply positional/debuff exchange side-effects** —
-   `app.py` `_run_combat_volley` commits damage and fires low-health/cheat-death,
-   but never applies `result.range_change`, `result.attacker_advantage_change`,
-   `result.defender_advantage_change`, or `result.debuffs_applied`. The server
-   (`server/combat_resolver.py:111-119`) applies all four. So in local play vs the
-   AI, every `gain_advantage`, `apply_debuff`, and `reposition_to` technique effect
-   is inert for **both** fighters, while online they resolve normally. This is a
-   local/online parity bug, not the Speed-based attacker/defender asymmetry (which
-   is intended — the faster fighter earning full technique effects is the game's
-   biggest Speed payoff). Fix: mirror the server's four side-effect assignments in
-   both speed branches of `_run_combat_volley`, mapping attacker/defender to
-   player/AI per branch; add a local-parity test (e.g. an advantage- or
-   debuff-granting technique that changes `current_advantage` / `active_debuffs`
-   after a local exchange). Note while fixing: the Assess `executioners_gambit`
-   redesign deliberately avoided this whole family, using Health-scaled damage so
-   its value lands in local play today. Pre-existing; out of scope for the Assess
-   branch. Type: bug (parity).
-   Source: Assess feature review, 2026-07-24.
+1. **Server never removes completed matches** — RESOLVED.
+   `MatchManager.remove_match()` frees a match and `MatchManager.remove_from_queue()`
+   drops a queued player. `client_handler._handle_declare_actions` now removes the
+   match and unlinks both sessions when a volley ends the match (`match_end`), so
+   `MatchManager._matches` no longer grows without bound. New
+   `client_handler.handle_disconnect()` — called from both disconnect paths in
+   `server/main.py` — leaves the queue, tears down any active match, and pushes an
+   `opponent_disconnected` message to the surviving player (who is unlinked). The
+   client reacts promptly in `app.py` `_wait_for_message` (returns to the menu
+   instead of hanging until the 60s timeout). Design choice: a mid-match disconnect
+   **aborts** the match with no winner awarded — the simplest correct behavior given
+   there is no ranking/ELO system to protect. After a normal `match_end` both
+   sessions are already unlinked, so the follow-on socket closes send no spurious
+   `opponent_disconnected`. Source: follow-ups hardening implementation, 2026-07-23.
 
-3. **Local play lacks the server's technique/action-match guard** —
-   `server/combat_resolver.py` `_technique_for` (`:22-30`) only honors a declared
-   `technique_id` when the technique's `base_action` equals the declared action;
-   local play (`app.py` `_run_combat_volley`, the `self.techniques.get(tech_id)`
-   lookups) applies no such check. Not exploitable today — the local declaration UI
-   (`declaration_entries`) and AI (`choose_ai_actions`) only ever emit matched
-   action/technique pairs, and there is no adversarial client in local play — so
-   this is a defensive-guard asymmetry, not a live bug. Fix: extract one shared
-   "resolve declared technique (action-matched)" helper used by both `app.py` and
-   `server/combat_resolver.py`, removing the divergence. Deferred from the Assess
-   whole-branch review as a core-combat refactor better done on its own branch than
-   bolted onto a feature merge. Type: hardening / DRY.
-   Source: Assess feature review, 2026-07-24.
+2. **Local play did not apply positional/debuff exchange side-effects** — RESOLVED.
+   Extracted `game.combat.apply_exchange_side_effects(attacker, defender, result)`
+   as the single source of truth for repositioning, advantage gains, and debuffs.
+   The server (`server/combat_resolver.py`) and local play (`app.py`
+   `_run_combat_volley`, both speed branches, mapping attacker/defender to player/AI
+   per branch) both call it, so `gain_advantage`, `apply_debuff`, and `reposition_to`
+   technique effects now resolve identically online and offline. The intended
+   Speed-based attacker/defender asymmetry is unchanged. Source: Assess feature
+   review, 2026-07-24.
+
+3. **Local play lacked the server's technique/action-match guard** — RESOLVED.
+   Extracted `game.combat.resolve_declared_technique(declared, instance, techniques)`
+   — a declared technique is honored only when the fighter selected it AND its
+   `base_action` matches the declared action. The server's `_technique_for` is now a
+   thin wrapper over it, and local play (`app.py`) calls it directly, removing the
+   divergence. Confirmed the AI (`choose_ai_actions`) already emits only selected,
+   action-matched pairs, so this is pure hardening with no behavior change for
+   legitimate local play. Source: Assess feature review, 2026-07-24.
 
 ---
 
