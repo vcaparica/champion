@@ -147,3 +147,17 @@ def resolve_volley_server(match, techniques: dict, items: dict = None) -> dict:
         "exchanges": exchanges,
         "private_reveals": private_reveals,
     }
+
+
+def split_reveals(result: dict, declarer_team: str):
+    """Split private assess reveals out of the shared volley result.
+
+    Returns (declarer_payload, opponent_payload), each carrying only that
+    player's `my_assess_reveals` and never the raw `private_reveals` map."""
+    private = result.pop("private_reveals", {"a": [], "b": []})
+    opp_team = "b" if declarer_team == "a" else "a"
+    declarer_payload = dict(result)
+    declarer_payload["my_assess_reveals"] = private.get(declarer_team, [])
+    opponent_payload = dict(result)
+    opponent_payload["my_assess_reveals"] = private.get(opp_team, [])
+    return declarer_payload, opponent_payload

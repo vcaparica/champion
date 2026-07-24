@@ -90,13 +90,18 @@ async def _handle_declare_actions(session, message: dict, match_manager, session
     result = match_manager.resolve_volley(match_id, session.player_id, actions)
     if result.get("type") == "volley_result":
         # The resolver answered the second declaration; push the result to the
-        # player who declared first and is waiting on it.
+        # player who declared first and is waiting on it. Assess reveals are
+        # split so each player receives only their own.
+        from server.combat_resolver import split_reveals
         match = match_manager.get_match(match_id)
+        declarer_team = match_manager.get_player_team(match, session.player_id)
+        declarer_payload, opponent_payload = split_reveals(result, declarer_team)
         opponent_id = (match.player_b_id if match.player_a_id == session.player_id
                        else match.player_a_id)
         opponent = session_manager.get_session(opponent_id)
         if opponent is not None:
-            await _safe_send(opponent, result)
+            await _safe_send(opponent, opponent_payload)
+        return declarer_payload
     return result
 
 

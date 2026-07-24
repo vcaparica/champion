@@ -176,3 +176,39 @@ def test_resolve_volley_routes_assess_reveals_to_assessors_team_only():
     assert result["private_reveals"]["a"], "assessor team must receive a reveal"
     assert result["private_reveals"]["a"][0]["exchange"] == 0
     assert result["private_reveals"]["b"] == [], "opponent team must receive nothing"
+
+
+def test_split_reveals_gives_each_player_only_their_own():
+    from server.combat_resolver import split_reveals
+    result = {"type": "volley_result", "exchanges": [],
+              "private_reveals": {"a": [{"exchange": 0, "text": "A's secret"}],
+                                  "b": [{"exchange": 0, "text": "B's secret"}]}}
+    declarer, opponent = split_reveals(dict(result), "a")
+    assert declarer["my_assess_reveals"] == [{"exchange": 0, "text": "A's secret"}]
+    assert opponent["my_assess_reveals"] == [{"exchange": 0, "text": "B's secret"}]
+    assert "private_reveals" not in declarer
+    assert "private_reveals" not in opponent
+
+
+def test_assess_reveals_never_leak_to_the_opponent_end_to_end():
+    """Full handler path: an assessing player's reveal reaches them and nobody else."""
+    mm, sm, a, b, ws_a, ws_b = _manager_and_sessions()
+    _pair(mm, sm, a, b)
+    # falcon (speed 6) assesses; anvil (speed 2) is slower, so falcon is the attacker.
+    _select_loadout(mm, sm, a, "falcon", [], [])
+    _select_loadout(mm, sm, b, "anvil", [], [])
+    assess3 = [{"action": "assess", "technique_id": None, "target_id": "opponent"}] * 3
+    strike3 = [{"action": "strike", "technique_id": None, "target_id": "opponent"}] * 3
+    _run(handle_message(a, {"type": "declare_actions", "actions": assess3}, mm, sm))
+    resp_b = _run(handle_message(b, {"type": "declare_actions", "actions": strike3}, mm, sm))
+
+    pushed_a = [m for m in ws_a.sent if m["type"] == "volley_result"][0]
+    # The assessor (team a) got reveals; the opponent (team b) got none.
+    assert pushed_a["my_assess_reveals"], "assessor must receive their own reveals"
+    assert resp_b["my_assess_reveals"] == [], "opponent must receive no reveals"
+    # The raw per-team map must never be shipped to either client.
+    assert "private_reveals" not in pushed_a
+    assert "private_reveals" not in resp_b
+    # And team a's secret text must appear nowhere in team b's payload.
+    secret = pushed_a["my_assess_reveals"][0]["text"]
+    assert secret not in str(resp_b)
