@@ -19,33 +19,24 @@ def choose_ai_actions(
 ) -> list[dict]:
     """Choose 3 actions for the AI's next volley.
 
-    Uses opponent predictability: higher predictability means the AI
-    can better guess the opponent's next action and counter it.
-    """
+    A selected technique is attached automatically when the AI uses its action
+    (always-on replace, mirroring the player model)."""
     if techniques is None:
         techniques = {}
-
+    by_action = {}
+    for tid in fighter.selected_techniques:
+        tech = techniques.get(tid)
+        if tech is not None:
+            by_action[tech.base_action] = tech
     actions = []
-    all_action_types = list(ActionType)
-
-    # Build available technique IDs for this match
-    available_tech_ids = fighter.selected_techniques
-
-    for i in range(3):
-        action_type = random.choice(all_action_types)
-
-        # Decide whether to use a technique
-        technique_id = None
-        if available_tech_ids and random.random() < 0.4:
-            technique_id = random.choice(available_tech_ids)
-
-        target_id = "opponent_0"
+    for _ in range(3):
+        action_type = random.choice(list(ActionType))
+        tech = by_action.get(action_type)
         actions.append({
             "action": action_type.value,
-            "technique_id": technique_id,
-            "target_id": target_id
+            "technique_id": tech.id if tech else None,
+            "target_id": "opponent_0",
         })
-
     return actions
 
 
@@ -53,36 +44,27 @@ def choose_ai_techniques(
     fighter: FighterInstance,
     techniques: dict[str, TechniqueData]
 ) -> list[str]:
-    """Pick techniques from the fighter's available list.
-    Number equals the fighter's base intellect.
-    Slow fighters skip Speed-reliant techniques when enough alternatives exist."""
+    """Pick base_intellect techniques from the fighter's 7-technique pool (one per action).
+
+    Slow fighters (base_speed < 5) skip Speed-reliant techniques when enough
+    alternatives remain. Auto-takes all when base_intellect >= pool size."""
     num_slots = fighter.fighter_data.base_intellect
     available = [tid for tid in fighter.fighter_data.technique_ids if tid in techniques]
 
-    if fighter.fighter_data.base_speed < 5:
-        filtered = [tid for tid in available if tid not in SPEED_RELIANT_TECHNIQUES]
-        if len(filtered) >= num_slots:
-            available = filtered
-
     if num_slots >= len(available):
         return list(available)
-    if len(available) >= num_slots:
-        return random.sample(available, num_slots)
 
-    # Pad with random techniques from the full pool if needed
-    result = list(available)
-    all_tech_ids = list(techniques.keys())
-    remaining = [tid for tid in all_tech_ids if tid not in result]
-    random.shuffle(remaining)
-    while len(result) < num_slots and remaining:
-        result.append(remaining.pop())
+    if fighter.fighter_data.base_speed < 5:
+        non_speed = [tid for tid in available if tid not in SPEED_RELIANT_TECHNIQUES]
+        if len(non_speed) >= num_slots:
+            return random.sample(non_speed, num_slots)
 
-    return result
+    return random.sample(available, num_slots)
 
 
 SPEED_RELIANT_TECHNIQUES = {
     "tempo_strike", "blitz", "momentum_edge",
-    "riposte_in_a_blink", "slipstream",
+    "riposte_in_a_blink", "slipstream", "predict_the_tempo",
 }
 
 
