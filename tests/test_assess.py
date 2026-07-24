@@ -385,3 +385,12 @@ def test_declaration_entries_produces_action_dict_shape():
     plain = next(e for e in entries if e["action"] == "strike")
     assert {"action": "strike", "technique_id": None, "target_id": "opponent"} == {
         "action": plain["action"], "technique_id": plain["technique_id"], "target_id": "opponent"}
+
+
+def test_reveal_grouping_by_exchange():
+    reveals = [{"exchange": 0, "text": "a"}, {"exchange": 0, "text": "b"},
+               {"exchange": 2, "text": "c"}]
+    grouped = {}
+    for r in reveals:
+        grouped.setdefault(r["exchange"], []).append(r["text"])
+    assert grouped == {0: ["a", "b"], 2: ["c"]}

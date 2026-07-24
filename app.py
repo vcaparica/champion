@@ -207,6 +207,11 @@ class App:
                 return
 
             exchanges = msg.get("exchanges", [])
+            # Assess reveals are private to this player; group them by exchange
+            # so each is spoken right after the exchange that produced it.
+            reveals_by_exchange = {}
+            for r in msg.get("my_assess_reveals", []):
+                reveals_by_exchange.setdefault(r["exchange"], []).append(r["text"])
             for i, ex in enumerate(exchanges):
                 for burn_name, burn_amount in ex.get("burn_ticks", []):
                     speak(f"{burn_name} takes {burn_amount} burn damage.", False)
@@ -221,6 +226,11 @@ class App:
                         f"{attacker} health: {a_hp}. {defender} health: {d_hp}.")
                 speak(text, True)
                 pygame.time.wait(500)
+                for reveal_text in reveals_by_exchange.get(i, []):
+                    speak(reveal_text, True)
+                    if not self._wait_for_continue(repeat_text=reveal_text):
+                        client.close()
+                        return
 
             # Check for round/match end
             if msg.get("round_end"):
