@@ -476,3 +476,31 @@ def test_feint_vs_assess_doubles_damage():
         ActionType.FEINT, ActionType.ASSESS,
     )
     assert doubled.damage_to_defender == base.damage_to_defender * 2
+
+
+def test_executioners_gambit_pays_off_on_the_defender_side():
+    """Talon's exclusive counter is used almost always from the defender side
+    (Talon is the slowest fighter). Its Health-scaled damage must actually land
+    there -- this is the whole point of choosing a defender-honored effect.
+
+    Slow defender: health 4, speed 2. A fast striker walks into the counter.
+    The (STRIKE, COUNTER) cell deals the defender's damage to the attacker.
+    Loaded counter must beat a plain counter by damage_modifier (2) plus
+    health_damage_scale * effective Health (1 * 4) = +6.
+    """
+    defender = make_test_fighter("Talon", health=4, speed=2, power=6)
+    attacker = make_test_fighter("Foe", health=5, speed=6, power=3)
+    gambit = TechniqueData(
+        id="executioners_gambit", name="Executioner's Gambit", description="d",
+        base_action=ActionType.COUNTER,
+        effects=TechniqueEffect(damage_modifier=2, health_damage_scale=1))
+    plain = TechniqueData(
+        id="plain_counter", name="Plain", description="d",
+        base_action=ActionType.COUNTER, effects=TechniqueEffect())
+
+    base = resolve_exchange(attacker, defender, ActionType.STRIKE, ActionType.COUNTER,
+                            defender_technique=plain)
+    loaded = resolve_exchange(attacker, defender, ActionType.STRIKE, ActionType.COUNTER,
+                              defender_technique=gambit)
+    assert base.outcome == "countered"
+    assert loaded.damage_to_attacker == base.damage_to_attacker + 6

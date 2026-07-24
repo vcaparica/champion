@@ -59,6 +59,19 @@ def test_prescient_guard_and_retribution_guard_effects_redesigned():
     assert t["juggernaut_blow"].effects.health_damage_scale == 1
 
 
+def test_executioners_gambit_uses_defender_honored_damage():
+    """Talon is the slowest fighter, so its exclusive counter is used almost
+    always from the defender side. Its effects must be ones the defender role
+    honors -- damage, not the debuff the defender block drops."""
+    t = _load()
+    eff = t["executioners_gambit"].effects
+    assert t["executioners_gambit"].base_action.value == "counter"
+    assert eff.damage_modifier == 2
+    assert eff.health_damage_scale == 1
+    # The old debuff was inert on a slow defender (and in local play); it must be gone.
+    assert eff.apply_debuff is None
+
+
 from game.fighter import load_all_fighters
 from game.enums import ActionType
 

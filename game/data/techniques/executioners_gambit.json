@@ -1,11 +1,11 @@
 {
   "id": "executioners_gambit",
   "name": "Executioner's Gambit",
-  "description": "A cold, surgical riposte that punishes the reckless and saps their strength. | +3 damage; applies weakened; +2 predictability.",
+  "description": "A cold, surgical riposte that turns the foe's own force against them, backed by iron endurance. | +2 damage plus damage equal to your Health; +2 predictability.",
   "base_action": "counter",
   "effects": {
-    "damage_modifier": 3,
-    "apply_debuff": "weakened"
+    "damage_modifier": 2,
+    "health_damage_scale": 1
   },
   "predictability_increase": 2
 }

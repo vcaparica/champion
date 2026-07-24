@@ -5,8 +5,7 @@ development. It is the place future sessions should look when asked to continue 
 harden a feature. Each entry notes the source review/spec and whether it is a bug,
 a balance item, a test gap, or a doc nit.
 
-Last updated: 2026-07-23 (after the follow-ups hardening pass, branch
-feature/followups-hardening).
+Last updated: 2026-07-24 (Assess feature branch, feature/assess-action).
 
 ---
 
@@ -52,6 +51,25 @@ All seven follow-ups from that review are **resolved** on branch
    disconnecting player's opponent is not notified). Pre-existing, out of scope for
    the parity pass. Type: robustness / resource hygiene.
    Source: follow-ups hardening implementation, 2026-07-23.
+
+2. **Local play does not apply positional/debuff exchange side-effects** —
+   `app.py` `_run_combat_volley` commits damage and fires low-health/cheat-death,
+   but never applies `result.range_change`, `result.attacker_advantage_change`,
+   `result.defender_advantage_change`, or `result.debuffs_applied`. The server
+   (`server/combat_resolver.py:111-119`) applies all four. So in local play vs the
+   AI, every `gain_advantage`, `apply_debuff`, and `reposition_to` technique effect
+   is inert for **both** fighters, while online they resolve normally. This is a
+   local/online parity bug, not the Speed-based attacker/defender asymmetry (which
+   is intended — the faster fighter earning full technique effects is the game's
+   biggest Speed payoff). Fix: mirror the server's four side-effect assignments in
+   both speed branches of `_run_combat_volley`, mapping attacker/defender to
+   player/AI per branch; add a local-parity test (e.g. an advantage- or
+   debuff-granting technique that changes `current_advantage` / `active_debuffs`
+   after a local exchange). Note while fixing: the Assess `executioners_gambit`
+   redesign deliberately avoided this whole family, using Health-scaled damage so
+   its value lands in local play today. Pre-existing; out of scope for the Assess
+   branch. Type: bug (parity).
+   Source: Assess feature review, 2026-07-24.
 
 ---
 
