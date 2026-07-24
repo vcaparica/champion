@@ -15,12 +15,18 @@ def test_exclusive_techniques_present_and_valid():
     for tid in EXCLUSIVES:
         assert tid in techs, tid
     assert techs["juggernaut_blow"].effects.health_damage_scale == 1
-    assert techs["retribution_guard"].effects.health_damage_scale == 1
+    # Retribution Guard (Ward's block exclusive): absorbs like Aegis Wall but
+    # seizes offensive advantage, keeping the two exclusives mechanically distinct.
+    assert techs["retribution_guard"].effects.health_damage_reduction == 1
+    assert techs["retribution_guard"].effects.gain_advantage == "offensive"
     assert techs["aegis_wall"].effects.health_damage_reduction == 1
     assert techs["plunging_talon"].effects.speed_diff_scale == 1
     assert techs["vanishing_cut"].effects.speed_damage_scale == 1
     assert techs["immolating_insight"].effects.intellect_damage_scale == 1
-    assert techs["prescient_guard"].effects.intellect_damage_reduction == 1
+    # Prescient Guard (Cipher's assess exclusive): reveals an unused technique
+    # and marks a weak spot for the next counter.
+    assert techs["prescient_guard"].effects.assess_reveal_unused_technique is True
+    assert techs["prescient_guard"].effects.assess_next_counter_bonus == 2
     assert techs["avalanche"].base_action.value == "charge"
 
 
