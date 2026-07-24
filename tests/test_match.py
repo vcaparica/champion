@@ -218,3 +218,30 @@ def test_reset_clears_reaction_state():
     match = MatchState(team_a=[a], team_b=[b])
     reset_for_new_round(match)
     assert a.reaction_state == {}
+
+
+def test_reset_for_new_round_preserves_assess_state():
+    from game.combat import FighterInstance
+    from game.fighter import FighterData
+    from game.match import MatchState, reset_for_new_round
+    from game.enums import MatchPhase
+
+    def mk(name):
+        d = FighterData(id=name.lower(), name=name, description="", base_health=5,
+                       base_speed=4, base_power=4, base_intellect=0, technique_ids=[],
+                       exclusive_technique_ids=[], panoply={})
+        return FighterInstance(fighter_data=d)
+
+    a, b = mk("A"), mk("B")
+    # simulate a prior round: attributes revealed once, an item revealed,
+    # two successes this round, one used technique
+    a.assess_state["b"] = {"attributes_revealed": True, "successes_this_round": 2,
+                           "items_revealed": {"ring0"}}
+    a.techniques_used.add("some_tech")
+    match = MatchState(team_a=[a], team_b=[b], phase=MatchPhase.COMBAT)
+    reset_for_new_round(match)
+    st = a.assess_state["b"]
+    assert st["attributes_revealed"] is True        # preserved
+    assert "ring0" in st["items_revealed"]           # preserved
+    assert st["successes_this_round"] == 0          # reset
+    assert "some_tech" in a.techniques_used          # match-long, preserved

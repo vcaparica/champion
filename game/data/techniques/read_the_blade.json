@@ -1,0 +1,10 @@
+{
+  "id": "read_the_blade",
+  "name": "Read the Blade",
+  "description": "A patient study of the blade's arc, waiting for the opening. | Your next successful counter deals +3 damage; +1 predictability.",
+  "base_action": "assess",
+  "effects": {
+    "assess_next_counter_bonus": 3
+  },
+  "predictability_increase": 1
+}

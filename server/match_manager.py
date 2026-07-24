@@ -124,7 +124,7 @@ class MatchManager:
             return {"type": "actions_received", "team": team}
 
         from server.combat_resolver import resolve_volley_server
-        result = resolve_volley_server(match, self.data.techniques)
+        result = resolve_volley_server(match, self.data.techniques, self.data.items)
 
         from game.match import clear_actions, check_round_end, apply_round_result
         clear_actions(match.match_state)

@@ -4,7 +4,7 @@
   "description": "Razor, the Whirling Edge. A duelist who overwhelms with a storm of precise, blistering cuts, trading deep defenses for relentless offense.",
   "base_health": 4, "base_speed": 5, "base_power": 6, "base_intellect": 2,
   "feat_id": "bladestorm",
-  "technique_ids": ["flame_strike", "vital_strike", "blazing_counter", "tempo_strike", "gale_slash", "defensive_stance", "rending_flurry"],
+  "technique_ids": ["rending_flurry", "iron_discipline", "momentum_edge", "blazing_counter", "skull_splitter", "slipstream", "read_the_blade"],
   "exclusive_technique_ids": ["rending_flurry"],
   "panoply": {"head": ["war_helm"], "neck": ["giants_tooth_necklace"], "waist": ["duelists_sash"], "clothing": ["livewire_vest"], "ring": ["swiftedge_ring", "band_of_iron_will"], "feet": ["greaves_of_the_ram"]}
 }

@@ -415,3 +415,92 @@ def test_fighter_instance_reaction_fields_default():
     inst.reaction_state["k"] = 1
     assert other.reactions == []
     assert other.reaction_state == {}
+
+
+def test_assess_action_type_exists():
+    """ASSESS is the 7th combat action."""
+    from game.enums import ActionType
+    assert ActionType.ASSESS.value == "assess"
+    assert len(list(ActionType)) == 7
+
+
+@pytest.mark.parametrize("a_act,d_act,expected", [
+    (ActionType.ASSESS, ActionType.STRIKE, "assessed"),
+    (ActionType.ASSESS, ActionType.CHARGE, "assessed"),
+    (ActionType.ASSESS, ActionType.FEINT, "assessed"),
+    (ActionType.ASSESS, ActionType.BLOCK, "assessed"),
+    (ActionType.ASSESS, ActionType.AVOID, "assessed"),
+    (ActionType.ASSESS, ActionType.COUNTER, "assessed"),
+    (ActionType.ASSESS, ActionType.ASSESS, "assessed"),
+    (ActionType.BLOCK, ActionType.ASSESS, "assessed"),
+    (ActionType.AVOID, ActionType.ASSESS, "assessed"),
+    (ActionType.COUNTER, ActionType.ASSESS, "assessed"),
+    (ActionType.STRIKE, ActionType.ASSESS, "hit"),
+    (ActionType.CHARGE, ActionType.ASSESS, "hit"),
+    (ActionType.FEINT, ActionType.ASSESS, "hit"),
+])
+def test_assess_matrix_outcomes(a_act, d_act, expected):
+    attacker = make_test_fighter("Attacker", power=5, speed=6)
+    defender = make_test_fighter("Defender", power=5, speed=3)
+    result = resolve_exchange(attacker, defender, a_act, d_act)
+    assert result.outcome == expected
+
+
+def test_assess_failing_cells_deal_damage():
+    """Strike/Charge vs Assess deal damage to the assessing defender."""
+    for atk in (ActionType.STRIKE, ActionType.CHARGE):
+        attacker = make_test_fighter("A", power=5, speed=6)
+        defender = make_test_fighter("D", speed=3)
+        result = resolve_exchange(attacker, defender, atk, ActionType.ASSESS)
+        assert result.damage_to_defender > 0
+        assert result.damage_to_attacker == 0
+
+
+def test_assess_succeeding_cells_deal_no_damage():
+    """Succeeding Assess cells deal no damage to either side."""
+    attacker = make_test_fighter("A", power=5, speed=6)
+    defender = make_test_fighter("D", power=5, speed=3)
+    result = resolve_exchange(attacker, defender, ActionType.ASSESS, ActionType.STRIKE)
+    assert result.damage_to_defender == 0
+    assert result.damage_to_attacker == 0
+
+
+def test_feint_vs_assess_doubles_damage():
+    """Feint vs Assess deals double the feint's resolved damage."""
+    base = resolve_exchange(
+        make_test_fighter("A", power=5), make_test_fighter("D"),
+        ActionType.FEINT, ActionType.BLOCK,
+    )
+    doubled = resolve_exchange(
+        make_test_fighter("A", power=5), make_test_fighter("D"),
+        ActionType.FEINT, ActionType.ASSESS,
+    )
+    assert doubled.damage_to_defender == base.damage_to_defender * 2
+
+
+def test_executioners_gambit_pays_off_on_the_defender_side():
+    """Talon's exclusive counter is used almost always from the defender side
+    (Talon is the slowest fighter). Its Health-scaled damage must actually land
+    there -- this is the whole point of choosing a defender-honored effect.
+
+    Slow defender: health 4, speed 2. A fast striker walks into the counter.
+    The (STRIKE, COUNTER) cell deals the defender's damage to the attacker.
+    Loaded counter must beat a plain counter by damage_modifier (2) plus
+    health_damage_scale * effective Health (1 * 4) = +6.
+    """
+    defender = make_test_fighter("Talon", health=4, speed=2, power=6)
+    attacker = make_test_fighter("Foe", health=5, speed=6, power=3)
+    gambit = TechniqueData(
+        id="executioners_gambit", name="Executioner's Gambit", description="d",
+        base_action=ActionType.COUNTER,
+        effects=TechniqueEffect(damage_modifier=2, health_damage_scale=1))
+    plain = TechniqueData(
+        id="plain_counter", name="Plain", description="d",
+        base_action=ActionType.COUNTER, effects=TechniqueEffect())
+
+    base = resolve_exchange(attacker, defender, ActionType.STRIKE, ActionType.COUNTER,
+                            defender_technique=plain)
+    loaded = resolve_exchange(attacker, defender, ActionType.STRIKE, ActionType.COUNTER,
+                              defender_technique=gambit)
+    assert base.outcome == "countered"
+    assert loaded.damage_to_attacker == base.damage_to_attacker + 6

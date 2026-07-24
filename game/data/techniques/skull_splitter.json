@@ -1,7 +1,7 @@
 {
   "id": "skull_splitter",
   "name": "Skull Splitter",
-  "description": "An overhead charge that cracks through any defense. | +5 damage; +2 predictability.",
+  "description": "An overhead charge that cracks through any defense. | +2 damage; +2 predictability.",
   "base_action": "charge",
   "effects": {
     "damage_modifier": 2

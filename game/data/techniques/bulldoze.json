@@ -1,0 +1,10 @@
+{
+  "id": "bulldoze",
+  "name": "Bulldoze",
+  "description": "A charge that simply refuses to stop. | Damage equal to your Health; +2 predictability.",
+  "base_action": "charge",
+  "effects": {
+    "health_damage_scale": 1
+  },
+  "predictability_increase": 2
+}

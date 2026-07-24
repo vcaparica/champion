@@ -107,3 +107,30 @@ def test_load_technique_with_intellect_effects():
         assert tech.effects.intellect_to_speed is True
     finally:
         os.unlink(temp_path)
+
+
+def test_assess_technique_effect_fields_load(tmp_path):
+    import json
+    from game.technique import load_technique
+    data = {
+        "id": "read_the_blade", "name": "Read the Blade",
+        "description": "Found weak spot.", "base_action": "assess",
+        "predictability_increase": 1,
+        "effects": {
+            "assess_next_counter_bonus": 3,
+            "assess_next_damage_half": True,
+            "assess_speed_buff": 2, "assess_speed_buff_volleys": 3,
+            "assess_reveal_unused_technique": True,
+            "assess_reveal_item": False,
+        },
+    }
+    p = tmp_path / "read_the_blade.json"
+    p.write_text(json.dumps(data), encoding="utf-8")
+    tech = load_technique(str(p))
+    eff = tech.effects
+    assert eff.assess_next_counter_bonus == 3
+    assert eff.assess_next_damage_half is True
+    assert eff.assess_speed_buff == 2
+    assert eff.assess_speed_buff_volleys == 3
+    assert eff.assess_reveal_unused_technique is True
+    assert eff.assess_reveal_item is False

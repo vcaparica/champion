@@ -15,7 +15,7 @@ def test_load_all_game_data():
     items = load_all_items("game/data/items")
 
     assert len(fighters) == 12
-    assert len(techniques) == 53  # 41 existing + 12 exclusive techniques
+    assert len(techniques) == 62  # 41 shared + 12 exclusive + 9 Assess-migration additions
     assert len(items) >= 41
 
     for f in fighters.values():
@@ -107,7 +107,7 @@ def test_complete_combat_flow():
                 ai_instance.current_health = max(0, ai_instance.current_health - result.damage_to_attacker)
                 player_instance.current_health = max(0, player_instance.current_health - result.damage_to_defender)
 
-            assert result.outcome in ("hit", "blocked", "countered", "miss", "clash", "bypassed", "whiff")
+            assert result.outcome in ("hit", "blocked", "countered", "miss", "clash", "bypassed", "whiff", "assessed")
 
             if player_instance.current_health <= 0 or ai_instance.current_health <= 0:
                 break
@@ -135,7 +135,7 @@ def test_exchange_results_are_valid():
     player = FighterInstance(fighter_data=load_all_fighters("game/data/fighters")["anvil"])
     ai = FighterInstance(fighter_data=load_all_fighters("game/data/fighters")["ember"])
 
-    valid_outcomes = {"hit", "blocked", "countered", "miss", "clash", "bypassed", "whiff"}
+    valid_outcomes = {"hit", "blocked", "countered", "miss", "clash", "bypassed", "whiff", "assessed"}
 
     for a_act in ActionType:
         for d_act in ActionType:
@@ -187,7 +187,7 @@ def test_intellect_in_combat_flow():
                 result = resolve_exchange(ember, anvil, a_act, d_act)
             else:
                 result = resolve_exchange(anvil, ember, a_act, d_act)
-            assert result.outcome in ("hit", "blocked", "countered", "miss", "clash", "bypassed", "whiff")
+            assert result.outcome in ("hit", "blocked", "countered", "miss", "clash", "bypassed", "whiff", "assessed")
             assert result.flavor_text
 
 

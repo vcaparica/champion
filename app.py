@@ -207,6 +207,11 @@ class App:
                 return
 
             exchanges = msg.get("exchanges", [])
+            # Assess reveals are private to this player; group them by exchange
+            # so each is spoken right after the exchange that produced it.
+            reveals_by_exchange = {}
+            for r in msg.get("my_assess_reveals", []):
+                reveals_by_exchange.setdefault(r["exchange"], []).append(r["text"])
             for i, ex in enumerate(exchanges):
                 for burn_name, burn_amount in ex.get("burn_ticks", []):
                     speak(f"{burn_name} takes {burn_amount} burn damage.", False)
@@ -221,6 +226,11 @@ class App:
                         f"{attacker} health: {a_hp}. {defender} health: {d_hp}.")
                 speak(text, True)
                 pygame.time.wait(500)
+                for reveal_text in reveals_by_exchange.get(i, []):
+                    speak(reveal_text, True)
+                    if not self._wait_for_continue(repeat_text=reveal_text):
+                        client.close()
+                        return
 
             # Check for round/match end
             if msg.get("round_end"):
@@ -642,10 +652,12 @@ class App:
             ai_technique = self.techniques.get(ai_tech_id) if ai_tech_id else None
 
             order = compare_speed_order(player, ai)
+            player_side = "attacker" if order <= 0 else "defender"
             if order <= 0:  # player goes first (or tie — player preference)
                 result = resolve_exchange(
                     player, ai, p_action_type, ai_action_type,
-                    attacker_technique=p_technique, defender_technique=ai_technique
+                    attacker_technique=p_technique, defender_technique=ai_technique,
+                    techniques=self.techniques, items=self.items,
                 )
                 attacker_name = player.fighter_data.name
                 defender_name = ai.fighter_data.name
@@ -666,7 +678,8 @@ class App:
             else:
                 result = resolve_exchange(
                     ai, player, ai_action_type, p_action_type,
-                    attacker_technique=ai_technique, defender_technique=p_technique
+                    attacker_technique=ai_technique, defender_technique=p_technique,
+                    techniques=self.techniques, items=self.items,
                 )
                 attacker_name = ai.fighter_data.name
                 defender_name = player.fighter_data.name
@@ -690,6 +703,12 @@ class App:
                 attacker_action=attacker_action, defender_action=defender_action
             )
             self._wait_for_continue(repeat_text=exchange_text)
+
+            from game.assess import format_reveals_for
+            for reveal_text in format_reveals_for(result.assess_reveals, player_side):
+                speak(reveal_text, True)
+                if not self._wait_for_continue(repeat_text=reveal_text):
+                    return
 
             if not self.running:
                 return
@@ -742,22 +761,16 @@ class App:
         """Screen for declaring 3 actions for a volley."""
         speak(f"Declare 3 actions. Opponent health: {opponent.current_health}. Your health: {player.current_health}.", True)
 
-        action_names = [a.value for a in ActionType]
+        from game.technique import declaration_entries
+        entries = declaration_entries(player.selected_techniques, self.techniques)
         actions = []
 
         for slot in range(3):
             speak(f"Action {slot + 1} of 3", True)
-            items = []
-            for act_name in action_names:
-                items.append(MenuItem(label=act_name.capitalize(), id=act_name, value=act_name))
-            # Offer techniques
-            for tid in player.selected_techniques:
-                if tid in self.techniques:
-                    tech = self.techniques[tid]
-                    items.append(MenuItem(
-                        label=f"Technique: {tech.name} ({tech.base_action.value})",
-                        id=f"tech_{tid}", value=tid
-                    ))
+            # One menu item per action; a selected technique is folded into its
+            # action's label (always-on replace, no separate technique items).
+            items = [MenuItem(label=e["label"], id=e["action"], value=e["action"])
+                     for e in entries]
 
             menu = Menu(
                 title=f"Action {slot + 1}", items=items, wrap=True, vertical=True,
@@ -782,13 +795,14 @@ class App:
                     break
 
             choice = result.get('id', 'strike')
-            if choice.startswith("tech_"):
-                tid = choice[5:]
-                tech = self.techniques.get(tid)
-                action_type = tech.base_action.value if tech else "strike"
-                actions.append({"action": action_type, "technique_id": tid, "target_id": "opponent"})
-            else:
-                actions.append({"action": choice, "technique_id": None, "target_id": "opponent"})
+            entry = next((e for e in entries if e["action"] == choice), None)
+            if entry is None:
+                entry = {"action": "strike", "technique_id": None}
+            actions.append({
+                "action": entry["action"],
+                "technique_id": entry["technique_id"],
+                "target_id": "opponent",
+            })
 
         return actions
 

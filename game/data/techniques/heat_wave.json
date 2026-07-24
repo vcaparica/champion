@@ -1,7 +1,7 @@
 {
   "id": "heat_wave",
   "name": "Heat Wave",
-  "description": "Release a wave of searing heat. Strikes at any range. | +3 damage; ignores range; +2 predictability.",
+  "description": "Release a wave of searing heat. Strikes at any range. | +1 damage; ignores range; +2 predictability.",
   "base_action": "strike",
   "effects": {
     "damage_modifier": 1,

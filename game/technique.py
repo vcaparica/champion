@@ -34,6 +34,13 @@ class TechniqueEffect:
     require_speed_advantage: bool = False
     health_damage_scale: int = 0
     health_damage_reduction: int = 0
+    # Assess-technique effects (only meaningful when base_action is ASSESS).
+    assess_next_counter_bonus: int = 0
+    assess_next_damage_half: bool = False
+    assess_speed_buff: int = 0
+    assess_speed_buff_volleys: int = 0
+    assess_reveal_unused_technique: bool = False
+    assess_reveal_item: bool = False
 
 
 @dataclass
@@ -92,6 +99,12 @@ def _dict_to_technique(data: dict) -> TechniqueData:
         require_speed_advantage=effects_raw.get("require_speed_advantage", False),
         health_damage_scale=effects_raw.get("health_damage_scale", 0),
         health_damage_reduction=effects_raw.get("health_damage_reduction", 0),
+        assess_next_counter_bonus=effects_raw.get("assess_next_counter_bonus", 0),
+        assess_next_damage_half=effects_raw.get("assess_next_damage_half", False),
+        assess_speed_buff=effects_raw.get("assess_speed_buff", 0),
+        assess_speed_buff_volleys=effects_raw.get("assess_speed_buff_volleys", 0),
+        assess_reveal_unused_technique=effects_raw.get("assess_reveal_unused_technique", False),
+        assess_reveal_item=effects_raw.get("assess_reveal_item", False),
     )
     return TechniqueData(
         id=data["id"],
@@ -101,3 +114,30 @@ def _dict_to_technique(data: dict) -> TechniqueData:
         effects=effects,
         predictability_increase=data.get("predictability_increase", 1),
     )
+
+
+def declaration_entries(selected_ids, techniques):
+    """One declaration entry per action: the upgraded technique if its id is among
+    selected_ids, else the plain action. Order follows ActionType definition order."""
+    from game.enums import ActionType
+    by_action = {}
+    for tid in selected_ids:
+        tech = techniques.get(tid)
+        if tech is not None:
+            by_action[tech.base_action] = tech
+    entries = []
+    for action in ActionType:
+        tech = by_action.get(action)
+        if tech is not None:
+            entries.append({
+                "action": action.value,
+                "technique_id": tech.id,
+                "label": f"{action.value.capitalize()} - {tech.name}",
+            })
+        else:
+            entries.append({
+                "action": action.value,
+                "technique_id": None,
+                "label": action.value.capitalize(),
+            })
+    return entries

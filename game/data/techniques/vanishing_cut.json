@@ -2,7 +2,10 @@
   "id": "vanishing_cut",
   "name": "Vanishing Cut",
   "description": "A cut from nowhere that leaves the foe clutching at afterimages. | Bonus damage equal to your Speed; applies slowed; +2 predictability.",
-  "base_action": "strike",
-  "effects": {"speed_damage_scale": 1, "apply_debuff": "slowed"},
+  "base_action": "counter",
+  "effects": {
+    "speed_damage_scale": 1,
+    "apply_debuff": "slowed"
+  },
   "predictability_increase": 2
 }

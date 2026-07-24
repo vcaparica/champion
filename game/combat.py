@@ -34,6 +34,8 @@ class FighterInstance:
     reactions: list = field(default_factory=list)
     reaction_state: dict = field(default_factory=dict)
     round_start_health: int = 0
+    techniques_used: set = field(default_factory=set)
+    assess_state: dict = field(default_factory=dict)
 
     def __post_init__(self):
         if self.current_health == 0:
@@ -62,6 +64,7 @@ class ExchangeResult:
     burn_applied: int = 0
     reaction_debuffs: list[DebuffType] = field(default_factory=list)
     reaction_notes: list[str] = field(default_factory=list)
+    assess_reveals: list = field(default_factory=list)
 
 
 def item_speed_penalty(num_items: int) -> int:
@@ -226,7 +229,9 @@ def resolve_exchange(
     attacker_action: ActionType,
     defender_action: ActionType,
     attacker_technique: Optional[TechniqueData] = None,
-    defender_technique: Optional[TechniqueData] = None
+    defender_technique: Optional[TechniqueData] = None,
+    techniques: Optional[dict] = None,
+    items: Optional[dict] = None,
 ) -> ExchangeResult:
     """Resolve a single action exchange between two fighters."""
     result = ExchangeResult(
@@ -263,6 +268,7 @@ def resolve_exchange(
     if attacker_technique:
         eff = attacker_technique.effects
         attacker.predictability += attacker_technique.predictability_increase
+        attacker.techniques_used.add(attacker_technique.id)
         # require_speed_advantage gates this technique's bonus damage/debuff/advantage
         speed_gate_ok = (not eff.require_speed_advantage) or a_speed_adv
         if speed_gate_ok:
@@ -302,6 +308,7 @@ def resolve_exchange(
     if defender_technique:
         eff = defender_technique.effects
         defender.predictability += defender_technique.predictability_increase
+        defender.techniques_used.add(defender_technique.id)
         speed_gate_ok = (not eff.require_speed_advantage) or d_speed_adv
         if speed_gate_ok:
             d_damage += eff.damage_modifier
@@ -541,6 +548,53 @@ def resolve_exchange(
         result.flavor_text = "Both fighters reposition, circling each other."
         result.range_change = Range.FAR
 
+    # --- Assess interactions (13 cells) ---
+    # Assessor is the attacker (faster): success, opponent gets nothing.
+    elif pair == (ActionType.ASSESS, ActionType.STRIKE):
+        result.outcome = "assessed"
+        result.flavor_text = "The assessing fighter slips the strike and reads their foe."
+    elif pair == (ActionType.ASSESS, ActionType.CHARGE):
+        result.outcome = "assessed"
+        result.flavor_text = "The assessing fighter sidesteps the charge, studying every move."
+    elif pair == (ActionType.ASSESS, ActionType.FEINT):
+        result.outcome = "assessed"
+        result.flavor_text = "The assessing fighter sees through the feint and takes its measure."
+    elif pair == (ActionType.ASSESS, ActionType.BLOCK):
+        result.outcome = "assessed"
+        result.flavor_text = "The guard has nothing to stop; the assessing fighter reads calmly."
+    elif pair == (ActionType.ASSESS, ActionType.AVOID):
+        result.outcome = "assessed"
+        result.flavor_text = "The dodge commits to nothing; the assessing fighter reads unhindered."
+    elif pair == (ActionType.ASSESS, ActionType.COUNTER):
+        result.outcome = "assessed"
+        result.flavor_text = "The counter finds only air; the assessing fighter reads on."
+    elif pair == (ActionType.ASSESS, ActionType.ASSESS):
+        result.outcome = "assessed"
+        result.flavor_text = "Both fighters study one another. Both learn something."
+    # Assessor is the defender (slower) vs a committed attack: fail, take damage.
+    elif pair == (ActionType.STRIKE, ActionType.ASSESS):
+        result.outcome = "hit"
+        result.damage_to_defender = a_damage
+        result.flavor_text = "Caught mid-assessment, the strike lands clean."
+    elif pair == (ActionType.CHARGE, ActionType.ASSESS):
+        result.outcome = "hit"
+        result.damage_to_defender = a_damage
+        result.flavor_text = "The charge bowls over the fighter caught assessing."
+    elif pair == (ActionType.FEINT, ActionType.ASSESS):
+        result.outcome = "hit"
+        result.damage_to_defender = a_damage * 2
+        result.flavor_text = "The feint punishes the hesitation for double damage!"
+    # Assessor is the defender (slower) vs a passive action: still succeeds.
+    elif pair == (ActionType.BLOCK, ActionType.ASSESS):
+        result.outcome = "assessed"
+        result.flavor_text = "The block stops nothing; the assessing fighter reads calmly."
+    elif pair == (ActionType.AVOID, ActionType.ASSESS):
+        result.outcome = "assessed"
+        result.flavor_text = "The dodge is wasted; the assessing fighter reads on."
+    elif pair == (ActionType.COUNTER, ActionType.ASSESS):
+        result.outcome = "assessed"
+        result.flavor_text = "The counter commits to nothing; the assessing fighter reads."
+
     else:
         result.outcome = "whiff"
         result.flavor_text = "The actions cancel each other out."
@@ -549,6 +603,12 @@ def resolve_exchange(
     if attacker_technique and attacker_technique.effects.heal_on_hit and result.outcome == "hit":
         attacker.current_health += attacker_technique.effects.heal_on_hit
         result.flavor_text += f" {attacker.fighter_data.name} recovers stamina."
+
+    # Assess reveals and technique effects (no-op for non-Assess exchanges).
+    from game.assess import process_assess_exchange
+    process_assess_exchange(
+        attacker, defender, result, attacker_technique, defender_technique, techniques, items
+    )
 
     # Feat and item reactions (no-op when neither fighter has reactions attached)
     from game.reactions import apply_exchange_reactions

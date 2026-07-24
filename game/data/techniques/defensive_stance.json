@@ -1,7 +1,7 @@
 {
   "id": "defensive_stance",
   "name": "Defensive Stance",
-  "description": "Take a measured defensive position, recovering some stamina. | heals 5 HP on hit; gains defensive advantage; +1 predictability.",
+  "description": "Take a measured defensive position, recovering some stamina. | heals 3 HP on hit; gains defensive advantage; +1 predictability.",
   "base_action": "block",
   "effects": {
     "heal_on_hit": 3,

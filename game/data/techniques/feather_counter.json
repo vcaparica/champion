@@ -1,7 +1,7 @@
 {
   "id": "feather_counter",
   "name": "Feather Counter",
-  "description": "A counter so light and fast it is nearly invisible. | +3 damage; gains offensive advantage; +2 predictability.",
+  "description": "A counter so light and fast it is nearly invisible. | +1 damage; gains offensive advantage; +2 predictability.",
   "base_action": "counter",
   "effects": {
     "damage_modifier": 1,

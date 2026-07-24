@@ -1,0 +1,10 @@
+{
+  "id": "eye_for_gear",
+  "name": "Eye for Gear",
+  "description": "A practiced eye for what an opponent carries. | Reveals the effect of one item the opponent bears; +1 predictability.",
+  "base_action": "assess",
+  "effects": {
+    "assess_reveal_item": true
+  },
+  "predictability_increase": 1
+}

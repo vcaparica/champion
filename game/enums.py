@@ -9,13 +9,14 @@ from enum import Enum
 
 
 class ActionType(Enum):
-    """The six base combat actions."""
+    """The seven base combat actions."""
     STRIKE = "strike"
     BLOCK = "block"
     FEINT = "feint"
     COUNTER = "counter"
     CHARGE = "charge"
     AVOID = "avoid"
+    ASSESS = "assess"
 
 
 class Range(Enum):

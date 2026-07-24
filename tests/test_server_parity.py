@@ -129,3 +129,86 @@ def test_round_reset_when_both_players_ready():
     assert inst.current_health == inst.round_start_health
     assert inst.reaction_state.get("burn_stacks", 0) == 0
     assert match.ready_for_round == set()
+
+
+def test_server_rejects_technique_whose_action_does_not_match():
+    """A technique_id whose base_action differs from the declared action is ignored."""
+    from server.combat_resolver import _technique_for
+    from game.combat import FighterInstance
+    from game.fighter import FighterData
+    from game.technique import TechniqueData, TechniqueEffect
+    from game.enums import ActionType
+
+    tech = TechniqueData(id="t", name="T", description="d",
+                         base_action=ActionType.STRIKE, effects=TechniqueEffect())
+    d = FighterData(id="x", name="X", description="", base_health=5, base_speed=4,
+                    base_power=4, base_intellect=0, technique_ids=[],
+                    exclusive_technique_ids=[], panoply={})
+    inst = FighterInstance(fighter_data=d)
+    inst.selected_techniques = ["t"]
+    # declared action is BLOCK, but the technique is a STRIKE -> must be ignored
+    assert _technique_for({"action": "block", "technique_id": "t"}, inst, {"t": tech}) is None
+    # matching action -> honored
+    assert _technique_for({"action": "strike", "technique_id": "t"}, inst, {"t": tech}) is tech
+
+
+def test_resolve_volley_routes_assess_reveals_to_assessors_team_only():
+    from types import SimpleNamespace
+    from game.combat import FighterInstance
+    from game.fighter import FighterData
+    from server.combat_resolver import resolve_volley_server
+
+    def mk(name, speed):
+        d = FighterData(id=name.lower(), name=name, description="", base_health=5,
+                        base_speed=speed, base_power=3, base_intellect=0, technique_ids=[],
+                        exclusive_technique_ids=[], panoply={})
+        return FighterInstance(fighter_data=d)
+
+    a = mk("Assessor", speed=6)   # faster -> attacker on exchange 0
+    b = mk("Foe", speed=3)
+    assess = {"action": "assess", "technique_id": None, "target_id": "opponent"}
+    strike = {"action": "strike", "technique_id": None, "target_id": "opponent"}
+    state = SimpleNamespace(team_a=[a], team_b=[b],
+                            actions_declared_a=[assess, strike, strike],
+                            actions_declared_b=[strike, strike, strike])
+    match = SimpleNamespace(match_state=state)
+    result = resolve_volley_server(match, {}, {})
+    assert result["private_reveals"]["a"], "assessor team must receive a reveal"
+    assert result["private_reveals"]["a"][0]["exchange"] == 0
+    assert result["private_reveals"]["b"] == [], "opponent team must receive nothing"
+
+
+def test_split_reveals_gives_each_player_only_their_own():
+    from server.combat_resolver import split_reveals
+    result = {"type": "volley_result", "exchanges": [],
+              "private_reveals": {"a": [{"exchange": 0, "text": "A's secret"}],
+                                  "b": [{"exchange": 0, "text": "B's secret"}]}}
+    declarer, opponent = split_reveals(dict(result), "a")
+    assert declarer["my_assess_reveals"] == [{"exchange": 0, "text": "A's secret"}]
+    assert opponent["my_assess_reveals"] == [{"exchange": 0, "text": "B's secret"}]
+    assert "private_reveals" not in declarer
+    assert "private_reveals" not in opponent
+
+
+def test_assess_reveals_never_leak_to_the_opponent_end_to_end():
+    """Full handler path: an assessing player's reveal reaches them and nobody else."""
+    mm, sm, a, b, ws_a, ws_b = _manager_and_sessions()
+    _pair(mm, sm, a, b)
+    # falcon (speed 6) assesses; anvil (speed 2) is slower, so falcon is the attacker.
+    _select_loadout(mm, sm, a, "falcon", [], [])
+    _select_loadout(mm, sm, b, "anvil", [], [])
+    assess3 = [{"action": "assess", "technique_id": None, "target_id": "opponent"}] * 3
+    strike3 = [{"action": "strike", "technique_id": None, "target_id": "opponent"}] * 3
+    _run(handle_message(a, {"type": "declare_actions", "actions": assess3}, mm, sm))
+    resp_b = _run(handle_message(b, {"type": "declare_actions", "actions": strike3}, mm, sm))
+
+    pushed_a = [m for m in ws_a.sent if m["type"] == "volley_result"][0]
+    # The assessor (team a) got reveals; the opponent (team b) got none.
+    assert pushed_a["my_assess_reveals"], "assessor must receive their own reveals"
+    assert resp_b["my_assess_reveals"] == [], "opponent must receive no reveals"
+    # The raw per-team map must never be shipped to either client.
+    assert "private_reveals" not in pushed_a
+    assert "private_reveals" not in resp_b
+    # And team a's secret text must appear nowhere in team b's payload.
+    secret = pushed_a["my_assess_reveals"][0]["text"]
+    assert secret not in str(resp_b)

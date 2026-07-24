@@ -1,7 +1,7 @@
 {
   "id": "iron_wall",
   "name": "Iron Wall",
-  "description": "An unbreakable defensive stance. Attackers who strike into it take damage from the rebound. | +3 damage; gains defensive advantage; +2 predictability.",
+  "description": "An unbreakable defensive stance. Attackers who strike into it take damage from the rebound. | +1 damage; gains defensive advantage; +2 predictability.",
   "base_action": "block",
   "effects": {
     "damage_modifier": 1,

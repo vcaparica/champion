@@ -4,7 +4,7 @@
   "description": "Boulder, the Relentless Aggressor. A hulking bruiser who simply keeps coming, grinding down any guard with sheer, unstoppable force.",
   "base_health": 5, "base_speed": 4, "base_power": 6, "base_intellect": 2,
   "feat_id": "relentless_momentum",
-  "technique_ids": ["unstoppable_charge", "skull_splitter", "war_cry", "shield_wall", "last_stand", "blitz", "avalanche"],
+  "technique_ids": ["bone_crusher", "defensive_stance", "false_wound", "blazing_counter", "avalanche", "slipstream", "read_the_blade"],
   "exclusive_technique_ids": ["avalanche"],
   "panoply": {"head": ["iron_helm"], "neck": ["collar_of_the_juggernaut"], "waist": ["trophy_belt"], "armor": ["brute_plate"], "ring": ["ring_of_vitality", "band_of_iron_will"], "feet": ["greaves_of_the_ram"]}
 }

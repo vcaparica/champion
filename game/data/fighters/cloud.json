@@ -4,7 +4,7 @@
   "description": "Cloud, the Drifting Bulwark. An elusive defender who drifts beyond reach, weathering blows that never quite land.",
   "base_health": 5, "base_speed": 6, "base_power": 3, "base_intellect": 3,
   "feat_id": "drift_untouched",
-  "technique_ids": ["quickened_guard", "riposte_in_a_blink", "momentum_edge", "defensive_stance", "iron_wall", "iron_discipline", "windward_veil"],
+  "technique_ids": ["tempo_strike", "defensive_stance", "exploit_weakness", "last_stand", "blitz", "windward_veil", "predict_the_tempo"],
   "exclusive_technique_ids": ["windward_veil"],
   "panoply": {"eyes": ["goggles_of_the_hawk"], "neck": ["guardian_amulet"], "waist": ["girdle_of_stone"], "clothing": ["aegis_of_winds"], "ring": ["ring_of_vitality", "swiftedge_ring"], "feet": ["greaves_of_the_ram"]}
 }

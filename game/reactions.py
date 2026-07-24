@@ -291,8 +291,10 @@ def fire_low_health(instance, opponent, threshold_ratio: float = 0.25) -> None:
 
 
 def clear_volley_state(instance) -> None:
-    """Reset per-volley once gates at the start of a volley."""
+    """Reset per-volley once gates at the start of a volley, and tick the Assess speed buff."""
     _state(instance)["once_volley"] = set()
+    from game.assess import tick_speed_buff
+    tick_speed_buff(instance)
 
 
 # Matrix cells where an offensive action (strike/charge/feint) is fully stopped by a

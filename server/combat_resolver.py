@@ -20,14 +20,17 @@ def _action_type(declared: dict) -> ActionType:
 
 
 def _technique_for(declared: dict, instance, techniques: dict):
-    """Resolve a declared technique, but only if the fighter actually selected it."""
+    """Resolve a declared technique, but only if the fighter selected it AND its
+    base_action matches the declared action."""
     tid = declared.get("technique_id")
     if tid and tid in instance.selected_techniques:
-        return techniques.get(tid)
+        tech = techniques.get(tid)
+        if tech is not None and tech.base_action.value == declared.get("action"):
+            return tech
     return None
 
 
-def resolve_volley_server(match, techniques: dict) -> dict:
+def resolve_volley_server(match, techniques: dict, items: dict = None) -> dict:
     """Resolve a full volley (3 exchanges) for a match.
 
     Returns a volley_result message dict with all exchange outcomes.
@@ -44,6 +47,8 @@ def resolve_volley_server(match, techniques: dict) -> dict:
     b_actions = state.actions_declared_b
 
     exchanges = []
+    # Assess reveals are private: each team only ever sees its own.
+    private_reveals = {"a": [], "b": []}
     for i in range(3):
         # Burn ticks at the start of the exchange (bypass damage reduction;
         # routed through commit_damage, so cheat-death and low-health apply).
@@ -74,14 +79,23 @@ def resolve_volley_server(match, techniques: dict) -> dict:
             attacker, defender = fighter_a, fighter_b
             result = resolve_exchange(
                 attacker, defender, a_action_type, b_action_type,
-                attacker_technique=a_technique, defender_technique=b_technique
+                attacker_technique=a_technique, defender_technique=b_technique,
+                techniques=techniques, items=items,
             )
+            side_to_team = {"attacker": "a", "defender": "b"}
         else:
             attacker, defender = fighter_b, fighter_a
             result = resolve_exchange(
                 attacker, defender, b_action_type, a_action_type,
-                attacker_technique=b_technique, defender_technique=a_technique
+                attacker_technique=b_technique, defender_technique=a_technique,
+                techniques=techniques, items=items,
             )
+            side_to_team = {"attacker": "b", "defender": "a"}
+
+        for r in result.assess_reveals:
+            team = side_to_team.get(r.get("target"))
+            if team in private_reveals:
+                private_reveals[team].append({"exchange": i, "text": r["text"]})
 
         _, attacker_cheated = commit_damage(attacker, defender, result.damage_to_attacker)
         _, defender_cheated = commit_damage(defender, attacker, result.damage_to_defender)
@@ -131,4 +145,19 @@ def resolve_volley_server(match, techniques: dict) -> dict:
     return {
         "type": "volley_result",
         "exchanges": exchanges,
+        "private_reveals": private_reveals,
     }
+
+
+def split_reveals(result: dict, declarer_team: str):
+    """Split private assess reveals out of the shared volley result.
+
+    Returns (declarer_payload, opponent_payload), each carrying only that
+    player's `my_assess_reveals` and never the raw `private_reveals` map."""
+    private = result.pop("private_reveals", {"a": [], "b": []})
+    opp_team = "b" if declarer_team == "a" else "a"
+    declarer_payload = dict(result)
+    declarer_payload["my_assess_reveals"] = private.get(declarer_team, [])
+    opponent_payload = dict(result)
+    opponent_payload["my_assess_reveals"] = private.get(opp_team, [])
+    return declarer_payload, opponent_payload

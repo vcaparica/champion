@@ -1,7 +1,7 @@
 {
   "id": "gale_slash",
   "name": "Gale Slash",
-  "description": "A strike so fast that the opponent's guard is useless. | +4 damage; +1 predictability.",
+  "description": "A strike so fast that the opponent's guard is useless. | +2 damage; +1 predictability.",
   "base_action": "strike",
   "effects": {
     "damage_modifier": 2

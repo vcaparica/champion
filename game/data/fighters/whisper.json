@@ -4,7 +4,7 @@
   "description": "Whisper, the Vanishing Step. A silent skirmisher who strikes from where you are not looking and slips away on the next breath.",
   "base_health": 3, "base_speed": 6, "base_power": 3, "base_intellect": 5,
   "feat_id": "silent_vanish",
-  "technique_ids": ["wind_step", "slipstream", "feather_counter", "confounding_blow", "mental_alacrity", "vital_strike", "vanishing_cut"],
+  "technique_ids": ["tempo_strike", "iron_discipline", "exploit_weakness", "vanishing_cut", "bulldoze", "slipstream", "predict_the_tempo"],
   "exclusive_technique_ids": ["vanishing_cut"],
   "panoply": {"eyes": ["lens_of_clarity"], "shoulders": ["cape_of_the_zephyr"], "arms": ["reflex_bracers"], "clothing": ["livewire_vest"], "ring": ["seal_of_the_savant", "ring_of_vitality"], "feet": ["sandals_of_drifting"]}
 }

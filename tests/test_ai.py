@@ -142,3 +142,22 @@ def test_choose_ai_items_can_equip_two_rings():
     }
     chosen = choose_ai_items(FighterInstance(fighter_data=data), items)
     assert set(chosen) == {"r1", "r2"}
+
+
+def test_ai_attaches_selected_technique_when_using_its_action():
+    from game.ai import choose_ai_actions
+    tech = TechniqueData(id="power_strike", name="Power Strike", description="d",
+                         base_action=ActionType.STRIKE, effects=TechniqueEffect())
+    data = FighterData(id="ai", name="AI", description="", base_health=5, base_speed=4,
+                      base_power=4, base_intellect=3, technique_ids=["power_strike"],
+                      exclusive_technique_ids=[], panoply={})
+    fighter = FighterInstance(fighter_data=data, selected_techniques=["power_strike"])
+    foe = FighterInstance(fighter_data=FighterData(
+        id="f", name="F", description="", base_health=5, base_speed=4, base_power=4,
+        base_intellect=0, technique_ids=[], exclusive_technique_ids=[], panoply={}))
+    actions = choose_ai_actions(fighter, foe, 0, {"power_strike": tech})
+    for a in actions:
+        if a["action"] == "strike":
+            assert a["technique_id"] == "power_strike"
+        else:
+            assert a["technique_id"] is None
