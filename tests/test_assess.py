@@ -371,3 +371,17 @@ def test_declaration_entries_one_per_action_with_technique_when_selected():
     for act in ("block", "feint", "counter", "charge", "avoid", "assess"):
         assert by_action[act]["technique_id"] is None
         assert by_action[act]["label"] == act.capitalize()
+
+
+def test_declaration_entries_produces_action_dict_shape():
+    from game.technique import declaration_entries
+    tech = TechniqueData(id="t", name="T", description="d",
+                         base_action=ActionType.ASSESS, effects=TechniqueEffect())
+    entries = declaration_entries(["t"], {"t": tech})
+    assess_entry = next(e for e in entries if e["action"] == "assess")
+    action_dict = {"action": assess_entry["action"],
+                   "technique_id": assess_entry["technique_id"], "target_id": "opponent"}
+    assert action_dict == {"action": "assess", "technique_id": "t", "target_id": "opponent"}
+    plain = next(e for e in entries if e["action"] == "strike")
+    assert {"action": "strike", "technique_id": None, "target_id": "opponent"} == {
+        "action": plain["action"], "technique_id": plain["technique_id"], "target_id": "opponent"}
