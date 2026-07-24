@@ -71,6 +71,20 @@ All seven follow-ups from that review are **resolved** on branch
    branch. Type: bug (parity).
    Source: Assess feature review, 2026-07-24.
 
+3. **Local play lacks the server's technique/action-match guard** —
+   `server/combat_resolver.py` `_technique_for` (`:22-30`) only honors a declared
+   `technique_id` when the technique's `base_action` equals the declared action;
+   local play (`app.py` `_run_combat_volley`, the `self.techniques.get(tech_id)`
+   lookups) applies no such check. Not exploitable today — the local declaration UI
+   (`declaration_entries`) and AI (`choose_ai_actions`) only ever emit matched
+   action/technique pairs, and there is no adversarial client in local play — so
+   this is a defensive-guard asymmetry, not a live bug. Fix: extract one shared
+   "resolve declared technique (action-matched)" helper used by both `app.py` and
+   `server/combat_resolver.py`, removing the divergence. Deferred from the Assess
+   whole-branch review as a core-combat refactor better done on its own branch than
+   bolted onto a feature merge. Type: hardening / DRY.
+   Source: Assess feature review, 2026-07-24.
+
 ---
 
 ## Where this came from

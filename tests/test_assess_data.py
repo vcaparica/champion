@@ -1,4 +1,6 @@
 """Tests for the new shared techniques added by the Assess data migration."""
+import re
+
 from game.technique import load_all_techniques
 
 
@@ -10,6 +12,53 @@ def test_all_technique_descriptions_use_mechanics_separator():
     t = _load()
     for tid, tech in t.items():
         assert " | " in tech.description, f"{tid} description missing mechanics separator"
+
+
+def test_technique_description_numbers_match_effects():
+    """Guard against description/effects number drift (spec 7.3: effects is canonical).
+
+    For a screen-reader audience the spoken description IS the mechanical
+    information, so a stated number that disagrees with the structured effect
+    actively misinforms the player. This pins the numeric technique families the
+    migration corrected so drift cannot silently return.
+
+    Handled cases:
+      - "+N damage"            must equal effects.damage_modifier
+      - "heals N"              must equal effects.heal_on_hit
+      - next-counter techniques say "+N damage" about a FUTURE counter, so their
+        number is assess_next_counter_bonus, not damage_modifier
+    Scaling techniques ("damage equal to your Health/Intellect/Speed") carry no
+    literal number and are intentionally not matched here.
+    """
+    t = _load()
+    checked = 0
+    for tid, tech in t.items():
+        desc = tech.description
+        eff = tech.effects
+        is_counter_bonus = ("next successful counter" in desc or "next counter" in desc)
+
+        m = re.search(r"\+(\d+)\s*damage", desc)
+        if m:
+            stated = int(m.group(1))
+            if is_counter_bonus:
+                assert stated == eff.assess_next_counter_bonus, (
+                    f"{tid}: desc '+{stated} damage' (next counter) != "
+                    f"assess_next_counter_bonus {eff.assess_next_counter_bonus}")
+            else:
+                assert stated == eff.damage_modifier, (
+                    f"{tid}: desc '+{stated} damage' != damage_modifier {eff.damage_modifier}")
+            checked += 1
+
+        mh = re.search(r"heals?\s+(\d+)", desc)
+        if mh:
+            stated = int(mh.group(1))
+            assert stated == eff.heal_on_hit, (
+                f"{tid}: desc 'heals {stated}' != heal_on_hit {eff.heal_on_hit}")
+            checked += 1
+
+    # Guard the guard: if the corpus stops matching these shapes entirely, the
+    # test would silently pass without checking anything.
+    assert checked >= 25, f"expected to check many techniques, only matched {checked}"
 
 
 def test_assess_pool_loads_with_correct_effects():

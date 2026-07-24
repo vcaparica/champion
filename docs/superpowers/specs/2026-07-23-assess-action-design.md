@@ -93,7 +93,7 @@ Because selection is always-on replace, a fighter who picks an Assess technique 
 ### 6.3 Consume / apply logic (inside `resolve_exchange`, so parity is automatic)
 
 - **Counter bonus**: when an exchange resolves with outcome `countered` and the counterer (the assessor) dealt counter damage > 0 and has `pending_counter_bonus > 0`, add it to that damage and reset to 0.
-- **Damage halving**: when incoming damage to the assessor (from this opponent) is being finalized and `next_damage_half` is set, halve it (ceil), then clear the flag.
+- **Damage halving**: when incoming damage to the assessor (from this opponent) is being finalized and `next_damage_half` is set, halve it (floor, `// 2`, so a 1-damage hit becomes 0), then clear the flag.
 - **Speed buff**: the buff amount is added to `speed_modifier` while `speed_buff_volleys > 0`; `clear_volley_state` (already called per volley) decrements the countdown and removes the modifier when it hits 0.
 
 ### 6.4 Shared Assess pool
