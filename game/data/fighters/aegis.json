@@ -4,7 +4,7 @@
   "description": "Aegis, the Enduring Mind. A steadfast sentinel whose calm, disciplined mind is as unyielding as his guard.",
   "base_health": 6, "base_speed": 3, "base_power": 3, "base_intellect": 5,
   "feat_id": "iron_composure",
-  "technique_ids": ["iron_wall", "last_stand", "phoenix_rebirth", "mind_over_matter", "read_the_pattern", "blazing_counter", "aegis_wall"],
+  "technique_ids": ["ironjaw_strike", "aegis_wall", "exploit_weakness", "last_stand", "calculated_charge", "fire_dance", "roll_with_the_blow"],
   "exclusive_technique_ids": ["aegis_wall"],
   "panoply": {"head": ["mindward_circlet"], "shoulders": ["mantle_of_endurance"], "waist": ["girdle_of_stone"], "armor": ["field_armor"], "ring": ["seal_of_the_savant", "ring_of_cunning"], "feet": ["sabatons_of_patience"]}
 }

@@ -57,3 +57,52 @@ def test_prescient_guard_and_retribution_guard_effects_redesigned():
     assert t["immolating_insight"].effects.intellect_damage_scale == 1
     assert t["vanishing_cut"].effects.speed_damage_scale == 1
     assert t["juggernaut_blow"].effects.health_damage_scale == 1
+
+
+from game.fighter import load_all_fighters
+from game.enums import ActionType
+
+
+EXPECTED = {
+    "razor": (["rending_flurry", "iron_discipline", "momentum_edge", "blazing_counter", "skull_splitter", "slipstream", "read_the_blade"], "rending_flurry"),
+    "falcon": (["plunging_talon", "iron_discipline", "war_cry", "blazing_counter", "blitz", "slipstream", "predict_the_tempo"], "plunging_talon"),
+    "aegis": (["ironjaw_strike", "aegis_wall", "exploit_weakness", "last_stand", "calculated_charge", "fire_dance", "roll_with_the_blow"], "aegis_wall"),
+    "ward": (["ironjaw_strike", "retribution_guard", "exploit_weakness", "last_stand", "bulldoze", "slipstream", "predict_the_tempo"], "retribution_guard"),
+    "mirage": (["tempo_strike", "iron_discipline", "labyrinth_of_mirrors", "read_the_pattern", "skull_splitter", "slipstream", "eye_for_gear"], "labyrinth_of_mirrors"),
+    "ember": (["mind_over_matter", "defensive_stance", "immolating_insight", "read_the_pattern", "skull_splitter", "fire_dance", "pierce_the_trick"], "immolating_insight"),
+    "talon": (["bone_crusher", "iron_discipline", "exploit_weakness", "executioners_gambit", "skull_splitter", "fire_dance", "roll_with_the_blow"], "executioners_gambit"),
+    "whisper": (["tempo_strike", "iron_discipline", "exploit_weakness", "vanishing_cut", "bulldoze", "slipstream", "predict_the_tempo"], "vanishing_cut"),
+    "boulder": (["bone_crusher", "defensive_stance", "false_wound", "blazing_counter", "avalanche", "slipstream", "read_the_blade"], "avalanche"),
+    "anvil": (["ironjaw_strike", "defensive_stance", "war_cry", "last_stand", "juggernaut_blow", "mental_alacrity", "read_the_blade"], "juggernaut_blow"),
+    "cipher": (["mind_over_matter", "iron_discipline", "exploit_weakness", "last_stand", "bulldoze", "slipstream", "prescient_guard"], "prescient_guard"),
+    "cloud": (["tempo_strike", "defensive_stance", "exploit_weakness", "last_stand", "blitz", "windward_veil", "predict_the_tempo"], "windward_veil"),
+}
+
+
+def test_fighter_pools_match_master_assignment():
+    fighters = load_all_fighters("game/data/fighters")
+    for fid, (ids, excl) in EXPECTED.items():
+        f = fighters[fid]
+        assert set(f.technique_ids) == set(ids), fid
+        assert f.exclusive_technique_ids == [excl], fid
+
+
+def test_every_fighter_has_one_technique_per_action():
+    fighters = load_all_fighters("game/data/fighters")
+    techniques = load_all_techniques("game/data/techniques")
+    all_actions = {a.value for a in ActionType}
+    for fid, f in fighters.items():
+        actions = sorted(techniques[tid].base_action.value for tid in f.technique_ids)
+        assert actions == sorted(all_actions), f"{fid}: {actions}"
+
+
+def test_exclusive_action_distribution_is_2_2_2_2_2_1_1():
+    fighters = load_all_fighters("game/data/fighters")
+    techniques = load_all_techniques("game/data/techniques")
+    counts = {}
+    for f in fighters.values():
+        excl_id = f.exclusive_technique_ids[0]
+        action = techniques[excl_id].base_action.value
+        counts[action] = counts.get(action, 0) + 1
+    assert counts == {"strike": 2, "block": 2, "feint": 2, "counter": 2,
+                      "charge": 2, "assess": 1, "avoid": 1}, counts

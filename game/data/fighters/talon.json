@@ -4,7 +4,7 @@
   "description": "Talon, the Cruel Tactician. A powerful fighter who studies an opponent's every habit, then breaks them with a single, calculated blow.",
   "base_health": 4, "base_speed": 2, "base_power": 6, "base_intellect": 5,
   "feat_id": "lethal_calculus",
-  "technique_ids": ["bone_crusher", "giants_swing", "battle_roar", "exploit_weakness", "read_the_pattern", "iron_wall", "executioners_gambit"],
+  "technique_ids": ["bone_crusher", "iron_discipline", "exploit_weakness", "executioners_gambit", "skull_splitter", "fire_dance", "roll_with_the_blow"],
   "exclusive_technique_ids": ["executioners_gambit"],
   "panoply": {"head": ["crown_of_whispers"], "neck": ["giants_tooth_necklace"], "arms": ["bracers_of_the_storm"], "clothing": ["berserker_vest"], "ring": ["ring_of_cunning", "seal_of_the_savant"], "feet": ["boots_of_the_wind"]}
 }
