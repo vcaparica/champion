@@ -357,3 +357,17 @@ def test_assess_reveal_targets_faster_side_as_attacker():
     assert r.assess_reveals[0]["target"] == "attacker"
     assert format_reveals_for(r.assess_reveals, "attacker") != []
     assert format_reveals_for(r.assess_reveals, "defender") == []
+
+
+def test_declaration_entries_one_per_action_with_technique_when_selected():
+    from game.technique import declaration_entries
+    strike_tech = TechniqueData(id="power_strike", name="Power Strike", description="d",
+                                 base_action=ActionType.STRIKE, effects=TechniqueEffect())
+    entries = declaration_entries(["power_strike"], {"power_strike": strike_tech})
+    assert len(entries) == 7
+    by_action = {e["action"]: e for e in entries}
+    assert by_action["strike"]["technique_id"] == "power_strike"
+    assert "Power Strike" in by_action["strike"]["label"]
+    for act in ("block", "feint", "counter", "charge", "avoid", "assess"):
+        assert by_action[act]["technique_id"] is None
+        assert by_action[act]["label"] == act.capitalize()

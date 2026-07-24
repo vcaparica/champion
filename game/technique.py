@@ -114,3 +114,30 @@ def _dict_to_technique(data: dict) -> TechniqueData:
         effects=effects,
         predictability_increase=data.get("predictability_increase", 1),
     )
+
+
+def declaration_entries(selected_ids, techniques):
+    """One declaration entry per action: the upgraded technique if its id is among
+    selected_ids, else the plain action. Order follows ActionType definition order."""
+    from game.enums import ActionType
+    by_action = {}
+    for tid in selected_ids:
+        tech = techniques.get(tid)
+        if tech is not None:
+            by_action[tech.base_action] = tech
+    entries = []
+    for action in ActionType:
+        tech = by_action.get(action)
+        if tech is not None:
+            entries.append({
+                "action": action.value,
+                "technique_id": tech.id,
+                "label": f"{action.value.capitalize()} - {tech.name}",
+            })
+        else:
+            entries.append({
+                "action": action.value,
+                "technique_id": None,
+                "label": action.value.capitalize(),
+            })
+    return entries
