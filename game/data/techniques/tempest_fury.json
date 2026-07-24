@@ -1,7 +1,7 @@
 {
   "id": "tempest_fury",
   "name": "Tempest Fury",
-  "description": "Unleash the full fury of the storm in a devastating charge. | +6 damage; +2 predictability.",
+  "description": "Unleash the full fury of the storm in a devastating charge. | +3 damage; +2 predictability.",
   "base_action": "charge",
   "effects": {
     "damage_modifier": 3

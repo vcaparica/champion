@@ -1,7 +1,7 @@
 {
   "id": "ember_storm",
   "name": "Ember Storm",
-  "description": "A flurry of strikes that catches an evasive opponent. | +3 damage; +1 predictability.",
+  "description": "A flurry of strikes that catches an evasive opponent. | +1 damage; +1 predictability.",
   "base_action": "strike",
   "effects": {
     "damage_modifier": 1

@@ -1,7 +1,7 @@
 {
   "id": "vital_strike",
   "name": "Vital Strike",
-  "description": "A precise strike targeting vital areas. Bypasses armor. | +4 damage; +1 predictability.",
+  "description": "A precise strike targeting vital areas. Bypasses armor. | +2 damage; +1 predictability.",
   "base_action": "strike",
   "effects": {
     "damage_modifier": 2

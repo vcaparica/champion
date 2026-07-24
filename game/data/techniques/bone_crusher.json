@@ -1,7 +1,7 @@
 {
   "id": "bone_crusher",
   "name": "Bone Crusher",
-  "description": "A brutal strike aimed at breaking bones. The opponent is weakened. | +5 damage; applies weakened; +2 predictability.",
+  "description": "A brutal strike aimed at breaking bones. The opponent is weakened. | +2 damage; applies weakened; +2 predictability.",
   "base_action": "strike",
   "effects": {
     "damage_modifier": 2,

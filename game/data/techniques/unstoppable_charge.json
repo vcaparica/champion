@@ -1,7 +1,7 @@
 {
   "id": "unstoppable_charge",
   "name": "Unstoppable Charge",
-  "description": "Lower your shoulder and charge. Nothing can stop you. | +4 damage; ignores range; +3 predictability.",
+  "description": "Lower your shoulder and charge. Nothing can stop you. | +2 damage; ignores range; +3 predictability.",
   "base_action": "charge",
   "effects": {
     "damage_modifier": 2,

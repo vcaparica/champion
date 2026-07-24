@@ -1,7 +1,7 @@
 {
   "id": "crushing_grip",
   "name": "Crushing Grip",
-  "description": "Grab the opponent and crush their defenses, stealing an item in the process. | +2 damage; steals opponent item; +3 predictability.",
+  "description": "Grab the opponent and crush their defenses, stealing an item in the process. | +1 damage; steals opponent item; +3 predictability.",
   "base_action": "counter",
   "effects": {
     "damage_modifier": 1,

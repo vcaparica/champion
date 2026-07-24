@@ -1,7 +1,7 @@
 {
   "id": "flame_strike",
   "name": "Flame Strike",
-  "description": "A devastating overhead strike wreathed in magical flame. Burns through blocks. | +5 damage; +2 predictability.",
+  "description": "A devastating overhead strike wreathed in magical flame. Burns through blocks. | +2 damage; +2 predictability.",
   "base_action": "strike",
   "effects": {
     "damage_modifier": 2
