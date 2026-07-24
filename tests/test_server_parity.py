@@ -150,3 +150,29 @@ def test_server_rejects_technique_whose_action_does_not_match():
     assert _technique_for({"action": "block", "technique_id": "t"}, inst, {"t": tech}) is None
     # matching action -> honored
     assert _technique_for({"action": "strike", "technique_id": "t"}, inst, {"t": tech}) is tech
+
+
+def test_resolve_volley_routes_assess_reveals_to_assessors_team_only():
+    from types import SimpleNamespace
+    from game.combat import FighterInstance
+    from game.fighter import FighterData
+    from server.combat_resolver import resolve_volley_server
+
+    def mk(name, speed):
+        d = FighterData(id=name.lower(), name=name, description="", base_health=5,
+                        base_speed=speed, base_power=3, base_intellect=0, technique_ids=[],
+                        exclusive_technique_ids=[], panoply={})
+        return FighterInstance(fighter_data=d)
+
+    a = mk("Assessor", speed=6)   # faster -> attacker on exchange 0
+    b = mk("Foe", speed=3)
+    assess = {"action": "assess", "technique_id": None, "target_id": "opponent"}
+    strike = {"action": "strike", "technique_id": None, "target_id": "opponent"}
+    state = SimpleNamespace(team_a=[a], team_b=[b],
+                            actions_declared_a=[assess, strike, strike],
+                            actions_declared_b=[strike, strike, strike])
+    match = SimpleNamespace(match_state=state)
+    result = resolve_volley_server(match, {}, {})
+    assert result["private_reveals"]["a"], "assessor team must receive a reveal"
+    assert result["private_reveals"]["a"][0]["exchange"] == 0
+    assert result["private_reveals"]["b"] == [], "opponent team must receive nothing"

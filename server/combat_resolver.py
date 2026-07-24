@@ -47,6 +47,8 @@ def resolve_volley_server(match, techniques: dict, items: dict = None) -> dict:
     b_actions = state.actions_declared_b
 
     exchanges = []
+    # Assess reveals are private: each team only ever sees its own.
+    private_reveals = {"a": [], "b": []}
     for i in range(3):
         # Burn ticks at the start of the exchange (bypass damage reduction;
         # routed through commit_damage, so cheat-death and low-health apply).
@@ -80,6 +82,7 @@ def resolve_volley_server(match, techniques: dict, items: dict = None) -> dict:
                 attacker_technique=a_technique, defender_technique=b_technique,
                 techniques=techniques, items=items,
             )
+            side_to_team = {"attacker": "a", "defender": "b"}
         else:
             attacker, defender = fighter_b, fighter_a
             result = resolve_exchange(
@@ -87,6 +90,12 @@ def resolve_volley_server(match, techniques: dict, items: dict = None) -> dict:
                 attacker_technique=b_technique, defender_technique=a_technique,
                 techniques=techniques, items=items,
             )
+            side_to_team = {"attacker": "b", "defender": "a"}
+
+        for r in result.assess_reveals:
+            team = side_to_team.get(r.get("target"))
+            if team in private_reveals:
+                private_reveals[team].append({"exchange": i, "text": r["text"]})
 
         _, attacker_cheated = commit_damage(attacker, defender, result.damage_to_attacker)
         _, defender_cheated = commit_damage(defender, attacker, result.damage_to_defender)
@@ -136,4 +145,5 @@ def resolve_volley_server(match, techniques: dict, items: dict = None) -> dict:
     return {
         "type": "volley_result",
         "exchanges": exchanges,
+        "private_reveals": private_reveals,
     }
