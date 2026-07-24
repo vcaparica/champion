@@ -32,3 +32,28 @@ def test_gap_fill_techniques_scale_correctly():
     assert t["calculated_charge"].effects.intellect_damage_scale == 1
     assert t["bulldoze"].base_action.value == "charge"
     assert t["bulldoze"].effects.health_damage_scale == 1
+
+
+def test_repurposed_exclusives_have_new_base_actions():
+    t = _load()
+    assert t["retribution_guard"].base_action.value == "block"
+    assert t["labyrinth_of_mirrors"].base_action.value == "feint"
+    assert t["immolating_insight"].base_action.value == "feint"
+    assert t["vanishing_cut"].base_action.value == "counter"
+    assert t["juggernaut_blow"].base_action.value == "charge"
+    assert t["prescient_guard"].base_action.value == "assess"
+
+
+def test_prescient_guard_and_retribution_guard_effects_redesigned():
+    t = _load()
+    # Cipher's assess exclusive: reveals an unused technique and marks a weak spot.
+    assert t["prescient_guard"].effects.assess_reveal_unused_technique is True
+    assert t["prescient_guard"].effects.assess_next_counter_bonus == 2
+    # Ward's block exclusive: absorbs like a wall but seizes offensive advantage
+    # (distinct from aegis_wall, which takes defensive advantage).
+    assert t["retribution_guard"].effects.health_damage_reduction == 1
+    assert t["retribution_guard"].effects.gain_advantage == "offensive"
+    # Scaling fields preserved on the other repurposed exclusives (still valid in new action).
+    assert t["immolating_insight"].effects.intellect_damage_scale == 1
+    assert t["vanishing_cut"].effects.speed_damage_scale == 1
+    assert t["juggernaut_blow"].effects.health_damage_scale == 1
